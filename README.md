@@ -10,9 +10,9 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and optio
 ## Project Structure
 ```text
 ├── frontend/                 # Dashboard, charts, UI code
-├── backend/                  # Java service exposing processed metrics to frontend
-│   ├── correlation-service/  # Java service exposing derived analytics
-│   └── ingestion/            # Python service fetching APIs, storing raw data
+├── backend/                  # API including microservices
+│   ├── correlation-service/  # Java service exposing derived analytics (separate container)
+│   └── ingestion/            # Python service fetching APIs, storing raw data (separate container)
 ├── docker/                   # Dockerfiles, docker-compose configs
 └── docs/                     # Documentation, diagrams, design notes
     └── C4 Model/             # C4 diagrams and event diagrams
