@@ -28,4 +28,8 @@ This project follows a microservice architecture. Key components:
 - **Frontend**: Dashboard visualizations (charts, bubble charts, scatter plots).
 - **Messaging**: Kafka topics manage data flow between services.
 
-![Container Diagram](docs/C4%20Model/c4.container.svg)
+<div align="center">
+  <br>
+  <img src="docs/C4%20Model/c4.container.svg" width="800">
+  <br>
+</div>
