@@ -1,0 +1,26 @@
+title <size:30><color:#purple>Successful Event Processing</color></size>
+
+participant WebApp
+participant PersistenceService
+participant IngestionService
+participant ExternalEnergyAPI
+participant EnergyEventStream
+participant AnalyticsService
+participant WebSocketService
+
+WebApp->PersistenceService: initial load
+activate PersistenceService
+PersistenceService-->WebApp: response (historical data)
+deactivate PersistenceService
+IngestionService -> ExternalEnergyAPI: fetch energy data
+activate ExternalEnergyAPI
+ExternalEnergyAPI --> IngestionService: response
+deactivate ExternalEnergyAPI
+IngestionService --> EnergyEventStream: publish raw-energy event
+AnalyticsService --> EnergyEventStream: consume raw-energy event
+activate AnalyticsService
+AnalyticsService-->WebSocketService: send processed energy data
+deactivate AnalyticsService
+activate WebSocketService
+WebSocketService-->WebApp: send energy data update
+deactivate WebSocketService
