@@ -16,3 +16,16 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and optio
 └── docs           # Documentation, diagrams, design notes
     └── C4 Model   # C4 diagrams and event diagrams
 ```
+
+---
+
+## Project Overview
+
+This project follows a microservice architecture. Key components:
+
+- **Ingestion**: Python service fetching data from ENTSO-E, weather, and carbon APIs.
+- **Backend**: Java service exposing processed metrics to the frontend.
+- **Frontend**: Dashboard visualizations (charts, bubble charts, scatter plots).
+- **Messaging**: Kafka topics manage data flow between services.
+
+![Container Diagram](docs/C4%20Model/c4.container.pdf)
