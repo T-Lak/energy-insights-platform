@@ -10,25 +10,25 @@
 ### Page 1 - Overview
 - shows current state and quick trends
 
-1. KPI Cards
+**1. KPI Cards**
 - each card has "current, trend" key value pairs
 - Carbon Intensity
 - renewable share
 - total load
 - net imports
 
-2. Short-Term Generation Mix
+**2. Short-Term Generation Mix**
 - stacked area chart 
 - quick understanding of energy composition today
 
-3. Load vs Generation
+**3. Load vs Generation**
 - line chart
 - quick check if demand spikes are happening
 
-4. Electricity Flow Map
+**4. Electricity Flow Map**
 - interactive map with flow arrow
 
-5. System Events/Insights Feed
+**5. System Events/Insights Feed**
 - SLM explanations feed
 - analytics service
 

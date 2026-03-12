@@ -9,20 +9,20 @@
 
 - describe the state of the power grid
 
-1. Generation Mix
+**1. Generation Mix**
 - shows how electricity is produced over time
 - chart: stack area, x: time, y: MW, series: production types
 - api: ENTSO-E, 
     - endpoint: actual generation per production type
 
-2. Total Load vs Generation
+**2. Total Load vs Generation**
 - detect supply/demand imbalances
 - chart: line chart (2 lines: load and total generation) 
 - api: ENSTO-E
     - endpoint: actual total load & actual generation per production type
     - derived metric: total generation = sum(all production types)
 
-3. Renewable Share
+**3. Renewable Share**
 - 
 - chart: line chart (% renewable)
 - api: ENTSO-E
@@ -30,13 +30,13 @@
 - formula: renewables = solar + wind + hydro + biomass
            renewable share = renewables / total generation
 
-4. Carbon Intensity 
+**4. Carbon Intensity**
 -
 - chart: line chart (gCO₂/kWh)
 - api: [Electricity Maps](https://app.electricitymaps.com/developer-hub/api)
     - endpoint: carbon-intensity
 
-5. Cross-Border Electricity Flows 
+**5. Cross-Border Electricity Flows** 
 - shows dependency between countries
 - chart: Map (with directional flow arrows)
 - api: Electricity Maps
@@ -48,14 +48,14 @@
 
 ## Derived Operational Metrics
 
-6. Net Load
+**6. Net Load**
 -
 - chart: line chart
 - api: ENTSO-E
     - endpoint: not needed
 - formula: net load = total load - renewable generation
 
-7. Import Dependency 
+**7. Import Dependency** 
 - shows energy security risk
 - chart: line chart
 - api: Electricity Maps
@@ -72,7 +72,7 @@ Meteorological events (wind & temperature) are calculated country-wide. This is 
 locations - namely: Hamburg, Berlin, Munich, Cologne, Frankfurt (i.e. north, east, south, west, center). Wind speed is taken 
 from 100m altitude, since turbines roughly operate in 80-120m. 
 
-8. Renewable Generation vs Meteorological Events 
+**8. Renewable Generation vs Meteorological Events** 
 -
 - chart: Scatter plot 
     - wind: 
@@ -84,7 +84,7 @@ from 100m altitude, since turbines roughly operate in 80-120m.
 - api: ENSTO-E, OpenWeather/Open-Meteo
     - endpoint: ?
 
-9. Renewable Share vs Carbon Intensity
+**9. Renewable Share vs Carbon Intensity**
 -
 - chart: scatter plot 
     - x: renewable %
@@ -92,7 +92,7 @@ from 100m altitude, since turbines roughly operate in 80-120m.
 - api: ENTSO-E & Electricity Maps
     - endpoint: ?
 
-10. Imports vs Carbon Intensity
+**10. Imports vs Carbon Intensity**
 - shows when imports increase emissions
 - chart: scatter plot
     - x: imports
@@ -100,7 +100,7 @@ from 100m altitude, since turbines roughly operate in 80-120m.
 - api: Electricity Maps
     - endpoint: ?
 
-11. Load vs Temperature
+**11. Load vs Temperature**
 - electricity demand strongly correlates with temperature
 - chart: scatter plot (x: temperature, y: load)
     - x: avg_temperature
