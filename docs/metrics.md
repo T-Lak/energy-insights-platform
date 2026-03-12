@@ -1,7 +1,7 @@
 # Metrics/Statistics
 
 - data is fetched by an hourly rate
-- if an API endpoint provides 15-minute data (ENTSO-E)[https://transparency.entsoe.eu/], these values are aggregated as follows:
+- if an API endpoint provides 15-minute data [ENTSO-E](https://transparency.entsoe.eu/), these values are aggregated as follows:
     - $x_{hour} = \frac{x_1 + x_2 + x_3 + x_4}{4}$
     - (applies to generation load, and renewable production)
 

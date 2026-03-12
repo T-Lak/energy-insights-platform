@@ -41,4 +41,4 @@
 ---
 
 ### Page 3 - Analytical Metrics
-- [Metrics](metrics.md#correlation-metrics)
+- [Correlation Metrics](metrics.md#correlation-metrics)
