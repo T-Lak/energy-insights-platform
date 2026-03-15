@@ -109,3 +109,7 @@ from 100m altitude, since turbines roughly operate in 80-120m.
 
 
 
+
+
+
+
