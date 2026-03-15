@@ -1,0 +1,164 @@
+openapi: 3.0.3
+
+info:
+  title: Energy Grid Analytics API
+  version: "1.0.0"
+  description: >
+    API for retrieving power grid operational and analytical metrics.
+    Provides historical time series data and grid snapshots used by the dashboard.
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+paths:
+  /snapshots/latest:
+    get:
+      summary: Get latest grid snapshot
+      description: Returns the most recent aggregated grid metrics.
+      responses:
+        "200":
+          description: Latest snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Snapshot"
+  /timeseries:
+    get:
+      summary: Retrieve time series metrics
+      description: Returns historical values for one or more metrics.
+      parameters:
+        - name: metrics
+          in: query
+          required: true
+          description: Metrics to retrieve
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - renewable_share
+                - carbon_intensity
+                - load
+                - wind_generation
+                - solar_generation
+                - cross_border_flow
+            example: [renewable_share, carbon_intensity]
+        - name: from
+          in: query
+          required: true
+          description: Start timestamp
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          description: End timestamp
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Timeseries data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimeseriesResponse"
+  /flows:
+    get:
+      summary: Retrieve cross-border power flows
+      description: Returns cross-border electricity flows between countries.
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Cross-border flow data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowResponse"
+  /correlations:
+    get:
+      summary: Retrieve derived correlation insights
+      description: Returns correlations between weather conditions and energy metrics.
+      responses:
+        "200":
+          description: Correlation insights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrelationResponse"
+
+components:
+  schemas:
+    Snapshot:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        renewable_share:
+          type: number
+        carbon_intensity:
+          type: number
+        load_mw:
+          type: number
+        wind_generation:
+          type: number
+        solar_generation:
+          type: number
+    TimeseriesResponse:
+      type: object
+      properties:
+        metrics:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/TimeseriesPoint"
+    TimeseriesPoint:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        value:
+          type: number
+    FlowResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          timestamp:
+            type: string
+            format: date-time
+          from_country:
+            type: string
+          to_country:
+            type: string
+          flow_mw:
+            type: number
+    CorrelationResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          metric_a:
+            type: string
+          metric_b:
+            type: string
+          correlation:
+            type: number
+          description:
+            type: string
