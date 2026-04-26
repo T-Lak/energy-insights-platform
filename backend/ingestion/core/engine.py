@@ -5,7 +5,7 @@ from messaging import send_event, producer
 from providers import fetch_api
 
 
-def execute_15min_process(client, logger):
+def sync_grid_data(client, logger):
     now = pd.Timestamp.now(tz="Europe/Berlin") - pd.Timedelta(hours=2)
     end = now.floor("15min")
     start = end - pd.Timedelta(hours=2)
@@ -28,8 +28,6 @@ def execute_15min_process(client, logger):
             }
 
             key = f"DE|{category}|{timestamp.isoformat()}"
-
-            print('event: ', event)
 
             send_event(
                 topic='energy.raw',
