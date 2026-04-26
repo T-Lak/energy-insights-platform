@@ -1,2 +1,2 @@
-from .engine import execute_15min_process
+from .engine import sync_grid_data
 from .data_utils import clean_data

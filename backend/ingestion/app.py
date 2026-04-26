@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from entsoe import EntsoePandasClient
 
 from config import ENTSOE_API_KEY
-from core import execute_15min_process
+from core import sync_grid_data
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     scheduler = BackgroundScheduler()
 
     task = partial(
-        execute_15min_process,
+        sync_grid_data,
         client=client,
         logger=logger
     )
