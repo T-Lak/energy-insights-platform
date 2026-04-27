@@ -1,0 +1,36 @@
+name: Energy Insights Platform CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/ingestion/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/ingestion/**'
+
+jobs:
+  test-ingestion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: action/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd backend/ingestion
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install pytest pytest-mock
+
+      - name: Run Tests
+        run: |
+          cd backend/ingestion
+          python -m pytest
