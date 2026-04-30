@@ -11,7 +11,7 @@ def normalize_data(raw_data: Dict) -> List:
             metric['value'] = val
         else:
             metric['source'] = key.lower()
-            metric['value'] = val.lower()
+            metric['value'] = val
         normalized_data.append(metric)
 
     return normalized_data
