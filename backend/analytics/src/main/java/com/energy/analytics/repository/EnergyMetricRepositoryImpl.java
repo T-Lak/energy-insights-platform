@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Repository
@@ -28,7 +29,7 @@ public class EnergyMetricRepositoryImpl implements EnergyMetricRepositoryCustom 
             metrics,
             50,
             (ps, m) -> {
-                ps.setObject(1, m.getTimestamp());
+                ps.setObject(1, m.getTimestamp().atOffset(ZoneOffset.UTC));
                 ps.setObject(2, m.getRegion());
                 ps.setObject(3, m.getMetric());
                 ps.setObject(4, m.getSource());
