@@ -2,7 +2,7 @@ package com.energy.analytics.service;
 
 import com.energy.analytics.dto.RawEnergyEventDTO;
 import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.repository.EnergyMetricRepository;
+import com.energy.analytics.repository.EnergyMetricRepositoryImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnergyMetricService {
 
-    private final EnergyMetricRepository repository;
+    private final EnergyMetricRepositoryImpl repository;
 
     @Transactional
     public void processMetrics(RawEnergyEventDTO payload) {
@@ -31,7 +31,7 @@ public class EnergyMetricService {
                 ))
                 .toList();
 
-        repository.saveAll(entities);
+        repository.upsertBatch(entities);
     }
 
 }
