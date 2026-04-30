@@ -31,4 +31,4 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.value.default.type: "com.energy.analytics.dto.RawEnergyEventDTO"
-        spring.json.trusted.packages: "com.energy.analytics.model"
+        spring.json.trusted.packages: "com.energy.analytics.dto"
