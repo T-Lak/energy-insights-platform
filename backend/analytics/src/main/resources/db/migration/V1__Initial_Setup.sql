@@ -12,5 +12,4 @@ CREATE TABLE energy_metrics (
 
 SELECT create_hypertable('energy_metrics', 'timestamp');
 
-CREATE INDEX idx_metrics_region_source
-    ON energy_metrics (region, source, timestamp DESC);
+CREATE INDEX idx_metrics_region_source ON energy_metrics (region, source, timestamp DESC);
