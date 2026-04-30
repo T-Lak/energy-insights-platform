@@ -22,5 +22,5 @@ def test_sync_latest_grid_data_calls_producer(mocker):
     args, kwargs = mock_send.call_args
     assert kwargs['topic'] == 'energy.raw'
     assert kwargs['event']['metric'] == 'load'
-    assert kwargs['event']['data']['Actual Load'] == 40000.0
+    assert kwargs['event']['data'][0]['value'] == 40000.0
     assert "DE|load|" in kwargs['key']
