@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .data_utils import clean_data
+from .data_utils import normalize_data, prepare_kafka_payload
 from messaging import send_event, producer
 from providers import fetch_api
 
@@ -20,12 +20,8 @@ def sync_grid_data(client, logger):
     for category, df in data_map.items():
         df.index = df.index.tz_convert('Europe/Berlin')
         for timestamp, data in df.iterrows():
-            event = {
-                'region': "DE_LU",
-                'metric': category,
-                'timestamp': timestamp.isoformat(),
-                'data': clean_data(data.to_dict()),
-            }
+            data = normalize_data(data.to_dict())
+            event = prepare_kafka_payload(data, category, timestamp)
 
             key = f"DE|{category}|{timestamp.isoformat()}"
 
