@@ -10,8 +10,8 @@ def normalize_data(raw_data: Dict) -> List:
             metric['category'] = key[1].lower()
             metric['value'] = val
         else:
-            metric['source'] = key
-            metric['value'] = val
+            metric['source'] = key.lower()
+            metric['value'] = val.lower()
         normalized_data.append(metric)
 
     return normalized_data
