@@ -16,7 +16,7 @@ public class EnergyKafkaConsumer {
 
     @KafkaListener(topics = "energy.raw", groupId = "analytics-group-v1")
     public void consumeRaw(RawEnergyEventDTO payload) {
-        log.info("Received {} metrics for region {}", payload.data(), payload.region());
+        log.info("Received {} metrics for region {}", payload.data().size(), payload.region());
 
         metricService.processMetrics(payload);
     }
