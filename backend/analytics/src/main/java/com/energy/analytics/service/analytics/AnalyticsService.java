@@ -50,10 +50,9 @@ public class AnalyticsService {
          return;
       }
 
-      // TODO: implement
-      // EnergyAggregate aggregate = aggregateCalculator.compute(snapshot);
+      double renewableShare = aggregateCalculator.calculateRenewableShare(snapshot);
 
-      // log.info("AGGREGATE {}: {}", ts, aggregate);
+      log.info("Renewable Share: {}", renewableShare);
    }
 
    private EnergyMetric computeIfReady(String key, Collection<EnergyMetric> window, EnergyMetric metric) {
