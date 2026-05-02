@@ -1,7 +1,7 @@
 package com.energy.analytics.messaging;
 
 import com.energy.analytics.dto.RawEnergyEventDTO;
-import com.energy.analytics.service.EnergyMetricService;
+import com.energy.analytics.service.ingestion.EnergyMetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

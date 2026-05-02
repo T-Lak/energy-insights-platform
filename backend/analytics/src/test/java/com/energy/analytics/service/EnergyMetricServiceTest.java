@@ -4,6 +4,8 @@ import com.energy.analytics.dto.RawEnergyEventDTO;
 import com.energy.analytics.dto.RawMetricDataDTO;
 import com.energy.analytics.model.EnergyMetric;
 import com.energy.analytics.repository.EnergyMetricRepositoryImpl;
+import com.energy.analytics.service.analytics.AnalyticsService;
+import com.energy.analytics.service.ingestion.EnergyMetricService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,8 +26,11 @@ class EnergyMetricServiceTest {
    @Mock
    private EnergyMetricRepositoryImpl repository;
 
+   @Mock
+   private AnalyticsService analyticsService;
+
    @InjectMocks
-   private EnergyMetricService service;
+   private EnergyMetricService energyMetricService;
 
    @Test
    void shouldMapDtoToEntitiesWithDefaultCategory() {
@@ -36,10 +42,12 @@ class EnergyMetricServiceTest {
               List.of(new RawMetricDataDTO("fossil gas", null, 100.5))
       );
 
-      service.processMetrics(payload);
+      energyMetricService.processMetrics(payload);
 
       ArgumentCaptor<List<EnergyMetric>> captor = ArgumentCaptor.forClass(List.class);
       verify(repository).upsertBatch(captor.capture());
+
+      verify(analyticsService).process(anyList());
 
       List<EnergyMetric> sentToRepo = captor.getValue();
       assertThat(sentToRepo).hasSize(1);
