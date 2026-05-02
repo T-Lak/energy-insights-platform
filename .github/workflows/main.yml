@@ -38,7 +38,6 @@ jobs:
           python -m pytest
   test-analytics:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'backend/analytics')
 
     steps:
       - name: Check out code
