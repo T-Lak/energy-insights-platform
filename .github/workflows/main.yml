@@ -5,10 +5,12 @@ on:
     branches: [ main ]
     paths:
       - 'backend/ingestion/**'
+      - 'backend/analytics/**'
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/ingestion/**'
+      - 'backend/analytics/**'
 
 jobs:
   test-ingestion:
