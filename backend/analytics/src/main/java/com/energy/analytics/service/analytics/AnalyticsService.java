@@ -49,7 +49,7 @@ public class AnalyticsService {
    }
 
    private void processGridSnapshots(Instant timestamp, Collection<EnergyMetric> snapshot) {
-      if (!isComplete(snapshot)) {
+      if (!isSnapshotComplete(snapshot)) {
          return;
       }
 
@@ -76,7 +76,7 @@ public class AnalyticsService {
       );
    }
 
-   private boolean isComplete(Collection<EnergyMetric> snapshot) {
+   private boolean isSnapshotComplete(Collection<EnergyMetric> snapshot) {
       Set<EnergySource> presentSources = snapshot.stream()
               .filter(m -> m.getMetric().equals("generation"))
               .map(m -> EnergySourceMapper.from(m.getSource()))
