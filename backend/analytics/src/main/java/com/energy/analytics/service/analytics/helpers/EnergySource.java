@@ -2,6 +2,9 @@ package com.energy.analytics.service.analytics.helpers;
 
 import lombok.Getter;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 @Getter
 public enum EnergySource {
 
@@ -26,6 +29,17 @@ public enum EnergySource {
 
    EnergySource(boolean renewable) {
       this.renewable = renewable;
+   }
+
+   public static Set<EnergySource> criticalGenerationSources() {
+      return EnumSet.of(
+              SOLAR,
+              WIND_ONSHORE,
+              WIND_OFFSHORE,
+              FOSSIL_GAS,
+              FOSSIL_BROWN_COAL,
+              FOSSIL_OIL
+      );
    }
 
 }

@@ -29,4 +29,13 @@ public class EnergyMetric {
     private String category;
 
     private Double value;
+
+    public SlidingWindowKey toWindowKey() {
+        return new SlidingWindowKey(region, metric, source, category);
+    }
+
+    public MetricKey toSnapshotKey() {
+        return new MetricKey(metric, source, category);
+    }
+
 }

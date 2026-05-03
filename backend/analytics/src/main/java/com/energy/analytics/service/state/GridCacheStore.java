@@ -1,6 +1,8 @@
 package com.energy.analytics.service.state;
 
 import com.energy.analytics.model.EnergyMetric;
+import com.energy.analytics.model.MetricKey;
+import com.energy.analytics.model.SlidingWindowKey;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class GridCacheStore {
 
-   private final Map<String, TreeMap<Instant, EnergyMetric>> slidingWindows = new ConcurrentHashMap<>();
-   private final Map<Instant, Set<EnergyMetric>> gridSnapshots = new ConcurrentHashMap<>();
+   private final Map<SlidingWindowKey, TreeMap<Instant, EnergyMetric>> slidingWindows = new ConcurrentHashMap<>();
+   private final Map<Instant, Map<MetricKey, EnergyMetric>> gridSnapshots = new ConcurrentHashMap<>();
 
    private static final Duration SNAPSHOT_TTL = Duration.ofHours(2);
 
-   public Collection<EnergyMetric> updateSlidingWindow(String key, EnergyMetric metric) {
+   public Collection<EnergyMetric> updateSlidingWindow(SlidingWindowKey key, EnergyMetric metric) {
       var window = slidingWindows.computeIfAbsent(key, k -> new TreeMap<>());
 
       window.put(metric.getTimestamp(), metric);
@@ -29,24 +31,28 @@ public class GridCacheStore {
       return window.values();
    }
 
-   public Collection<EnergyMetric> updateGridSnapshot(Instant timestamp, EnergyMetric metric) {
-      Set<EnergyMetric> snapshot = gridSnapshots.computeIfAbsent(timestamp, k -> new HashSet<>());
+   public boolean updateGridSnapshot(Instant timestamp, EnergyMetric metric) {
+      Map<MetricKey, EnergyMetric> snapshot = gridSnapshots
+              .computeIfAbsent(timestamp, k -> new ConcurrentHashMap<>());
 
-      snapshot.removeIf(m ->
-             m.getMetric().equals(metric.getMetric()) &&
-             m.getSource().equals(metric.getSource()) &&
-             m.getCategory().equals(metric.getCategory())
-      );
+      MetricKey key = metric.toSnapshotKey();
+      EnergyMetric existing = snapshot.get(key);
 
-      snapshot.add(metric);
+      if (existing != null && Objects.equals(existing.getValue(), metric.getValue()))
+         return false;
 
-      return snapshot;
+      snapshot.put(key, metric);
+      return true;
+   }
+
+   public Collection<EnergyMetric> getSnapshot(Instant timestamp) {
+      return gridSnapshots.getOrDefault(timestamp, Map.of()).values();
    }
 
    @Scheduled(fixedRate = 60000)
    public void cleanup() {
       Instant cutoff = Instant.now().minus(SNAPSHOT_TTL);
-      gridSnapshots.keySet().removeIf(ts -> ts.isBefore(cutoff));
+      gridSnapshots.keySet().removeIf(timestamp -> timestamp.isBefore(cutoff));
    }
 
 }

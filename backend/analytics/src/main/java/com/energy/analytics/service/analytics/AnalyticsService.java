@@ -1,6 +1,9 @@
 package com.energy.analytics.service.analytics;
 
 import com.energy.analytics.model.EnergyMetric;
+import com.energy.analytics.model.SlidingWindowKey;
+import com.energy.analytics.service.analytics.helpers.EnergySource;
+import com.energy.analytics.service.analytics.helpers.EnergySourceMapper;
 import com.energy.analytics.service.state.GridCacheStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,11 +22,9 @@ public class AnalyticsService {
 
    private final AggregateCalculator aggregateCalculator;
 
-   private final Set<Instant> processedTimestamps = ConcurrentHashMap.newKeySet();
-
    public void process(List<EnergyMetric> metrics) {
-      Map<String, List<EnergyMetric>> groupedMetrics = metrics.stream()
-              .collect(Collectors.groupingBy(this::buildKey));
+      Map<SlidingWindowKey, List<EnergyMetric>> groupedMetrics = metrics.stream()
+              .collect(Collectors.groupingBy(EnergyMetric::toWindowKey));
 
       for (var entry : groupedMetrics.entrySet()) {
          List<EnergyMetric> sortedMetrics = entry.getValue().stream()
@@ -36,17 +36,20 @@ public class AnalyticsService {
             EnergyMetric smoothedMetric = computeIfReady(entry.getKey(), window, metric);
 
             if (smoothedMetric != null) {
-               Collection<EnergyMetric> snapshot = gridCacheStore
-                       .updateGridSnapshot(metric.getTimestamp(), smoothedMetric);
-               processGridSnapshotMetrics(metric.getTimestamp(), snapshot);
+               boolean changed = gridCacheStore.updateGridSnapshot(metric.getTimestamp(), smoothedMetric);
+
+               if (!changed) continue;
+
+               Collection<EnergyMetric> snapshot = gridCacheStore.getSnapshot(metric.getTimestamp());
+
+               processGridSnapshots(metric.getTimestamp(), snapshot);
             }
          }
       }
    }
 
-   private void processGridSnapshotMetrics(Instant timestamp, Collection<EnergyMetric> snapshot) {
-      // TODO: processedTimestamps prevents value updates! change?
-      if (!isComplete(snapshot) || !processedTimestamps.add(timestamp)) {
+   private void processGridSnapshots(Instant timestamp, Collection<EnergyMetric> snapshot) {
+      if (!isComplete(snapshot)) {
          return;
       }
 
@@ -55,7 +58,7 @@ public class AnalyticsService {
       log.info("Renewable Share: {}", renewableShare);
    }
 
-   private EnergyMetric computeIfReady(String key, Collection<EnergyMetric> window, EnergyMetric metric) {
+   private EnergyMetric computeIfReady(SlidingWindowKey key, Collection<EnergyMetric> window, EnergyMetric metric) {
       // TODO: consider time span rather than count/size
       if (window.size() < 3) {
          return null;
@@ -74,17 +77,20 @@ public class AnalyticsService {
    }
 
    private boolean isComplete(Collection<EnergyMetric> snapshot) {
-      long generationCount = snapshot.stream()
+      Set<EnergySource> presentSources = snapshot.stream()
               .filter(m -> m.getMetric().equals("generation"))
-              .count();
+              .map(m -> EnergySourceMapper.from(m.getSource()))
+              .collect(Collectors.toSet());
+
+      Set<EnergySource> criticalSources = EnergySource.criticalGenerationSources();
+
+      boolean containsAllCriticalSources = presentSources.containsAll(criticalSources);
+      double generationCoverage = (double) presentSources.size() / EnergySource.values().length;
 
       boolean hasLoad = snapshot.stream()
               .anyMatch(m -> m.getMetric().equals("load"));
 
-      return generationCount >= 10 && hasLoad;
+      return containsAllCriticalSources && hasLoad && generationCoverage > .8;
    }
 
-   private String buildKey(EnergyMetric metric) {
-      return metric.getRegion() + "|" + metric.getMetric() + "|" + metric.getSource() + "|" + metric.getCategory();
-   }
 }
