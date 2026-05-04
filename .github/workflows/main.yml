@@ -13,9 +13,26 @@ on:
       - 'backend/analytics/**'
 
 jobs:
-  test-ingestion:
+  changes:
     runs-on: ubuntu-latest
+    outputs:
+      ingestion: ${{ steps.filter.outputs.ingestion }}
+      analytics: ${{ steps.filter.outputs.analytics  }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ingestion:
+              - 'backend/ingestion/**'
+            analytics:
+              - 'backend/analytics/**'
 
+  test-ingestion:
+    needs: changes
+    if: ${{ needs.changes.outputs.ingestion == 'true' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -36,7 +53,10 @@ jobs:
         run: |
           cd backend/ingestion
           python -m pytest
+
   test-analytics:
+    needs: changes
+    if: ${{ needs.changes.outputs.analytics == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
