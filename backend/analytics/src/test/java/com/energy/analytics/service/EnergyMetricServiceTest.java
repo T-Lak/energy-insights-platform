@@ -33,6 +33,29 @@ class EnergyMetricServiceTest {
    private EnergyMetricService energyMetricService;
 
    @Test
+   void shouldFilterOutNaNValuesAndProcessValidOnes() {
+      // Arrange: One valid value (100.0) and one NaN
+      RawEnergyEventDTO payload = new RawEnergyEventDTO(
+              "DE_LU", "generation", 1704067200L,
+              List.of(
+                      new RawMetricDataDTO("solar", "actual", 100.0),
+                      new RawMetricDataDTO("wind", "actual", Double.NaN)
+              )
+      );
+
+      energyMetricService.processMetrics(payload);
+
+      ArgumentCaptor<List<EnergyMetric>> captor = ArgumentCaptor.forClass(List.class);
+      verify(repository).upsertBatch(captor.capture());
+
+      List<EnergyMetric> savedMetrics = captor.getValue();
+      assertThat(savedMetrics).hasSize(1);
+      assertThat(savedMetrics.get(0).getSource()).isEqualTo("solar");
+
+      verify(analyticsService).process(savedMetrics);
+   }
+
+   @Test
    void shouldMapDtoToEntitiesWithDefaultCategory() {
       long unixTimestamp = 1704067200L; // 2024-01-01T00:00:00Z
       RawEnergyEventDTO payload = new RawEnergyEventDTO(
