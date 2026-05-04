@@ -1,4 +1,5 @@
 from requests import HTTPError, Timeout
+import traceback
 
 from .queries import get_query_map
 
@@ -27,6 +28,9 @@ def fetch_api(client, start, end, logger):
         except (ConnectionError, Timeout) as e:
             logger.error(f"Network level failure: {e}")
         except Exception as e:
-            logger.error(f"Unexpected error: {e}")
+            error_type = type(e).__name__
+            stack_trace = traceback.format_exc()
+            logger.error(f"Unexpected error [{error_type}]: {e}")
+            logger.debug(f"Full stack trace:\n{stack_trace}")
 
     return data_map
