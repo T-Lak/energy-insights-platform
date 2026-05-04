@@ -10,8 +10,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,14 +19,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-@Testcontainers
-@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
     private EnergyMetricRepositoryImpl repository;
 
     static String region = "DE_LU";
@@ -109,11 +106,6 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                 )
             ))
         );
-    }
-
-    @BeforeEach
-    void setUp() {
-        repository = new EnergyMetricRepositoryImpl(jdbcTemplate);
     }
 
     @BeforeEach
