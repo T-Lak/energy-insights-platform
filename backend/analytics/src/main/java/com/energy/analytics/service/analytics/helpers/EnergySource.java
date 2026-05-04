@@ -38,7 +38,8 @@ public enum EnergySource {
               WIND_OFFSHORE,
               FOSSIL_GAS,
               FOSSIL_BROWN_COAL,
-              FOSSIL_OIL
+              FOSSIL_OIL,
+              FOSSIL_HARD_COAL
       );
    }
 
