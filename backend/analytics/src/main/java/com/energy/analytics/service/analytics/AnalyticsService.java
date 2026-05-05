@@ -23,39 +23,35 @@ public class AnalyticsService {
    private final AggregateCalculator aggregateCalculator;
 
    public void process(List<EnergyMetric> metrics) {
-      Map<SlidingWindowKey, List<EnergyMetric>> groupedMetrics = metrics.stream()
-              .collect(Collectors.groupingBy(EnergyMetric::toWindowKey));
+      Set<Instant> modifiedTimestamps = new HashSet<>();
 
-      for (var entry : groupedMetrics.entrySet()) {
-         List<EnergyMetric> sortedMetrics = entry.getValue().stream()
-                 .sorted(Comparator.comparing(EnergyMetric::getTimestamp))
-                 .toList();
+      for (EnergyMetric metric : metrics) {
+         SlidingWindowKey key = metric.toWindowKey();
+         Collection<EnergyMetric> window = gridCacheStore.updateSlidingWindow(key, metric);
+         EnergyMetric smoothedMetric = computeIfReady(key, window, metric);
 
-         for (EnergyMetric metric : sortedMetrics) {
-            Collection<EnergyMetric> window = gridCacheStore.updateSlidingWindow(entry.getKey(), metric);
-            EnergyMetric smoothedMetric = computeIfReady(entry.getKey(), window, metric);
-
-            if (smoothedMetric != null) {
-               boolean changed = gridCacheStore.updateGridSnapshot(metric.getTimestamp(), smoothedMetric);
-
-               if (!changed) continue;
-
-               Collection<EnergyMetric> snapshot = gridCacheStore.getSnapshot(metric.getTimestamp());
-
-               processGridSnapshots(metric.getTimestamp(), snapshot);
+         if (smoothedMetric != null) {
+            boolean changed = gridCacheStore.updateGridSnapshot(metric.getTimestamp(), smoothedMetric);
+            if (changed) {
+               modifiedTimestamps.add(metric.getTimestamp());
             }
          }
+      }
+
+      for (Instant ts : modifiedTimestamps) {
+         processGridSnapshots(ts, List.copyOf(gridCacheStore.getSnapshot(ts)));
       }
    }
 
    private void processGridSnapshots(Instant timestamp, Collection<EnergyMetric> snapshot) {
-      if (!isSnapshotComplete(snapshot)) {
-         return;
-      }
+      if (!isSnapshotComplete(snapshot)) return;
 
       double renewableShare = aggregateCalculator.calculateRenewableShare(snapshot);
 
-      log.info("Renewable Share: {}", renewableShare);
+      log.info("Region: {} | Time: {} | Renewable Share: {}%",
+              snapshot.stream().map(EnergyMetric::getRegion).findFirst().orElse("UNKNOWN"),
+              timestamp,
+              String.format("%.2f", renewableShare * 100));
    }
 
    private EnergyMetric computeIfReady(SlidingWindowKey key, Collection<EnergyMetric> window, EnergyMetric metric) {

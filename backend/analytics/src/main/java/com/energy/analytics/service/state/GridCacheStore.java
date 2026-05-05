@@ -38,8 +38,11 @@ public class GridCacheStore {
       MetricKey key = metric.toSnapshotKey();
       EnergyMetric existing = snapshot.get(key);
 
-      if (existing != null && Objects.equals(existing.getValue(), metric.getValue()))
-         return false;
+      if (existing != null) {
+         double delta = Math.abs(existing.getValue() - metric.getValue());
+
+         if (delta < 1e-6) return false;
+      }
 
       snapshot.put(key, metric);
       return true;
