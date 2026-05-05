@@ -1,11 +1,9 @@
 package com.energy.analytics.service.analytics.helpers;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
-@Slf4j
 public class EnergySourceMapper {
 
    private static final Map<String, EnergySource> MAP = Map.ofEntries(
@@ -31,4 +29,9 @@ public class EnergySourceMapper {
       return Optional.ofNullable(MAP.get(raw.toLowerCase()))
               .orElseThrow(() -> new IllegalArgumentException("Unknown source: " + raw));
    }
+
+   public static Set<String> getAllRawSources() {
+      return MAP.keySet();
+   }
+
 }

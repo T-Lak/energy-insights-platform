@@ -1,6 +1,11 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/placeholder
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
   flyway:
-    enabled: true
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
