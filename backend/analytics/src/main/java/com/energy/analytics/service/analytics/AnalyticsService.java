@@ -10,6 +10,7 @@ import com.energy.analytics.model.mapper.EnergySourceMapper;
 import com.energy.analytics.service.state.GridCacheStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -23,6 +24,8 @@ public class AnalyticsService {
 
    private final SmoothedMetricRepositoryImpl smoothedMetricRepository;
    private final DerivedMetricRepositoryImpl derivedMetricRepository;
+
+   private SimpMessagingTemplate messagingTemplate;
 
    private final GridCacheStore gridCacheStore;
 
@@ -52,7 +55,11 @@ public class AnalyticsService {
 
       for (Instant ts : modifiedTimestamps) {
          DerivedMetric derivedMetric = processGridSnapshots(ts, List.copyOf(gridCacheStore.getSnapshot(ts)));
-         if (derivedMetric != null) derivedMetrics.add(derivedMetric);
+         if (derivedMetric != null) {
+            derivedMetrics.add(derivedMetric);
+//            messagingTemplate.convertAndSend("/topic/renewable-share");
+//            log.info("Broadcasted metric for {}: {}%", derivedMetric.getTimestamp(), derivedMetric.getValue() * 100);
+         }
       }
 
       if (!derivedMetrics.isEmpty()) derivedMetricRepository.upsertBatch(derivedMetrics);

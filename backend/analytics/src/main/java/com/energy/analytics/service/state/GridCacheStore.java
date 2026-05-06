@@ -22,13 +22,15 @@ public class GridCacheStore {
    public Collection<RawMetric> updateSlidingWindow(SlidingWindowKey key, RawMetric metric) {
       var window = slidingWindows.computeIfAbsent(key, k -> new TreeMap<>());
 
-      window.put(metric.getTimestamp(), metric);
+      synchronized (window) {
+         window.put(metric.getTimestamp(), metric);
 
-      Instant latestTs = window.lastKey();
-      Instant cutoff = latestTs.minus(Duration.ofHours(1));
-      window.headMap(cutoff).clear();
+         Instant cutoff = metric.getTimestamp().minus(Duration.ofHours(1));
+         window.headMap(cutoff).clear();
+         window.tailMap(metric.getTimestamp(), false).clear();
 
-      return window.values();
+         return new ArrayList<>(window.values());
+      }
    }
 
    public boolean updateGridSnapshot(Instant timestamp, RawMetric metric) {
