@@ -1,8 +1,8 @@
 package com.energy.analytics.service.state;
 
-import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.model.MetricKey;
-import com.energy.analytics.model.SlidingWindowKey;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.model.keys.SnapshotKey;
+import com.energy.analytics.model.keys.SlidingWindowKey;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,12 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class GridCacheStore {
 
-   private final Map<SlidingWindowKey, TreeMap<Instant, EnergyMetric>> slidingWindows = new ConcurrentHashMap<>();
-   private final Map<Instant, Map<MetricKey, EnergyMetric>> gridSnapshots = new ConcurrentHashMap<>();
+   private final Map<SlidingWindowKey, TreeMap<Instant, RawMetric>> slidingWindows = new ConcurrentHashMap<>();
+   private final Map<Instant, Map<SnapshotKey, RawMetric>> gridSnapshots = new ConcurrentHashMap<>();
 
    private static final Duration SNAPSHOT_TTL = Duration.ofHours(2);
 
-   public Collection<EnergyMetric> updateSlidingWindow(SlidingWindowKey key, EnergyMetric metric) {
+   public Collection<RawMetric> updateSlidingWindow(SlidingWindowKey key, RawMetric metric) {
       var window = slidingWindows.computeIfAbsent(key, k -> new TreeMap<>());
 
       window.put(metric.getTimestamp(), metric);
@@ -31,12 +31,12 @@ public class GridCacheStore {
       return window.values();
    }
 
-   public boolean updateGridSnapshot(Instant timestamp, EnergyMetric metric) {
-      Map<MetricKey, EnergyMetric> snapshot = gridSnapshots
+   public boolean updateGridSnapshot(Instant timestamp, RawMetric metric) {
+      Map<SnapshotKey, RawMetric> snapshot = gridSnapshots
               .computeIfAbsent(timestamp, k -> new ConcurrentHashMap<>());
 
-      MetricKey key = metric.toSnapshotKey();
-      EnergyMetric existing = snapshot.get(key);
+      SnapshotKey key = metric.toSnapshotKey();
+      RawMetric existing = snapshot.get(key);
 
       if (existing != null) {
          double delta = Math.abs(existing.getValue() - metric.getValue());
@@ -48,7 +48,7 @@ public class GridCacheStore {
       return true;
    }
 
-   public Collection<EnergyMetric> getSnapshot(Instant timestamp) {
+   public Collection<RawMetric> getSnapshot(Instant timestamp) {
       return gridSnapshots.getOrDefault(timestamp, Map.of()).values();
    }
 

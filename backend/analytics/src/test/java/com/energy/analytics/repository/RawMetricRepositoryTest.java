@@ -1,7 +1,7 @@
 package com.energy.analytics.repository;
 
 import com.energy.analytics.BaseIntegrationTest;
-import com.energy.analytics.model.EnergyMetric;
+import com.energy.analytics.model.entity.RawMetric;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,20 +20,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
+public class RawMetricRepositoryTest extends BaseIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private EnergyMetricRepositoryImpl repository;
+    private RawMetricRepositoryImpl repository;
 
     static String region = "DE_LU";
 
     static Stream<Arguments> provideDistinctMetrics() {
         return Stream.of(
             Arguments.of(List.of(
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -41,7 +41,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     100.3
                 ),
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:15:00Z"),
                     region,
                     "generation",
@@ -49,7 +49,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     57.
                 ),
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -57,7 +57,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     174.1
                 ),
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -72,7 +72,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
     static Stream<Arguments> provideEqualMetrics() {
         return Stream.of(
             Arguments.of(List.of(
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -80,7 +80,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     100.3
                 ),
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -88,7 +88,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     110.2
                 ),
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -96,7 +96,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     174.1
                 ),
-                new EnergyMetric(
+                new RawMetric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -116,12 +116,12 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
     @ParameterizedTest
     @MethodSource("provideDistinctMetrics")
     @Transactional
-    void testShouldStoreWithoutUpsert(List<EnergyMetric> metrics) {
+    void testShouldStoreWithoutUpsert(List<RawMetric> metrics) {
         repository.upsertBatch(metrics);
 
-        List<EnergyMetric> fetched = jdbcTemplate.query(
+        List<RawMetric> fetched = jdbcTemplate.query(
             "SELECT * FROM energy_metrics",
-            (rs, rowNum) -> new EnergyMetric(
+            (rs, rowNum) -> new RawMetric(
                 rs.getTimestamp("timestamp").toInstant(),
                 rs.getString("region"),
                 rs.getString("metric"),
@@ -139,7 +139,7 @@ public class EnergyMetricRepositoryTest extends BaseIntegrationTest {
     @ParameterizedTest
     @MethodSource("provideEqualMetrics")
     @Transactional
-    void shouldUpsertRowIfKeyMatches(List<EnergyMetric> metrics) {
+    void shouldUpsertRowIfKeyMatches(List<RawMetric> metrics) {
         repository.upsertBatch(metrics);
 
         Integer totalRows = jdbcTemplate.queryForObject(

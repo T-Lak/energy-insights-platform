@@ -1,8 +1,8 @@
 package com.energy.analytics.service.state;
 
 import com.energy.analytics.helpers.EnergyDataFactory;
-import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.model.SlidingWindowKey;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.model.keys.SlidingWindowKey;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,11 +27,11 @@ public class GridCacheStoreTest {
       String region = "DE_LU";
       Instant t0 = Instant.parse("2026-01-01T10:00:00Z");
 
-      List<EnergyMetric> m0 = List.of(EnergyDataFactory.create(t0.toString(), "fossil gas", 100.3));
-      List<EnergyMetric> m1 = List.of(EnergyDataFactory.create(t0.plus(Duration.ofMinutes(15)).toString(), "fossil gas", 57.0));
-      List<EnergyMetric> m2 = List.of(EnergyDataFactory.create(t0.plus(Duration.ofMinutes(30)).toString(), "biomass", 174.1));
+      List<RawMetric> m0 = List.of(EnergyDataFactory.create(t0.toString(), "fossil gas", 100.3));
+      List<RawMetric> m1 = List.of(EnergyDataFactory.create(t0.plus(Duration.ofMinutes(15)).toString(), "fossil gas", 57.0));
+      List<RawMetric> m2 = List.of(EnergyDataFactory.create(t0.plus(Duration.ofMinutes(30)).toString(), "biomass", 174.1));
 
-      List<EnergyMetric> m3 = List.of(new EnergyMetric(t0.plus(Duration.ofMinutes(45)), region, "generation", "biomass", "actual consumption", 174.1));
+      List<RawMetric> m3 = List.of(new RawMetric(t0.plus(Duration.ofMinutes(45)), region, "generation", "biomass", "actual consumption", 174.1));
 
       return Stream.of(
               Arguments.of(EnergyDataFactory.combine(m0, m1, m2, m3))
@@ -41,15 +41,15 @@ public class GridCacheStoreTest {
    static Stream<Arguments> provideMetricsForMoreThanOneHour() {
       Instant t0 = Instant.parse("2026-01-01T10:00:00Z");
 
-      List<EnergyMetric> m0 = EnergyDataFactory.createFullSnapshot(t0.toString(), 100.0);
-      List<EnergyMetric> m1 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofMinutes(15)).toString(), 110.0);
-      List<EnergyMetric> m2 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofMinutes(30)).toString(), 120.0);
-      List<EnergyMetric> m3 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofMinutes(45)).toString(), 130.0);
-      List<EnergyMetric> m4 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofHours(1)).toString(), 140.0);
+      List<RawMetric> m0 = EnergyDataFactory.createFullSnapshot(t0.toString(), 100.0);
+      List<RawMetric> m1 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofMinutes(15)).toString(), 110.0);
+      List<RawMetric> m2 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofMinutes(30)).toString(), 120.0);
+      List<RawMetric> m3 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofMinutes(45)).toString(), 130.0);
+      List<RawMetric> m4 = EnergyDataFactory.createFullSnapshot(t0.plus(Duration.ofHours(1)).toString(), 140.0);
 
-      List<EnergyMetric> allMetrics = EnergyDataFactory.combine(m0, m1, m2, m3, m4);
+      List<RawMetric> allMetrics = EnergyDataFactory.combine(m0, m1, m2, m3, m4);
 
-      List<EnergyMetric> expectedWindow = EnergyDataFactory.combine(m1, m2, m3, m4);
+      List<RawMetric> expectedWindow = EnergyDataFactory.combine(m1, m2, m3, m4);
 
       return Stream.of(
               Arguments.of(allMetrics, expectedWindow)
@@ -89,13 +89,13 @@ public class GridCacheStoreTest {
 
    @ParameterizedTest
    @MethodSource("provideMetricsForFullHour")
-   void shouldStoreAndReturnFullWindow(List<EnergyMetric> metrics) {
-      List<EnergyMetric> processedMetrics = new ArrayList<>();
+   void shouldStoreAndReturnFullWindow(List<RawMetric> metrics) {
+      List<RawMetric> processedMetrics = new ArrayList<>();
 
-      for (EnergyMetric metric : metrics) {
+      for (RawMetric metric : metrics) {
          processedMetrics.add(metric);
          SlidingWindowKey key = metric.toWindowKey();
-         Collection<EnergyMetric> window = cacheStore.updateSlidingWindow(key, metric);
+         Collection<RawMetric> window = cacheStore.updateSlidingWindow(key, metric);
 
          assertThat(window.stream().toList().containsAll(processedMetrics));
       }
@@ -103,23 +103,23 @@ public class GridCacheStoreTest {
 
    @ParameterizedTest
    @MethodSource("provideMetricsForMoreThanOneHour")
-   void shouldReturnMetricsOfLastHour(List<EnergyMetric> metrics, List<EnergyMetric> expected) {
+   void shouldReturnMetricsOfLastHour(List<RawMetric> metrics, List<RawMetric> expected) {
       for (int i = 0; i < metrics.size()-1; i++) {
-         EnergyMetric metric = metrics.get(i);
+         RawMetric metric = metrics.get(i);
          SlidingWindowKey key = metric.toWindowKey();
          cacheStore.updateSlidingWindow(key, metric);
       }
 
-      EnergyMetric lastMetric = metrics.getLast();
+      RawMetric lastMetric = metrics.getLast();
       SlidingWindowKey key = lastMetric.toWindowKey();
-      Collection<EnergyMetric> window = cacheStore.updateSlidingWindow(key, lastMetric);
+      Collection<RawMetric> window = cacheStore.updateSlidingWindow(key, lastMetric);
 
       assertThat(window.containsAll(expected));
    }
 
    @ParameterizedTest
    @MethodSource("provideMetricsForSnapshots")
-   void shouldReturnCorrectBoolean(List<EnergyMetric> metrics, boolean expected) {
+   void shouldReturnCorrectBoolean(List<RawMetric> metrics, boolean expected) {
       cacheStore.updateGridSnapshot(metrics.getFirst().getTimestamp(), metrics.getFirst());
       assertThat(expected)
               .isEqualTo(cacheStore.updateGridSnapshot(metrics.getLast().getTimestamp(), metrics.getLast()));

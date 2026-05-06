@@ -1,4 +1,6 @@
-package com.energy.analytics.service.analytics.helpers;
+package com.energy.analytics.model.mapper;
+
+import com.energy.analytics.model.domain.EnergySource;
 
 import java.util.Map;
 import java.util.Optional;

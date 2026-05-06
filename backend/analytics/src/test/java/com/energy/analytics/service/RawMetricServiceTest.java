@@ -2,8 +2,8 @@ package com.energy.analytics.service;
 
 import com.energy.analytics.dto.RawEnergyEventDTO;
 import com.energy.analytics.dto.RawMetricDataDTO;
-import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.repository.EnergyMetricRepositoryImpl;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.repository.RawMetricRepositoryImpl;
 import com.energy.analytics.service.analytics.AnalyticsService;
 import com.energy.analytics.service.ingestion.EnergyMetricService;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,10 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class EnergyMetricServiceTest {
+class RawMetricServiceTest {
 
    @Mock
-   private EnergyMetricRepositoryImpl repository;
+   private RawMetricRepositoryImpl repository;
 
    @Mock
    private AnalyticsService analyticsService;
@@ -45,10 +45,10 @@ class EnergyMetricServiceTest {
 
       energyMetricService.processMetrics(payload);
 
-      ArgumentCaptor<List<EnergyMetric>> captor = ArgumentCaptor.forClass(List.class);
+      ArgumentCaptor<List<RawMetric>> captor = ArgumentCaptor.forClass(List.class);
       verify(repository).upsertBatch(captor.capture());
 
-      List<EnergyMetric> savedMetrics = captor.getValue();
+      List<RawMetric> savedMetrics = captor.getValue();
       assertThat(savedMetrics).hasSize(1);
       assertThat(savedMetrics.get(0).getSource()).isEqualTo("solar");
 
@@ -67,15 +67,15 @@ class EnergyMetricServiceTest {
 
       energyMetricService.processMetrics(payload);
 
-      ArgumentCaptor<List<EnergyMetric>> captor = ArgumentCaptor.forClass(List.class);
+      ArgumentCaptor<List<RawMetric>> captor = ArgumentCaptor.forClass(List.class);
       verify(repository).upsertBatch(captor.capture());
 
       verify(analyticsService).process(anyList());
 
-      List<EnergyMetric> sentToRepo = captor.getValue();
+      List<RawMetric> sentToRepo = captor.getValue();
       assertThat(sentToRepo).hasSize(1);
 
-      EnergyMetric result = sentToRepo.get(0);
+      RawMetric result = sentToRepo.get(0);
       assertThat(result.getTimestamp()).isEqualTo(Instant.ofEpochSecond(unixTimestamp));
       assertThat(result.getCategory()).isEqualTo("actual"); // Verified default value
       assertThat(result.getValue()).isEqualTo(100.5);

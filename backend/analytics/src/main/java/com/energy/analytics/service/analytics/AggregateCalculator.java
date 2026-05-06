@@ -1,7 +1,7 @@
 package com.energy.analytics.service.analytics;
 
-import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.service.analytics.helpers.EnergySourceMapper;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.model.mapper.EnergySourceMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -9,23 +9,23 @@ import java.util.Collection;
 @Component
 public class AggregateCalculator {
 
-   public double calculateAverage(Collection<EnergyMetric> metrics) {
+   public double calculateAverage(Collection<RawMetric> metrics) {
       return metrics.stream()
-              .mapToDouble(EnergyMetric::getValue)
+              .mapToDouble(RawMetric::getValue)
               .average()
               .orElse(0);
    }
 
-   public double calculateRenewableShare(Collection<EnergyMetric> snapshot) {
+   public double calculateRenewableShare(Collection<RawMetric> snapshot) {
       double renewable = snapshot.stream()
               .filter(this::isProduction)
               .filter(this::isRenewable)
-              .mapToDouble(EnergyMetric::getValue)
+              .mapToDouble(RawMetric::getValue)
               .sum();
 
       double total = snapshot.stream()
               .filter(this::isProduction)
-              .mapToDouble(EnergyMetric::getValue)
+              .mapToDouble(RawMetric::getValue)
               .sum();
 
       if (total == 0) {
@@ -35,12 +35,12 @@ public class AggregateCalculator {
       return renewable / total;
    }
 
-   private boolean isRenewable(EnergyMetric metric) {
+   private boolean isRenewable(RawMetric metric) {
       var source = EnergySourceMapper.from(metric.getSource());
       return source.isRenewable();
    }
 
-   private boolean isProduction(EnergyMetric metric) {
+   private boolean isProduction(RawMetric metric) {
       return metric.getCategory().equalsIgnoreCase("actual aggregated");
    }
 

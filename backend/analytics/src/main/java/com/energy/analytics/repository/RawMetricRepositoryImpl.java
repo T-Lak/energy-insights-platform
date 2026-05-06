@@ -1,6 +1,6 @@
 package com.energy.analytics.repository;
 
-import com.energy.analytics.model.EnergyMetric;
+import com.energy.analytics.model.entity.RawMetric;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,12 +10,12 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class EnergyMetricRepositoryImpl implements EnergyMetricRepositoryCustom {
+public class RawMetricRepositoryImpl implements BatchRepository<RawMetric> {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void upsertBatch(List<EnergyMetric> metrics) {
+    public void upsertBatch(List<RawMetric> metrics) {
         String sql = """
             INSERT INTO energy_metrics (
                 timestamp, region, metric, source, category, value

@@ -1,9 +1,12 @@
 package com.energy.analytics.service.analytics;
 
-import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.model.SlidingWindowKey;
-import com.energy.analytics.service.analytics.helpers.EnergySource;
-import com.energy.analytics.service.analytics.helpers.EnergySourceMapper;
+import com.energy.analytics.model.entity.DerivedMetric;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.model.keys.SlidingWindowKey;
+import com.energy.analytics.repository.DerivedMetricRepositoryImpl;
+import com.energy.analytics.repository.SmoothedMetricRepositoryImpl;
+import com.energy.analytics.model.domain.EnergySource;
+import com.energy.analytics.model.mapper.EnergySourceMapper;
 import com.energy.analytics.service.state.GridCacheStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,61 +21,75 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AnalyticsService {
 
+   private final SmoothedMetricRepositoryImpl smoothedMetricRepository;
+   private final DerivedMetricRepositoryImpl derivedMetricRepository;
+
    private final GridCacheStore gridCacheStore;
 
    private final AggregateCalculator aggregateCalculator;
 
-   public void process(List<EnergyMetric> metrics) {
+   public void process(List<RawMetric> metrics) {
       Set<Instant> modifiedTimestamps = new HashSet<>();
 
-      for (EnergyMetric metric : metrics) {
+      List<RawMetric> smoothedMetrics = new ArrayList<>();
+      List<DerivedMetric> derivedMetrics = new ArrayList<>();
+
+      for (RawMetric metric : metrics) {
          SlidingWindowKey key = metric.toWindowKey();
-         Collection<EnergyMetric> window = gridCacheStore.updateSlidingWindow(key, metric);
-         EnergyMetric smoothedMetric = computeIfReady(key, window, metric);
+         Collection<RawMetric> window = gridCacheStore.updateSlidingWindow(key, metric);
+         RawMetric smoothedMetric = computeIfReady(window, metric);
 
          if (smoothedMetric != null) {
+            smoothedMetrics.add(smoothedMetric);
+
             boolean changed = gridCacheStore.updateGridSnapshot(metric.getTimestamp(), smoothedMetric);
-            if (changed) {
-               modifiedTimestamps.add(metric.getTimestamp());
-            }
+            if (changed) modifiedTimestamps.add(metric.getTimestamp());
+
          }
       }
 
+      if (!smoothedMetrics.isEmpty()) smoothedMetricRepository.upsertBatch(smoothedMetrics);
+
       for (Instant ts : modifiedTimestamps) {
-         processGridSnapshots(ts, List.copyOf(gridCacheStore.getSnapshot(ts)));
+         DerivedMetric derivedMetric = processGridSnapshots(ts, List.copyOf(gridCacheStore.getSnapshot(ts)));
+         if (derivedMetric != null) derivedMetrics.add(derivedMetric);
       }
+
+      if (!derivedMetrics.isEmpty()) derivedMetricRepository.upsertBatch(derivedMetrics);
    }
 
-   private void processGridSnapshots(Instant timestamp, Collection<EnergyMetric> snapshot) {
-      if (!isSnapshotComplete(snapshot)) return;
+   private DerivedMetric processGridSnapshots(Instant timestamp, Collection<RawMetric> snapshot) {
+      if (!isSnapshotComplete(snapshot)) return null;
+
+      String region = snapshot.stream().findFirst().map(RawMetric::getRegion).orElse("UNKNOWN");
 
       double renewableShare = aggregateCalculator.calculateRenewableShare(snapshot);
 
       log.info("Region: {} | Time: {} | Renewable Share: {}%",
-              snapshot.stream().map(EnergyMetric::getRegion).findFirst().orElse("UNKNOWN"),
+              region,
               timestamp,
               String.format("%.2f", renewableShare * 100));
+
+      return new DerivedMetric(timestamp, region, "renewable share", renewableShare);
    }
 
-   private EnergyMetric computeIfReady(SlidingWindowKey key, Collection<EnergyMetric> window, EnergyMetric metric) {
+   private RawMetric computeIfReady(Collection<RawMetric> window, RawMetric metric) {
       // TODO: consider time span rather than count/size
-      if (window.size() < 3) {
-         return null;
-      }
+      if (window.size() < 3) return null;
 
       double avg = aggregateCalculator.calculateAverage(window);
 
-      return new EnergyMetric(
-              metric.getTimestamp(),
-              metric.getRegion(),
-              metric.getMetric(),
-              metric.getSource(),
-              metric.getCategory(),
-              avg
+      return new RawMetric(
+           metric.getTimestamp(),
+           metric.getRegion(),
+           metric.getMetric(),
+           metric.getSource(),
+           metric.getCategory(),
+           avg
       );
    }
 
-   private boolean isSnapshotComplete(Collection<EnergyMetric> snapshot) {
+   private boolean isSnapshotComplete(Collection<RawMetric> snapshot) {
       Set<EnergySource> presentSources = snapshot.stream()
               .filter(m -> m.getMetric().equals("generation"))
               .map(m -> EnergySourceMapper.from(m.getSource()))

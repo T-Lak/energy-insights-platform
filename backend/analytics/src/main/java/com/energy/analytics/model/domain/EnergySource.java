@@ -1,4 +1,4 @@
-package com.energy.analytics.service.analytics.helpers;
+package com.energy.analytics.model.domain;
 
 import lombok.Getter;
 

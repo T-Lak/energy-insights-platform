@@ -1,6 +1,8 @@
 package com.energy.analytics.service.analytics;
 import com.energy.analytics.helpers.EnergyDataFactory;
-import com.energy.analytics.model.EnergyMetric;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.repository.DerivedMetricRepositoryImpl;
+import com.energy.analytics.repository.SmoothedMetricRepositoryImpl;
 import com.energy.analytics.service.state.GridCacheStore;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.Duration;
@@ -40,6 +43,12 @@ public class AnalyticsServiceIntegrationTest {
    @Autowired
    private AnalyticsService analyticsService;
 
+   @MockitoBean
+   private SmoothedMetricRepositoryImpl smoothedMetricRepository;
+
+   @MockitoBean
+   private DerivedMetricRepositoryImpl derivedMetricRepository;
+
    @MockitoSpyBean
    private GridCacheStore gridCacheStore;
 
@@ -51,7 +60,7 @@ public class AnalyticsServiceIntegrationTest {
       Instant ts = Instant.parse("2026-05-05T10:00:00Z");
 
       // Sending only 1 metric (required: 3)
-      List<EnergyMetric> singleMetric = List.of(
+      List<RawMetric> singleMetric = List.of(
               EnergyDataFactory.create(ts.toString(), "solar", 100.0)
       );
 
@@ -69,10 +78,12 @@ public class AnalyticsServiceIntegrationTest {
       for (int i = 0; i < 3; i++) {
          Instant currentEntryTs = baseTs.plus(Duration.ofMillis(i));
 
-         List<EnergyMetric> batch = EnergyDataFactory.createFullSnapshot(currentEntryTs.toString(), 100.0 + i);
+         List<RawMetric> batch = EnergyDataFactory.createFullSnapshot(currentEntryTs.toString(), 100.0 + i);
 
          analyticsService.process(batch);
       }
+
+      verify(smoothedMetricRepository, atLeastOnce()).upsertBatch(anyList());
 
       verify(gridCacheStore, atLeastOnce()).updateGridSnapshot(any(Instant.class), any());
    }

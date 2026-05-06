@@ -1,8 +1,8 @@
 package com.energy.analytics.service.ingestion;
 
 import com.energy.analytics.dto.RawEnergyEventDTO;
-import com.energy.analytics.model.EnergyMetric;
-import com.energy.analytics.repository.EnergyMetricRepositoryImpl;
+import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.repository.RawMetricRepositoryImpl;
 import com.energy.analytics.service.analytics.AnalyticsService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +18,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class EnergyMetricService {
 
-    private final EnergyMetricRepositoryImpl repository;
+    private final RawMetricRepositoryImpl repository;
     private final AnalyticsService analyticsService;
 
     @Transactional
     public void processMetrics(RawEnergyEventDTO payload) {
         Instant ts = Instant.ofEpochSecond(payload.timestamp());
 
-        List<EnergyMetric> entities = payload.data().stream()
+        List<RawMetric> entities = payload.data().stream()
                 .map(dto -> {
                     Double value = dto.value();
 
@@ -34,7 +34,7 @@ public class EnergyMetricService {
                         return null;
                     }
 
-                    return new EnergyMetric(
+                    return new RawMetric(
                         ts,
                         payload.region(),
                         payload.metric(),

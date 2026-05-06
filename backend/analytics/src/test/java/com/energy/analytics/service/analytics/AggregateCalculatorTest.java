@@ -1,6 +1,6 @@
 package com.energy.analytics.service.analytics;
 
-import com.energy.analytics.model.EnergyMetric;
+import com.energy.analytics.model.entity.RawMetric;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ class AggregateCalculatorTest {
    @Test
    @DisplayName("Should return average value for a collection of metrics")
    void shouldCalculateAverage() {
-      List<EnergyMetric> metrics = List.of(
+      List<RawMetric> metrics = List.of(
               createMetric("solar", 100.0),
               createMetric("wind", 200.0)
       );
@@ -35,7 +35,7 @@ class AggregateCalculatorTest {
    @Test
    @DisplayName("Should calculate correct renewable share")
    void shouldCalculateRenewableShare() {
-      List<EnergyMetric> metrics = List.of(
+      List<RawMetric> metrics = List.of(
               createMetric("solar", 100.0),
               createMetric("fossil gas", 300.0),
               createMetric("load", 500.0, "actual consumption")
@@ -49,7 +49,7 @@ class AggregateCalculatorTest {
    @Test
    @DisplayName("Should return 0.0 for renewable share when total production is zero")
    void shouldHandleDivisionByZeroForShare() {
-      List<EnergyMetric> metrics = List.of(
+      List<RawMetric> metrics = List.of(
               createMetric("solar", 0.0),
               createMetric("fossil gas", 0.0)
       );
@@ -57,11 +57,11 @@ class AggregateCalculatorTest {
       assertThat(calculator.calculateRenewableShare(metrics)).isEqualTo(0.0);
    }
 
-   private EnergyMetric createMetric(String source, double value) {
+   private RawMetric createMetric(String source, double value) {
       return createMetric(source, value, "actual aggregated");
    }
 
-   private EnergyMetric createMetric(String source, double value, String category) {
-      return new EnergyMetric(Instant.now(), "DE_LU", "generation", source, category, value);
+   private RawMetric createMetric(String source, double value, String category) {
+      return new RawMetric(Instant.now(), "DE_LU", "generation", source, category, value);
    }
 }
