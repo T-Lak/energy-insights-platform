@@ -1,28 +1,37 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 import { WebsocketService } from '../../../core/services/websocket.service';
-import { MetricMessage } from '../models/metric-message';
+import { DataPointDTO } from '../models/DataPointDTO';
+import { MetricUpdateDTO } from '../models/MetricUpdateDTO';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MetricsService {
-  private renewableEnergySubject = new BehaviorSubject<number>(0);
-  renewableShare$ = this.renewableEnergySubject.asObservable();
+  private metricStreams: Record<string, BehaviorSubject<DataPointDTO[]>> = {};
 
   constructor(private websocketService: WebsocketService) {
-    this.websocketService.messages$.subscribe((msg: MetricMessage) => {
+    this.websocketService.messages$.subscribe((msg: MetricUpdateDTO) => {
       this.routeMessage(msg);
     });
   }
 
-  private routeMessage(msg: MetricMessage) {
-    switch (msg.metric) {
-      case 'renewable_share':
-        this.renewableEnergySubject.next(msg.value);
-        break;
-      // Add more cases here for other metrics as needed
+  private routeMessage(msg: MetricUpdateDTO): void {
+    Object.entries(msg.metrics).forEach(([metricName, datapoints]) => {
+      if (!this.metricStreams[metricName]) {
+        this.metricStreams[metricName] = new BehaviorSubject<DataPointDTO[]>([]);
+      }
+
+      this.metricStreams[metricName].next(datapoints);
+    });
+  }
+
+  getMetricStream(metric: string): Observable<DataPointDTO[]> {
+    if (!this.metricStreams[metric]) {
+      this.metricStreams[metric] = new BehaviorSubject<DataPointDTO[]>([]);
     }
+
+    return this.metricStreams[metric].asObservable();
   }
 }
