@@ -1,0 +1,22 @@
+@mixin header-with-icon(
+  $font-size: 18px,
+  $margin-bottom: 10px,
+  $font-weight: 700,
+  $color: #212529
+) {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: $font-size;
+  font-weight: $font-weight;
+  color: $color;
+  margin-bottom: $margin-bottom;
+
+  .material-icons {
+    font-size: $font-size + 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+  }
+}

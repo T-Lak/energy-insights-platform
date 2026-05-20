@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 
-import { WebsocketService } from '../../../core/services/websocket.service';
-import { DataPointDTO } from '../models/DataPointDTO';
-import { MetricUpdateDTO } from '../models/MetricUpdateDTO';
+import { WebsocketService } from './websocket.service';
+import { DataPointDTO } from '../models/data-point.dto';
+import { MetricUpdateDTO } from '../models/metric-update.dto';
 
 @Injectable({
   providedIn: 'root',

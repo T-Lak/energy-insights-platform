@@ -1,0 +1,10 @@
+<svg id="Carbon--Streamline-Carbon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="16" width="16">
+  <desc>
+    Carbon Streamline Icon: https://streamlinehq.com
+  </desc>
+  <defs></defs>
+  <title>carbon</title>
+  <path d="M13.5 30.8149a1.0011 1.0011 0 0 1-.4927-.13l-8.5-4.815A1 1 0 0 1 4 25V15a1 1 0 0 1 .5073-.87l8.5-4.815a1.0013 1.0013 0 0 1 .9854 0l8.5 4.815A1 1 0 0 1 23 15v10a1 1 0 0 1-.5073.87l-8.5 4.815a1.0011 1.0011 0 0 1-.4927.1299ZM6 24.417l7.5 4.2485L21 24.417v-8.834l-7.5-4.2485L6 15.583Z" fill="#000000"></path>
+  <path d="M28 17h-2V7.583l-7.5-4.2485L10.4927 7.87l-.9854-1.74 8.5-4.815a1.0013 1.0013 0 0 1 .9854 0l8.5 4.815A1 1 0 0 1 28 7Z" fill="#000000"></path>
+  <path id="_Transparent_Rectangle_" transform="rotate(180 16 16)" d="M0 0h32v32H0Z" fill="none"></path>
+</svg>

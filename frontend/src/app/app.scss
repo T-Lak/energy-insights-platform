@@ -1,0 +1,14 @@
+.app-wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+app-navbar {
+  flex: 0 0 250px;
+}
+
+app-dashboard {
+  flex: 1;
+  min-width: 0;
+}

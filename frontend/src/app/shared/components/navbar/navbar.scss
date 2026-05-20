@@ -1,0 +1,58 @@
+@use 'mixins' as mixins;
+
+.navbar-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 17rem;
+  height: 100vh;
+  // background-color: #1f1933;
+  background-color: #ebebeb;
+  color: #fff;
+  border-right: 1px solid #ccc;
+}
+
+.brand {
+  @include mixins.header-with-icon($font-size: 22px, $margin-bottom: 16px);
+  padding: 20px;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1.25rem;
+  color: #333;
+
+  > h4 {
+    margin: 20px 0 0 0;
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  > a {
+    font-size: 17px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+
+    &:hover {
+      background-color: #dfdfe4;
+    }
+
+    &.active {
+      background-color: #282042;
+      font-weight: 500;
+    }
+
+    > .material-icons {
+      font-size: 1.2rem;
+    }
+  }
+}

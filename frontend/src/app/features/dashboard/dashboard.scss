@@ -1,0 +1,35 @@
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 4fr 2fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.kpi-section {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.chart-section {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.flow-map {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  height: 100%;
+}
+
+.widgets-section {
+  grid-column: 1 / span 2;
+  width: 100%;
+  display: block;
+}

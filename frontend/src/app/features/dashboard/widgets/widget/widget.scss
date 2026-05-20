@@ -1,0 +1,11 @@
+@use 'mixins' as mixins;
+
+.widget-item {
+  height: 225px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.header {
+  @include mixins.header-with-icon($margin-bottom: 16px);
+}

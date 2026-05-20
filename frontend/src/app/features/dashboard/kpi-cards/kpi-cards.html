@@ -1,0 +1,5 @@
+<div class="kpi-section-wrapper">
+  @for (kpiType of kpiList; track $index) {
+    <app-kpi-card [type]="kpiType" />
+  }
+</div>

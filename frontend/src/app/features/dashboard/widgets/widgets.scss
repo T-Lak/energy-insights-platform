@@ -1,0 +1,23 @@
+.top-row-widgets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.feed-content {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #495057;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+app-widget {
+  background-color: #f5f5fa;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+
+  &.feed {
+    background-color: #fff;
+  }
+}

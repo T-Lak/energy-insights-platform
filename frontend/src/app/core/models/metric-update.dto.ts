@@ -1,4 +1,4 @@
-import { DataPointDTO } from './DataPointDTO';
+import { DataPointDTO } from './data-point.dto';
 
 export interface MetricUpdateDTO {
   region: string;

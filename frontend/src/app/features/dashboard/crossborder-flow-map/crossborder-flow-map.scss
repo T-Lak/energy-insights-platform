@@ -1,0 +1,59 @@
+.map-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-header);
+  margin-bottom: 10px;
+}
+
+#map {
+  flex-grow: 1;
+  min-height: 0;
+  width: 100%;
+  background: var(--bg-color-wrapper);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+::ng-deep .custom-flow-tooltip {
+  background: #212529 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+}
+
+::ng-deep .leaflet-control-zoom {
+  border: none !important;
+}
+
+::ng-deep .leaflet-control-zoom-in,
+::ng-deep .leaflet-control-zoom-out {
+  background-color: #6f7072 !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #343a40 !important;
+  font-family: monospace !important;
+  transition: background 0.2s ease;
+  font-size: 14px !important;
+
+  width: 24px !important;
+  height: 24px !important;
+
+  line-height: 24px !important;
+  text-align: center !important;
+  padding: 0 !important;
+}
+
+::ng-deep .leaflet-control-zoom-in:hover,
+::ng-deep .leaflet-control-zoom-out:hover {
+  background-color: #343a40fb !important;
+}

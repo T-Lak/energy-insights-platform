@@ -1,0 +1,33 @@
+@use 'mixins' as mixins;
+
+.header {
+  padding: 20px;
+  border-bottom: 1px solid #ccc;
+
+  .title {
+    @include mixins.header-with-icon($font-size: 24px, $margin-bottom: 0, $font-weight: 500);
+  }
+
+  .subtitle {
+    font-size: 14px;
+
+    .date {
+      color: #777;
+    }
+
+    :not(.date) {
+      font-size: 12px;
+      font-weight: 600;
+      background-color: #dddddd;
+      color: #495057;
+      padding: 4px 15px;
+      margin-left: 20px;
+      border-radius: 25px;
+    }
+
+    .update-badge {
+      background-color: #6f7072;
+      color: #fff;
+    }
+  }
+}
