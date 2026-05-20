@@ -5,16 +5,16 @@
   </div>
   <nav class="nav-links">
     <h4>Overview</h4>
-    <a routerLink="/">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <span class="material-icons">dashboard</span>
       Dashboard
     </a>
     <h4>Analytics</h4>
-    <a routerLink="analytics/renewable-share">
+    <a routerLink="analytics/renewable-share" routerLinkActive="active">
       <span class="material-icons">eco</span>
       Renewable Share
     </a>
-    <a routerLink="analytics/crossborder-flows">
+    <a routerLink="analytics/crossborder-flows" routerLinkActive="active">
       <span class="material-icons">compare_arrows</span>
       Crossborder Flows</a
     >
