@@ -1,1 +1,25 @@
-<p>crossborder-flows works!</p>
+<app-subpage-header title="Crossborder Flows" icon="compare_arrows" />
+<div class="content-wrapper">
+  <div class="toolbar-wrapper">
+    <p-selectButton
+      [options]="granularityOptions"
+      [(ngModel)]="selectedGranularity"
+      (onChange)="onGranularityChange($event)"
+      optionLabel="label"
+      optionValue="value"
+    >
+    </p-selectButton>
+  </div>
+  <div class="charts-wrapper">
+    <div class="spline-chart-wrapper">
+      <app-line-chart [data]="data" />
+    </div>
+    <div class="bar-chart-wrapper">
+      <app-clustered-column-chart [data]="clusterChartData" />
+    </div>
+    <div></div>
+  </div>
+  <div class="table-wrapper">
+    <app-ag-table />
+  </div>
+</div>

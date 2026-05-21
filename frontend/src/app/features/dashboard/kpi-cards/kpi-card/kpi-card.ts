@@ -7,16 +7,18 @@ import { startWith, map } from 'rxjs/operators';
 import { MetricsService } from '../../../../core/services/metrics.service';
 import { DataPointDTO } from '../../../../core/models/data-point.dto';
 import { KpiType, KPI_CONFIG } from '../../dashboard.model';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-kpi-card',
   standalone: true,
-  imports: [CommonModule, AsyncPipe],
+  imports: [CommonModule, AsyncPipe, Tooltip],
   templateUrl: './kpi-card.html',
   styleUrl: './kpi-card.scss',
 })
 export class KpiCard {
   @Input() type!: KpiType;
+  @Input() tooltipDescription!: string;
 
   protected readonly config = KPI_CONFIG;
 

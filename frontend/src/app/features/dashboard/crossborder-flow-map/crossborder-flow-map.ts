@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
@@ -13,12 +13,12 @@ import { flowData } from './crossborder-flow-map.model';
   templateUrl: './crossborder-flow-map.html',
   styleUrl: './crossborder-flow-map.scss',
 })
-export class CrossborderFlowMap implements OnInit, OnDestroy {
+export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
   private map!: L.Map;
 
   constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.initMap();
   }
 
@@ -27,13 +27,14 @@ export class CrossborderFlowMap implements OnInit, OnDestroy {
       center: [51.1657, 10.4515],
       zoom: 5,
       zoomControl: false,
+      zoomAnimation: true,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
+      zoomAnimationThreshold: 20,
     });
 
-    setTimeout(() => {
-      this.map.invalidateSize();
-    }, 500);
-
     L.control.zoom({ position: 'topright' }).addTo(this.map);
+    this.addResetControl();
 
     this.http.get('/europe.geojson').subscribe({
       next: (geoJsonData: any) => {
@@ -47,6 +48,15 @@ export class CrossborderFlowMap implements OnInit, OnDestroy {
         }).addTo(this.map);
 
         this.addFlowMarkers();
+
+        this.map.setView([51.1657, 10.4515], 5, { animate: false });
+
+        setTimeout(() => {
+          this.map.flyTo([51.1657, 10.4515], 5.1, {
+            duration: 0.5,
+            easeLinearity: 0.5,
+          });
+        }, 100);
       },
       error: (err) => {
         console.error(
@@ -77,6 +87,42 @@ export class CrossborderFlowMap implements OnInit, OnDestroy {
         },
       );
     });
+  }
+
+  private addResetControl() {
+    const ResetViewControl = L.Control.extend({
+      onAdd: () => {
+        const container = L.DomUtil.create(
+          'div',
+          'leaflet-bar leaflet-control leaflet-control-custom',
+        );
+
+        container.innerHTML = '⟳';
+
+        container.style.width = '24px';
+        container.style.height = '24px';
+        container.style.lineHeight = '24px';
+        container.style.textAlign = 'center';
+        container.style.cursor = 'pointer';
+        container.style.background = '#6f7072';
+        container.style.color = '#fff';
+        container.style.fontSize = '14px';
+        container.style.border = 'none';
+
+        L.DomEvent.disableClickPropagation(container);
+
+        container.onclick = () => {
+          this.map.flyTo([51.1657, 10.4515], 5.1, {
+            duration: 1,
+            easeLinearity: 0.25,
+          });
+        };
+
+        return container;
+      },
+    });
+
+    new ResetViewControl({ position: 'topright' }).addTo(this.map);
   }
 
   ngOnDestroy(): void {

@@ -2,13 +2,20 @@
   display: flex;
   flex-direction: row;
   height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Prevents unwanted global scrollbars */
 }
 
 app-navbar {
   flex: 0 0 250px;
 }
 
-app-dashboard {
-  flex: 1;
-  min-width: 0;
+/* Add these explicit structural rules ◄ */
+.main-content-view {
+  flex: 1; /* Absorbs all remaining width next to the navbar */
+  display: flex;
+  flex-direction: column; /* Stacks the header above your page content wrapper */
+  min-width: 0; /* CRITICAL: Prevents ag-Grid tables from breaking parent containers */
+  height: 100%;
+  overflow-y: auto; /* Allows individual subpages to scroll vertically if needed */
 }

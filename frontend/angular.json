@@ -29,11 +29,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss",
-              "node_modules/ag-grid-community/styles/ag-grid.css",
-              "node_modules/ag-grid-community/styles/ag-theme-quartz.css"
-            ],
+            "styles": ["src/styles.scss"],
             "stylePreprocessorOptions": {
               "includePaths": ["src/app", "src/app/shared/styles"]
             }

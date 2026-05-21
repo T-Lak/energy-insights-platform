@@ -1,7 +1,9 @@
 <div class="card-wrapper">
   <div class="kpi-title">
     {{ config[type].label }}
-    <span class="material-icons">info_outline</span>
+    <span class="material-icons" [pTooltip]="tooltipDescription" tooltipPosition="bottom"
+      >info_outline</span
+    >
   </div>
 
   <div class="kpi-content">

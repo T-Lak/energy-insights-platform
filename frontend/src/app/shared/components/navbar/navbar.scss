@@ -12,8 +12,16 @@
 }
 
 .brand {
-  @include mixins.header-with-icon($font-size: 22px, $margin-bottom: 16px);
+  @include mixins.header-with-icon($font-size: 24px, $margin-bottom: 16px);
   padding: 20px;
+  align-items: baseline;
+
+  .brand-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transform: translateY(2px);
+  }
 }
 
 .nav-links {

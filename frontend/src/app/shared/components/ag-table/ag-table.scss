@@ -1,0 +1,18 @@
+:host {
+  ::ng-deep {
+    ag-root-wrapper,
+    ag-grid-angular {
+      --ag-border-color: transparent !important;
+      --ag-row-border-color: transparent !important;
+      --ag-background-color: #f5f5fa !important;
+    }
+
+    .ag-row {
+      border-color: #ccc;
+    }
+
+    .ag-header {
+      border-color: #c2c3c5;
+    }
+  }
+}
