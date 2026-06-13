@@ -1,6 +1,6 @@
 package com.energy.analytics.messaging;
 
-import com.energy.analytics.dto.RawEnergyEventDTO;
+import com.energy.analytics.dto.ingestion.RawEnergyEventDTO;
 import com.energy.analytics.service.ingestion.EnergyMetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class EnergyKafkaConsumer {
     public void consumeRaw(RawEnergyEventDTO payload) {
         log.info("Received {} metrics for region {}", payload.data().size(), payload.region());
 
-        metricService.processMetrics(payload);
+        metricService.processRawEnergyMetrics(payload);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.energy.analytics.dto;
+package com.energy.analytics.dto.ingestion;
 
 import java.util.List;
 

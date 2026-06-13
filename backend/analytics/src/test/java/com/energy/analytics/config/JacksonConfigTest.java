@@ -1,6 +1,6 @@
 package com.energy.analytics.config;
 
-import com.energy.analytics.dto.RawMetricDataDTO;
+import com.energy.analytics.dto.ingestion.RawMetricDataDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

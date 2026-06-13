@@ -1,6 +1,6 @@
 package com.energy.analytics.repository;
 
-import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.model.entity.DerivedMetric;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,17 +10,17 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class SmoothedMetricRepositoryImpl implements BatchRepository<RawMetric> {
+public class DerivedMetricRepository implements BatchRepository<DerivedMetric> {
 
    private final JdbcTemplate jdbcTemplate;
 
    @Override
-   public void upsertBatch(List<RawMetric> metrics) {
+   public void upsertBatch(List<DerivedMetric> metrics) {
       String sql = """
-         INSERT INTO smoothed_metrics (
-            timestamp, region, metric, source, category, value
-         ) VALUES (?, ?, ?, ?, ?, ?)
-         ON CONFLICT (timestamp, region, metric, source, category)
+         INSERT INTO derived_metrics (
+            timestamp, region, metric, value
+         ) VALUES (?, ?, ?, ?)
+         ON CONFLICT (timestamp, region, metric)
          DO UPDATE SET value = EXCLUDED.value
       """;
 
@@ -32,9 +32,7 @@ public class SmoothedMetricRepositoryImpl implements BatchRepository<RawMetric> 
               ps.setObject(1, m.getTimestamp().atOffset(ZoneOffset.UTC));
               ps.setObject(2, m.getRegion());
               ps.setObject(3, m.getMetric());
-              ps.setObject(4, m.getSource());
-              ps.setObject(5, m.getCategory());
-              ps.setObject(6, m.getValue());
+              ps.setObject(4, m.getValue());
            }
       );
    }

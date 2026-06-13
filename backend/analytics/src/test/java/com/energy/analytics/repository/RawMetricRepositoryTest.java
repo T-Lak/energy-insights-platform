@@ -1,7 +1,7 @@
 package com.energy.analytics.repository;
 
 import com.energy.analytics.BaseIntegrationTest;
-import com.energy.analytics.model.entity.RawMetric;
+import com.energy.analytics.model.entity.Metric;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,14 +26,14 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private RawMetricRepositoryImpl repository;
+    private RawMetricRepository repository;
 
     static String region = "DE_LU";
 
     static Stream<Arguments> provideDistinctMetrics() {
         return Stream.of(
             Arguments.of(List.of(
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -41,7 +41,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     100.3
                 ),
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:15:00Z"),
                     region,
                     "generation",
@@ -49,7 +49,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     57.
                 ),
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -57,7 +57,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     174.1
                 ),
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -72,7 +72,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
     static Stream<Arguments> provideEqualMetrics() {
         return Stream.of(
             Arguments.of(List.of(
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -80,7 +80,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     100.3
                 ),
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -88,7 +88,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     110.2
                 ),
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -96,7 +96,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
                     "actual aggregated",
                     174.1
                 ),
-                new RawMetric(
+                new Metric(
                     Instant.parse("2026-01-01T10:00:00Z"),
                     region,
                     "generation",
@@ -116,12 +116,12 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
     @ParameterizedTest
     @MethodSource("provideDistinctMetrics")
     @Transactional
-    void testShouldStoreWithoutUpsert(List<RawMetric> metrics) {
+    void testShouldStoreWithoutUpsert(List<Metric> metrics) {
         repository.upsertBatch(metrics);
 
-        List<RawMetric> fetched = jdbcTemplate.query(
+        List<Metric> fetched = jdbcTemplate.query(
             "SELECT * FROM energy_metrics",
-            (rs, rowNum) -> new RawMetric(
+            (rs, rowNum) -> new Metric(
                 rs.getTimestamp("timestamp").toInstant(),
                 rs.getString("region"),
                 rs.getString("metric"),
@@ -139,7 +139,7 @@ public class RawMetricRepositoryTest extends BaseIntegrationTest {
     @ParameterizedTest
     @MethodSource("provideEqualMetrics")
     @Transactional
-    void shouldUpsertRowIfKeyMatches(List<RawMetric> metrics) {
+    void shouldUpsertRowIfKeyMatches(List<Metric> metrics) {
         repository.upsertBatch(metrics);
 
         Integer totalRows = jdbcTemplate.queryForObject(

@@ -1,7 +1,5 @@
 package com.energy.analytics.model.entity;
 
-import com.energy.analytics.model.keys.SlidingWindowKey;
-import com.energy.analytics.model.keys.SnapshotKey;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -14,11 +12,11 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "energy_metrics")
-@IdClass(RawMetricId.class)
+@IdClass(MetricId.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RawMetric {
+public class Metric {
     @Id
     private Instant timestamp;
     @Id
@@ -32,11 +30,4 @@ public class RawMetric {
 
     private Double value;
 
-    public SlidingWindowKey toWindowKey() {
-        return new SlidingWindowKey(region, metric, source, category);
-    }
-
-    public SnapshotKey toSnapshotKey() {
-        return new SnapshotKey(metric, source, category);
-    }
 }

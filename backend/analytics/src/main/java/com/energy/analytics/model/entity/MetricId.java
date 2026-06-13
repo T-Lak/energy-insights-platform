@@ -10,7 +10,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RawMetricId implements Serializable {
+public class MetricId implements Serializable {
     private Instant timestamp;
     private String region;
     private String metric;
