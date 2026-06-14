@@ -9,5 +9,14 @@ def get_query_map(client, start, end):
             country_code='DE_LU',
             start=start,
             end=end
-        )
+        ),
     }
+
+
+def get_flow_query(client, from_region, to_region, start, end):
+    return client.query_crossborder_flows(
+        country_code_from=from_region,
+        country_code_to=to_region,
+        start=start,
+        end=end
+     )

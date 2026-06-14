@@ -1,4 +1,4 @@
-from core import normalize_data
+from services import normalize_grid_data
 
 
 def test_clean_data_flattens_tuple_keys():
@@ -7,7 +7,7 @@ def test_clean_data_flattens_tuple_keys():
         ('Fossil Gas', 'Actual Consumption'): 357,
     }
 
-    result = normalize_data(raw_payload)
+    result = normalize_grid_data(raw_payload)
 
     assert result[0]['source'] == 'solar'
     assert result[0]['category'] == 'actual aggregated'
@@ -23,7 +23,7 @@ def test_clean_data_flattens_tuple_keys():
 def test_clean_data_handles_simple_keys():
     simple_data = {"load": 50000}
 
-    result = normalize_data(simple_data)
+    result = normalize_grid_data(simple_data)
 
     assert result[0]['source'] == 'load'
     assert result[0]['value'] == 50000
@@ -32,6 +32,6 @@ def test_clean_data_handles_simple_keys():
 def test_clean_data_handles_empty_dict():
     raw_data = {}
 
-    result = normalize_data(raw_data)
+    result = normalize_grid_data(raw_data)
     
     assert result == []

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from core import sync_grid_data
+from services import sync_grid_data
 
 
 def test_sync_latest_grid_data_calls_producer(mocker):
@@ -8,9 +8,9 @@ def test_sync_latest_grid_data_calls_producer(mocker):
         'Actual Load': [40000.0]
     }, index=pd.to_datetime(['2026-04-26 14:00:00']).tz_localize('UTC'))
 
-    mock_fetch = mocker.patch('core.engine.fetch_api', return_value={'load': mock_df})
+    mock_fetch = mocker.patch('services.engine.fetch_api', return_value={'load': mock_df})
 
-    mock_send = mocker.patch('core.engine.send_event')
+    mock_send = mocker.patch('services.engine.send_event')
 
     mock_client = mocker.MagicMock()
     mock_logger = mocker.MagicMock()

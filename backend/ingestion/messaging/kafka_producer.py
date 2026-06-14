@@ -15,11 +15,12 @@ def delivery_report(err, msg, logger):
         logger.info(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
 
-def send_event(topic, key, event, logger):
+def send_event(topic, key, event, headers, logger):
     producer.produce(
         topic=topic,
         key=key,
         value=json.dumps(event),
-        callback=lambda err, msg: delivery_report(err, msg, logger)
+        headers=headers,
+        callback=lambda err, msg: delivery_report(err, msg, logger),
     )
     producer.poll(0)

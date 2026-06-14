@@ -1,14 +1,10 @@
-import pandas as pd
-
-from .data_utils import normalize_data, prepare_kafka_payload
+from .data_utils import normalize_grid_data, prepare_kafka_payload
 from messaging import send_event, producer
-from providers import fetch_api
+from providers import fetch_api, calculate_start_end_window
 
 
 def sync_grid_data(client, logger):
-    now = pd.Timestamp.now(tz="Europe/Berlin") - pd.Timedelta(hours=2)
-    end = now.floor("15min")
-    start = end - pd.Timedelta(hours=2)
+    start, end = calculate_start_end_window()
 
     data_map = fetch_api(
         client=client,
@@ -19,8 +15,9 @@ def sync_grid_data(client, logger):
 
     for category, df in data_map.items():
         df.index = df.index.tz_convert('Europe/Berlin')
+
         for timestamp, data in df.iterrows():
-            data = normalize_data(data.to_dict())
+            data = normalize_grid_data(data.to_dict())
             event = prepare_kafka_payload(data, category, timestamp)
 
             key = f"DE|{category}|{timestamp.isoformat()}"
@@ -29,6 +26,7 @@ def sync_grid_data(client, logger):
                 topic='energy.raw',
                 key=key,
                 event=event,
+                headers=[("__TypeId__", b"grid")],
                 logger=logger,
             )
 
