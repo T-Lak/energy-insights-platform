@@ -1,6 +1,7 @@
 package com.energy.analytics.service.analytics;
 
-import com.energy.analytics.messaging.EnergyMetricsStoredEvent;
+import com.energy.analytics.event.CrossborderFlowsStoredEvent;
+import com.energy.analytics.event.EnergyMetricsStoredEvent;
 import com.energy.analytics.model.domain.EnergySource;
 import com.energy.analytics.model.projection.SourceContribution;
 import com.energy.analytics.model.entity.DerivedMetric;
@@ -54,6 +55,13 @@ public class DashboardUpdateService {
             webSocketPublisher.sendSourceContributions(sourceContributions, region);
          }
       }
+   }
+
+   @Async
+   @EventListener
+   public void onCrossborderFlowsStored(CrossborderFlowsStoredEvent event) {
+      Instant ts = event.timestamp();
+      String region = event.region();
    }
 
    private List<DerivedMetric> calculateDerivedMetrics(Instant ts, String region, Collection<Metric> snapshot) {

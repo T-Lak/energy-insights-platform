@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -32,7 +33,7 @@ public class EnergyAnalyticsRepository {
                 FROM energy_metrics
                 WHERE region = ?
            ) t
-           WHERE timestamp ?
+           WHERE timestamp = ?
            ORDER BY timestamp;
        """;
 
@@ -47,7 +48,7 @@ public class EnergyAnalyticsRepository {
                       rs.getDouble("smoothed_value")
               ),
               region,
-              ts
+              ts.atOffset(ZoneOffset.UTC)
       );
    }
 

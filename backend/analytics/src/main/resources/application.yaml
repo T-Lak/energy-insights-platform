@@ -32,9 +32,12 @@ spring:
       properties:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.value.default.type: "com.energy.analytics.dto.ingestion.RawEnergyEventDTO"
-        spring.json.trusted.packages: "com.energy.analytics.dto"
         spring.json.features.allow_non_numeric_numbers: true
+        spring.json.value.default.type: com.energy.analytics.dto.ingestion.RawEnergyEventDTO
+        spring.json.trusted.packages: "com.energy.analytics.dto"
+        spring.json.type.mapping: >
+          grid:com.energy.analytics.dto.ingestion.RawEnergyEventDTO,
+          flows:com.energy.analytics.dto.ingestion.CrossborderFlowEventDTO
 
   jackson:
     parser:

@@ -1,4 +1,4 @@
-package com.energy.analytics.messaging;
+package com.energy.analytics.event;
 
 import java.time.Instant;
 
