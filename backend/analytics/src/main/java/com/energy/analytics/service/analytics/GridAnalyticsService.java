@@ -3,12 +3,13 @@ package com.energy.analytics.service.analytics;
 import com.energy.analytics.event.CrossborderFlowsStoredEvent;
 import com.energy.analytics.event.EnergyMetricsStoredEvent;
 import com.energy.analytics.model.domain.EnergySource;
+import com.energy.analytics.model.entity.FlowPoint;
 import com.energy.analytics.model.projection.SourceContribution;
 import com.energy.analytics.model.entity.DerivedMetric;
 import com.energy.analytics.model.entity.Metric;
 import com.energy.analytics.model.mapper.EnergySourceMapper;
 import com.energy.analytics.repository.DerivedMetricRepository;
-import com.energy.analytics.repository.EnergyAnalyticsRepository;
+import com.energy.analytics.repository.GridAnalyticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -16,23 +17,20 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DashboardUpdateService {
+public class GridAnalyticsService {
 
-   private final EnergyAnalyticsRepository energyAnalyticsRepository;
+   private final GridAnalyticsRepository gridAnalyticsRepository;
    private final DerivedMetricRepository derivedMetricRepository;
 
    private final MetricCalculatorRegistry calculatorRegistry;
 
-   private final DashboardWebSocketPublisher webSocketPublisher;
+   private final WebSocketPublisher webSocketPublisher;
 
    @Async
    @EventListener
@@ -40,7 +38,7 @@ public class DashboardUpdateService {
       Instant ts = event.timestamp();
       String region = event.region();
 
-      List<Metric> gridSnapshot = energyAnalyticsRepository.getGridSnapshot(ts, region);
+      List<Metric> gridSnapshot = gridAnalyticsRepository.getGridSnapshot(ts, region);
 
       if (isSnapshotComplete(gridSnapshot)) {
          List<DerivedMetric> derivedMetrics = calculateDerivedMetrics(ts, region, gridSnapshot);
@@ -62,6 +60,15 @@ public class DashboardUpdateService {
    public void onCrossborderFlowsStored(CrossborderFlowsStoredEvent event) {
       Instant ts = event.timestamp();
       String region = event.region();
+
+      List<FlowPoint> flowPoints = gridAnalyticsRepository.getFlowPoints(ts, region);
+
+      if (!flowPoints.isEmpty()) {
+         webSocketPublisher.sendFlowPoints(flowPoints, region);
+      }
+
+      gridAnalyticsRepository.getFlowTotals(ts, region)
+              .ifPresent(totals -> webSocketPublisher.sendFlowTotals(totals, region));
    }
 
    private List<DerivedMetric> calculateDerivedMetrics(Instant ts, String region, Collection<Metric> snapshot) {

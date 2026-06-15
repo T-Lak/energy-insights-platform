@@ -1,4 +1,4 @@
-package com.energy.analytics.dto.websocket;
+package com.energy.analytics.dto.websocket.model;
 
 import java.time.Instant;
 

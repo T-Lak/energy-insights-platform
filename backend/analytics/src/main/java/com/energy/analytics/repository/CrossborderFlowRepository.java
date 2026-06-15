@@ -21,7 +21,7 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
                timestamp, from_region, to_region, export_mw, import_mw
            ) VALUES (?, ?, ?, ?, ?)
            ON CONFLICT (timestamp, from_region, to_region)
-           DO UPDATE SET 
+           DO UPDATE SET
                export_mw = EXCLUDED.export_mw,
                import_mw = EXCLUDED.import_mw
       """;
