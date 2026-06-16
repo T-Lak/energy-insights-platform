@@ -59,7 +59,7 @@ public class GridAnalyticsRepository {
       String sql = """
          SELECT timestamp, from_region, to_region, export_mw, import_mw
          FROM crossborder_flows
-         WHERE timestamp = ? AND fromRegion = ?
+         WHERE timestamp = ? AND from_region = ?
       """;
 
       return jdbcTemplate.query(

@@ -7,5 +7,5 @@ public record FlowTotalsDTO(
      String region,
      float totalExportMW,
      float totalImportMW,
-     double neTExchangeMW
+     double netExchangeMW
 ) {}

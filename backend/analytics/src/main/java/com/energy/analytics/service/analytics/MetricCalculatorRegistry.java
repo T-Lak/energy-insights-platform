@@ -19,15 +19,15 @@ public class MetricCalculatorRegistry {
 
    public MetricCalculatorRegistry(AggregateCalculator aggregateCalculator) {
       this.kpiCalculators = Map.of(
-           "renewable share", aggregateCalculator::calculateRenewableShare,
-           "carbon intensity", aggregateCalculator::calculateCarbonIntensity,
-           "total load", aggregateCalculator::calculateTotalLoad,
-           "net balance", aggregateCalculator::calculateNetBalance
+           "renewable_share", aggregateCalculator::calculateRenewableShare,
+           "carbon_intensity", aggregateCalculator::calculateCarbonIntensity,
+           "total_load", aggregateCalculator::calculateTotalLoad,
+           "net_balance", aggregateCalculator::calculateNetBalance
       );
 
       this.topSourcesCalculators = Map.of (
-        "top energy sources", aggregateCalculator::calculateTopEnergySources,
-        "top carbon contributors", aggregateCalculator::calculateTopCarbonContributors
+        "top_energy_sources", aggregateCalculator::calculateTopEnergySources,
+        "top_carbon_contributors", aggregateCalculator::calculateTopCarbonContributors
       );
    }
 

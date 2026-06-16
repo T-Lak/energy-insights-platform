@@ -1,6 +1,6 @@
 package com.energy.analytics.dto.websocket.payload;
 
-import com.energy.analytics.dto.websocket.model.SourceRankdingPointDTO;
+import com.energy.analytics.dto.websocket.model.SourceRankingPointDTO;
 
 import java.time.Instant;
 import java.util.List;
@@ -9,5 +9,5 @@ import java.util.Map;
 public record SourceRankingPayload(
         String region,
         Instant timestamp,
-        Map<String, List<SourceRankdingPointDTO>> contributions
+        Map<String, List<SourceRankingPointDTO>> contributions
 ) {}

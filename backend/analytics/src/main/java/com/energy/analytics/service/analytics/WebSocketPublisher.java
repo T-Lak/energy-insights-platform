@@ -2,7 +2,7 @@ package com.energy.analytics.service.analytics;
 
 import com.energy.analytics.dto.websocket.model.FlowPointDTO;
 import com.energy.analytics.dto.websocket.model.FlowTotalsDTO;
-import com.energy.analytics.dto.websocket.model.SourceRankdingPointDTO;
+import com.energy.analytics.dto.websocket.model.SourceRankingPointDTO;
 import com.energy.analytics.dto.websocket.model.TimeseriesPointDTO;
 import com.energy.analytics.dto.websocket.payload.CrossboderFlowsPayload;
 import com.energy.analytics.dto.websocket.payload.CrossborderFlowTotalsPayload;
@@ -50,11 +50,11 @@ public class WebSocketPublisher {
    public void sendSourceContributions(Map<String, List<SourceContribution>> data, String region) {
       log.info("WebSocket Outbound: Source contributions broadcast for region {}", region);
 
-      Map<String, List<SourceRankdingPointDTO>> dto = data.entrySet().stream()
+      Map<String, List<SourceRankingPointDTO>> dto = data.entrySet().stream()
               .collect(Collectors.toMap(
                       Map.Entry::getKey,
                       e -> e.getValue().stream()
-                              .map(c -> new SourceRankdingPointDTO(c.source(), c.value()))
+                              .map(c -> new SourceRankingPointDTO(c.source(), c.value()))
                               .toList()
               ));
 
