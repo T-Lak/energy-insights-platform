@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { Subject } from 'rxjs';
+import { KpiTimeseriesPayload } from '../model/payload/kpi-timeseries.payload';
+import { CrossborderFlowsPayload } from '../model/payload/crossborder-flows.payload';
+import { CrossborderFlowTotalsPayload } from '../model/payload/crossborder-flow-totals.payload';
+import { SourceRankingPayload } from '../model/payload/source-ranking.payload';
 
 @Injectable({
   providedIn: 'root',
@@ -9,9 +13,15 @@ import { Subject } from 'rxjs';
 export class WebsocketService {
   private stompClient!: Client;
 
-  private messageSubject = new Subject<any>();
+  private kpiMetricsSubject = new Subject<KpiTimeseriesPayload>();
+  private sourceRankingSubject = new Subject<SourceRankingPayload>();
+  private flowPointsSubject = new Subject<CrossborderFlowsPayload>();
+  private flowTotalsSubject = new Subject<CrossborderFlowTotalsPayload>();
 
-  messages$ = this.messageSubject.asObservable();
+  metricsRaw$ = this.kpiMetricsSubject.asObservable();
+  sourceRankingRaw$ = this.sourceRankingSubject.asObservable();
+  flowPointsRaw$ = this.flowPointsSubject.asObservable();
+  flowTotalsRaw$ = this.flowTotalsSubject.asObservable();
 
   constructor() {
     this.connect();
@@ -29,7 +39,25 @@ export class WebsocketService {
         this.stompClient.subscribe('/topic/grid_metrics', (message: IMessage) => {
           const body = JSON.parse(message.body);
 
-          this.messageSubject.next(body);
+          this.kpiMetricsSubject.next(body);
+        });
+
+        this.stompClient.subscribe('/topic/grid_sources', (message: IMessage) => {
+          const body = JSON.parse(message.body);
+
+          this.sourceRankingSubject.next(body);
+        });
+
+        this.stompClient.subscribe('/topic/flow_points', (message: IMessage) => {
+          const body = JSON.parse(message.body);
+
+          this.flowPointsSubject.next(body);
+        });
+
+        this.stompClient.subscribe('/topic/flow_totals', (message: IMessage) => {
+          const body = JSON.parse(message.body);
+
+          this.flowTotalsSubject.next(body);
         });
       },
 
