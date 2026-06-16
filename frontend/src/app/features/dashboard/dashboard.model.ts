@@ -1,8 +1,8 @@
 export enum KpiType {
-  RENEWABLE_SHARE = 'renewableShare',
-  CARBON_INTENSITY = 'carbonIntensity',
-  TOTAL_LOAD = 'totalLoad',
-  NET_BALANCE = 'netBalance',
+  RENEWABLE_SHARE = 'renewable_share',
+  CARBON_INTENSITY = 'carbon_intensity',
+  TOTAL_LOAD = 'total_load',
+  NET_BALANCE = 'net_balance',
 }
 
 export interface KpiConfig {
@@ -24,12 +24,12 @@ export const KPI_CONFIG: Record<KpiType, KpiConfig> = {
   },
   [KpiType.TOTAL_LOAD]: {
     label: 'Total Load',
-    unit: 'MW',
+    unit: 'GW',
     icon: 'load.svg',
   },
   [KpiType.NET_BALANCE]: {
     label: 'Net Balance',
-    unit: 'MW',
+    unit: 'GW',
     icon: 'net-balance.svg',
   },
 };

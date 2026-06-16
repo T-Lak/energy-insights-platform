@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { KpiType } from '../dashboard.model';
 import { KpiCard } from './kpi-card/kpi-card';
 import { CommonModule } from '@angular/common';
+import { KpiCardsService as KpiCardsService } from './kpi-cards.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-kpi-section',
   standalone: true,
   imports: [CommonModule, KpiCard],
+  providers: [KpiCardsService],
   templateUrl: './kpi-cards.html',
   styleUrl: './kpi-cards.scss',
 })
-export class KpiSection {
+export class KpiSection implements OnInit {
   protected readonly KpiType = KpiType;
   protected readonly kpiList = Object.values(KpiType);
   protected tooltipDescriptions = [
@@ -19,4 +22,12 @@ export class KpiSection {
     'The total real-time electrical power demand and consumption across the national transmission grid.',
     'The structural balance between total power exports and imports. Positive represents a net export; negative represents a net import.',
   ];
+
+  protected streams$!: Observable<any>;
+
+  constructor(private kpiCardsService: KpiCardsService) {}
+
+  ngOnInit(): void {
+    this.streams$ = this.kpiCardsService.getKpiData();
+  }
 }

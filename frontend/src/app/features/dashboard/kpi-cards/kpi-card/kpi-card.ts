@@ -2,10 +2,9 @@ import { Component, Input } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 
 import { Observable } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
+import { startWith, map, shareReplay } from 'rxjs/operators';
 
-import { MetricsService } from '../../../../core/services/metrics.service';
-import { DataPointDTO } from '../../../../core/models/data-point.dto';
+import { TimeseriesPointDTO } from '../../../../core/model/dto/timeseries-point.dto';
 import { KpiType, KPI_CONFIG } from '../../dashboard.model';
 import { Tooltip } from 'primeng/tooltip';
 
@@ -17,6 +16,7 @@ import { Tooltip } from 'primeng/tooltip';
   styleUrl: './kpi-card.scss',
 })
 export class KpiCard {
+  @Input() stream!: Observable<TimeseriesPointDTO[]>;
   @Input() type!: KpiType;
   @Input() tooltipDescription!: string;
 
@@ -24,26 +24,31 @@ export class KpiCard {
 
   currentKpiValue$!: Observable<string>;
 
-  constructor(private metricsService: MetricsService) {}
+  constructor() {}
 
   ngOnInit(): void {
-    this.currentKpiValue$ = this.metricsService
-      .getMetricStream(this.config[this.type].label.toLowerCase())
-      .pipe(
-        map((data: DataPointDTO[]) => {
-          console.log('data', data);
+    const kpiConfig = this.config[this.type];
 
-          if (data.length === 0) {
-            return this.config[this.type].unit === '%' ? '0,00' : '0';
-          }
+    this.currentKpiValue$ = this.stream.pipe(
+      map((data: TimeseriesPointDTO[]) => {
+        if (!data || data.length === 0 || !data[0]) {
+          return kpiConfig.unit === '%' ? '0,00' : '0';
+        }
 
-          const latest = data[data.length - 1];
-          return new Intl.NumberFormat('de-DE', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(this.config[this.type].unit === '%' ? latest.value * 100 : latest.value);
-        }),
-        startWith('0,00'),
-      );
+        const latest = data[data.length - 1];
+
+        return new Intl.NumberFormat('de-DE', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(
+          kpiConfig.unit === '%'
+            ? latest.value * 100
+            : kpiConfig.unit === 'GW'
+              ? latest.value / 1000
+              : latest.value,
+        );
+      }),
+      shareReplay(1),
+    );
   }
 }

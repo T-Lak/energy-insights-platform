@@ -1,9 +1,12 @@
 <div class="kpi-section-wrapper">
-  @for (kpiType of kpiList; track $index) {
-    <app-kpi-card
-      [type]="kpiType"
-      [tooltipDescription]="tooltipDescriptions[$index]"
-      tooltipStyleClass="kpi-tooltip-theme"
-    />
+  @if (streams$ | async; as allStreams) {
+    @for (kpiType of kpiList; track $index) {
+      <app-kpi-card
+        [type]="kpiType"
+        [stream]="allStreams[kpiType]"
+        [tooltipDescription]="tooltipDescriptions[$index]"
+        tooltipStyleClass="kpi-tooltip-theme"
+      />
+    }
   }
 </div>
