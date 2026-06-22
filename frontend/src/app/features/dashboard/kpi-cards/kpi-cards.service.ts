@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MetricsService } from '../../../core/services/metrics.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { KpiType } from '../dashboard.model';
-import { filter, merge, of, startWith, switchMap } from 'rxjs';
+import { filter, merge, of, switchMap } from 'rxjs';
 import { KpiSnapshotPayload } from '../../../core/model/dto/kpi-wrapper.dto';
 
 @Injectable()
