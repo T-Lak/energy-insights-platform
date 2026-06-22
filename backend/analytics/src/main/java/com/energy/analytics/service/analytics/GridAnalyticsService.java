@@ -8,6 +8,7 @@ import com.energy.analytics.model.projection.SourceContribution;
 import com.energy.analytics.model.entity.DerivedMetric;
 import com.energy.analytics.model.entity.Metric;
 import com.energy.analytics.model.mapper.EnergySourceMapper;
+import com.energy.analytics.repository.CrossborderFlowRepository;
 import com.energy.analytics.repository.DerivedMetricRepository;
 import com.energy.analytics.repository.GridAnalyticsRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class GridAnalyticsService {
 
    private final GridAnalyticsRepository gridAnalyticsRepository;
    private final DerivedMetricRepository derivedMetricRepository;
+   private final CrossborderFlowRepository crossborderFlowRepository;
 
    private final MetricCalculatorRegistry calculatorRegistry;
 
@@ -67,7 +69,7 @@ public class GridAnalyticsService {
          webSocketPublisher.sendFlowPoints(flowPoints, region);
       }
 
-      gridAnalyticsRepository.getFlowTotals(ts, region)
+      crossborderFlowRepository.getFlowTotals(ts, region)
               .ifPresent(totals -> webSocketPublisher.sendFlowTotals(totals, region));
    }
 
