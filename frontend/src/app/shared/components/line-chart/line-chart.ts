@@ -1,9 +1,10 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import { lineColors } from './line-chart.model';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-line-chart',
@@ -12,22 +13,69 @@ import { lineColors } from './line-chart.model';
   templateUrl: './line-chart.html',
   styleUrl: './line-chart.scss',
 })
-export class LineChart implements OnDestroy, OnChanges {
+export class LineChart implements OnInit, OnDestroy {
   @Input() data!: any[];
+  @Input() timeseriesData$!: Observable<any[]>;
+  @Input() dataUpdate$!: Observable<any>;
 
   private root!: am5.Root;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && this.data && this.data.length > 0) {
-      const chart = this.initChart();
-      const [xAxis, yAxis] = this.initAxes(chart);
-      const series = this.createSeries(chart, xAxis, yAxis);
-      this.setCursor(chart, xAxis);
-      this.setData(series, xAxis);
+  private chart!: am5xy.XYChart;
+  private xAxis!: am5xy.CategoryAxis<am5xy.AxisRenderer>;
+  private series!: am5.Series[];
+  private dataSubscription!: Subscription;
+  private dataUpdateSubscription!: Subscription;
+  private seriesData!: any[];
+
+  ngOnInit(): void {
+    if (this.timeseriesData$) {
+      this.dataSubscription = this.timeseriesData$.subscribe({
+        next: (unpackedData) => {
+          this.seriesData = unpackedData;
+
+          const chart = this.initChart();
+          const [xAxis, yAxis] = this.initAxes(chart);
+          const series = this.createSeries(chart, xAxis, yAxis);
+          this.setCursor(chart, xAxis);
+
+          this.chart = chart;
+          this.xAxis = xAxis;
+          this.series = series;
+
+          if (this.seriesData && this.seriesData.length > 0) {
+            this.setData(series, xAxis);
+          }
+        },
+        error: (err) => console.error('Chart stream error:', err),
+      });
+    }
+
+    if (this.dataUpdate$) {
+      this.dataUpdateSubscription = this.dataUpdate$.subscribe({
+        next: (newData) => {
+          const existingIndex = this.seriesData.findIndex((item) => item.time === newData.time);
+
+          if (existingIndex !== -1) {
+            this.seriesData[existingIndex] = newData;
+          } else {
+            this.seriesData.push(newData);
+          }
+
+          if (this.seriesData.length > 28) {
+            this.seriesData.shift();
+          }
+
+          this.setCursor(this.chart, this.xAxis);
+          this.setData(this.series, this.xAxis);
+        },
+        error: (err) => console.error('Data update stream error:', err),
+      });
     }
   }
 
   ngOnDestroy(): void {
+    if (this.dataSubscription) this.dataSubscription.unsubscribe();
+    if (this.dataUpdateSubscription) this.dataUpdateSubscription.unsubscribe();
     if (this.root) this.root.dispose();
   }
 
@@ -96,7 +144,7 @@ export class LineChart implements OnDestroy, OnChanges {
   private createSeries(chart: am5xy.XYChart, xAxis: any, yAxis: any): am5.Series[] {
     const seriesList: am5.Series[] = [];
 
-    const allKeys = Object.keys(this.data[0]);
+    const allKeys = Object.keys(this.seriesData[0]);
     const dataKeys = allKeys.filter((key) => key !== 'time' && key !== 'label' && key !== 'color');
 
     dataKeys.forEach((key, index) => {
@@ -183,10 +231,10 @@ export class LineChart implements OnDestroy, OnChanges {
   }
 
   private setData(series: am5.Series[], xAxis: any): void {
-    xAxis.data.setAll(this.data);
+    xAxis.data.setAll(this.seriesData);
 
     for (let s of series) {
-      s.data.setAll(this.data);
+      s.data.setAll(this.seriesData);
     }
   }
 }

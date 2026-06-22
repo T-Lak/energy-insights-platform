@@ -1,15 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { LineChart } from '../../../shared/components/line-chart/line-chart';
 import { CommonModule } from '@angular/common';
+import { Observable, map, tap } from 'rxjs';
+import { ImportExportFlowService } from './import-export-flow.service';
+import { CrossborderFlowTotalsTsPayload } from '../../../core/model/payload/crossborder-flow-totals-ts.payload';
+import { FlowTotalsDTO } from '../../../core/model/dto/flow-totals.dto';
 
 @Component({
   selector: `app-import-export-flow`,
   standalone: true,
   imports: [CommonModule, LineChart],
+  providers: [ImportExportFlowService],
   templateUrl: './import-export-flow.html',
   styleUrl: './import-export-flow.scss',
 })
 export class ImportExportFlow implements OnInit {
+  protected flowTotals$!: Observable<any>;
+  protected flowTotalsTs$!: Observable<any[]>;
+  protected flowTotalsUpdate$!: Observable<any>;
+
   protected data = [
     { time: '10:00', importValue: 1200, exportValue: 600 },
     { time: '10:15', importValue: 1140, exportValue: 620 },
@@ -42,5 +51,35 @@ export class ImportExportFlow implements OnInit {
     { time: '17:00', importValue: 1100, exportValue: 650 },
   ];
 
-  ngOnInit(): void {}
+  constructor(private importExportFlowService: ImportExportFlowService) {}
+
+  ngOnInit(): void {
+    this.flowTotalsTs$ = this.importExportFlowService
+      .getFlowTotalsTimeseries(7)
+      .pipe(map((payload) => this.transformData(payload)));
+
+    this.flowTotalsUpdate$ = this.importExportFlowService.getLiveFlowTotals().pipe(
+      map((point) => this.transformLivePoint(point)),
+      tap((value) => console.log('NEW LIVE POINT ARRIVED:', value)),
+    );
+  }
+
+  transformData(flow: CrossborderFlowTotalsTsPayload) {
+    return flow.flowTotals.map((p: any) => this.mapPoint(p));
+  }
+
+  transformLivePoint(point: FlowTotalsDTO) {
+    return this.mapPoint(point);
+  }
+
+  private mapPoint(p: any) {
+    return {
+      time: new Date(p.timestamp).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      importValue: p.totalImportMW ? Number(p.totalImportMW.toFixed(2)) : 0,
+      exportValue: p.totalExportMW ? Number(p.totalExportMW.toFixed(2)) : 0,
+    };
+  }
 }
