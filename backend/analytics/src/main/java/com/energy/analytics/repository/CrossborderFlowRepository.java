@@ -90,4 +90,18 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
               .findFirst();
    }
 
+   public void getFlowPoints(String region) {
+      String sql = """
+         SELECT
+            from_region AS origin,
+            split_part(to_region, '_', 1) AS destination,
+            SUM(export_mw) AS total_export_mw,
+            SUM(import_mw) AS total_import_mw
+         FROM crossborder_flows
+         WHERE timestamp = (SELECT MAX(timestamp) FROM crossborder_flows WHERE from_region = ?)
+            AND from_region = ?
+         GROUP BY from_region, split_part(to_region, '_', 1);
+      """;
+   }
+
 }

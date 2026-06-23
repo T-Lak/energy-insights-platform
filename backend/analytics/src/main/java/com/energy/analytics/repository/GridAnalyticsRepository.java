@@ -19,7 +19,7 @@ public class GridAnalyticsRepository {
    public List<Metric> getGridSnapshot(Instant ts, String region) {
 
       String sql = """
-           SELECT timestamp, metric, source, category, smoothed_value
+        SELECT timestamp, metric, source, category, smoothed_value
            FROM (
                SELECT
                    timestamp,
@@ -32,11 +32,15 @@ public class GridAnalyticsRepository {
                        RANGE BETWEEN INTERVAL '2 hours' PRECEDING AND CURRENT ROW
                    ) AS smoothed_value
                 FROM energy_metrics
-                WHERE region = ?
+                WHERE region = ? AND timestamp <= ?
            ) t
-           WHERE timestamp = ?
+           WHERE timestamp = (
+               SELECT MAX(timestamp) 
+               FROM energy_metrics 
+               WHERE region = ? AND timestamp <= ?
+           )
            ORDER BY timestamp;
-       """;
+      """;
 
       return jdbcTemplate.query(
               sql,
@@ -48,6 +52,8 @@ public class GridAnalyticsRepository {
                       rs.getString("category"),
                       rs.getDouble("smoothed_value")
               ),
+              region,
+              ts.atOffset(ZoneOffset.UTC),
               region,
               ts.atOffset(ZoneOffset.UTC)
       );

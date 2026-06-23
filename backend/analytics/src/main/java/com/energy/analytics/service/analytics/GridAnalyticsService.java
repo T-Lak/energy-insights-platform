@@ -2,15 +2,14 @@ package com.energy.analytics.service.analytics;
 
 import com.energy.analytics.event.CrossborderFlowsStoredEvent;
 import com.energy.analytics.event.EnergyMetricsStoredEvent;
-import com.energy.analytics.model.domain.EnergySource;
 import com.energy.analytics.model.entity.FlowPoint;
 import com.energy.analytics.model.projection.SourceContribution;
 import com.energy.analytics.model.entity.DerivedMetric;
 import com.energy.analytics.model.entity.Metric;
-import com.energy.analytics.model.mapper.EnergySourceMapper;
 import com.energy.analytics.repository.CrossborderFlowRepository;
 import com.energy.analytics.repository.DerivedMetricRepository;
 import com.energy.analytics.repository.GridAnalyticsRepository;
+import com.energy.analytics.service.analytics.util.SnapshotValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -30,8 +29,6 @@ public class GridAnalyticsService {
    private final DerivedMetricRepository derivedMetricRepository;
    private final CrossborderFlowRepository crossborderFlowRepository;
 
-   private final MetricCalculatorRegistry calculatorRegistry;
-
    private final WebSocketPublisher webSocketPublisher;
 
    @Async
@@ -42,7 +39,7 @@ public class GridAnalyticsService {
 
       List<Metric> gridSnapshot = gridAnalyticsRepository.getGridSnapshot(ts, region);
 
-      if (isSnapshotComplete(gridSnapshot)) {
+      if (SnapshotValidator.isSnapshotComplete(gridSnapshot)) {
          List<DerivedMetric> derivedMetrics = calculateDerivedMetrics(ts, region, gridSnapshot);
          Map<String, List<SourceContribution>> sourceContributions = calculateSourceContributions(gridSnapshot);
 
@@ -74,7 +71,7 @@ public class GridAnalyticsService {
    }
 
    private List<DerivedMetric> calculateDerivedMetrics(Instant ts, String region, Collection<Metric> snapshot) {
-      return calculatorRegistry.getKpiCalculators().entrySet().stream()
+      return MetricCalculatorRegistry.KPI_CALCULATORS.entrySet().stream()
               .map(entry -> new DerivedMetric(
                       ts,
                       region,
@@ -84,29 +81,12 @@ public class GridAnalyticsService {
               .toList();
    }
 
-   private Map<String, List<SourceContribution>> calculateSourceContributions(Collection<Metric> snapshot) {
-      return calculatorRegistry.getTopSourcesCalculators().entrySet().stream()
+   public Map<String, List<SourceContribution>> calculateSourceContributions(Collection<Metric> snapshot) {
+      return MetricCalculatorRegistry.TOP_SOURCES_CALCULATORS.entrySet().stream()
               .collect(Collectors.toMap(
                       Map.Entry::getKey,
                       e -> e.getValue().apply(snapshot)
               ));
-   }
-
-   private boolean isSnapshotComplete(Collection<Metric> snapshot) {
-      Set<EnergySource> presentSources = snapshot.stream()
-              .filter(m -> m.getMetric().equals("generation"))
-              .map(m -> EnergySourceMapper.from(m.getSource()))
-              .collect(Collectors.toSet());
-
-      Set<EnergySource> criticalSources = EnergySource.criticalGenerationSources();
-
-      boolean containsAllCriticalSources = presentSources.containsAll(criticalSources);
-      double generationCoverage = (double) presentSources.size() / EnergySource.values().length;
-
-      boolean hasLoad = snapshot.stream()
-              .anyMatch(m -> m.getMetric().equals("load"));
-
-      return containsAllCriticalSources && hasLoad && (generationCoverage > .8);
    }
 
 }
