@@ -7,7 +7,7 @@ import com.energy.analytics.dto.websocket.model.TimeseriesPointDTO;
 import com.energy.analytics.dto.websocket.payload.CrossboderFlowsPayload;
 import com.energy.analytics.dto.websocket.payload.CrossborderFlowTotalsPayload;
 import com.energy.analytics.dto.websocket.payload.KpiTimeseriesPayload;
-import com.energy.analytics.dto.websocket.payload.SourceRankingPayload;
+import com.energy.analytics.dto.websocket.payload.LiveSourceRankingPayload;
 import com.energy.analytics.model.entity.FlowPoint;
 import com.energy.analytics.model.projection.SourceContribution;
 import com.energy.analytics.model.entity.DerivedMetric;
@@ -59,8 +59,8 @@ public class WebSocketPublisher {
               ));
 
       messagingTemplate.convertAndSend(
-              "/topic/grid_sources",
-              new SourceRankingPayload(
+              "/topic/grid_top_sources",
+              new LiveSourceRankingPayload(
                       region,
                       Instant.now(),
                       dto
