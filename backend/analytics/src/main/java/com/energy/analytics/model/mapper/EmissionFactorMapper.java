@@ -20,8 +20,8 @@ public class EmissionFactorMapper {
 
       MAP.put(EnergySource.BIOMASS, EmissionCategory.BIOMASS);
 
-      MAP.put(EnergySource.FOSSIL_BROWN_COAL, EmissionCategory.COAL);
-      MAP.put(EnergySource.FOSSIL_HARD_COAL, EmissionCategory.COAL);
+      MAP.put(EnergySource.FOSSIL_BROWN_COAL, EmissionCategory.FOSSIL_BROWN_COAL);
+      MAP.put(EnergySource.FOSSIL_HARD_COAL, EmissionCategory.FOSSIL_HARD_COAL);
 
       MAP.put(EnergySource.HYDRO_WATER_RESERVOIR, EmissionCategory.HYDRO);
       MAP.put(EnergySource.HYDRO_RUN_OF_RIVER, EmissionCategory.HYDRO);
