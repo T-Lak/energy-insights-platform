@@ -13,6 +13,7 @@ import {
 import { BarChartItem } from './bar-chart.model';
 import { CommonModule } from '@angular/common';
 import { SourceRankingPointDTO } from '../../../core/model/dto/source-ranking-point.dto';
+import { shortenSourceName } from '../../../core/model/domain/sources.model';
 
 ModuleRegistry.registerModules([
   BarSeriesModule,
@@ -67,7 +68,7 @@ export class BarChart implements OnInit, OnDestroy {
     return points.map((p) => {
       const pct = total === 0 ? 0 : (p.value / total) * 100;
       return {
-        source: p.source,
+        source: shortenSourceName(p.source),
         percentage: parseFloat(pct.toFixed(1)),
         label: `${(p.value / 1000).toFixed(1)} GW`,
         color: '#5e70d7',
@@ -80,7 +81,7 @@ export class BarChart implements OnInit, OnDestroy {
       const tonnesco2 = p.value / 1_000_000;
 
       return {
-        source: p.source,
+        source: shortenSourceName(p.source),
         intensity: tonnesco2,
         label: `${tonnesco2.toFixed(1)} t CO₂`,
         color: '#a5a5a5',
