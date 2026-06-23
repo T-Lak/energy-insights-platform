@@ -8,6 +8,25 @@ export interface FlowData {
   coords: LatLngExpression;
 }
 
+const BORDER_COORDS: Record<string, LatLngExpression> = {
+  AT: [47.7, 12.1] as LatLngExpression,
+  BE: [50.6, 6.2] as LatLngExpression,
+  CH: [47.7, 8.6] as LatLngExpression,
+  CZ: [50.2, 12.5] as LatLngExpression,
+  DK: [54.8, 9.3] as LatLngExpression,
+  FR: [49, 8] as LatLngExpression,
+  NL: [52.1, 6.9] as LatLngExpression,
+  NO: [55, 6] as LatLngExpression,
+  PL: [52.3, 14.7] as LatLngExpression,
+  SE: [55, 13.5] as LatLngExpression,
+};
+
+export function getBorderCoords(countryAbbr: string): LatLngExpression {
+  if (!countryAbbr) return [0, 0] as LatLngExpression;
+
+  return BORDER_COORDS[countryAbbr];
+}
+
 export const flowData: FlowData[] = [
   {
     from: 'Germany',

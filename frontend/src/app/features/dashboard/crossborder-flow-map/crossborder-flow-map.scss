@@ -24,12 +24,34 @@
   border-radius: 8px;
 }
 
+#map,
+.leaflet-container {
+  &:focus,
+  &:focus-visible,
+  & :focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
 ::ng-deep .custom-flow-tooltip {
   background: #212529 !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 4px !important;
-  padding: 6px 10px !important;
+  padding: 10px 14px !important;
+}
+
+::ng-deep .custom-flow-tooltip .tooltip-header {
+  font-weight: 700;
+  border-bottom: 1px solid #42484e;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  color: #ccc;
+}
+
+::ng-deep .custom-flow-tooltip .tooltip-body {
+  font-size: 12px;
 }
 
 ::ng-deep .leaflet-control-zoom {

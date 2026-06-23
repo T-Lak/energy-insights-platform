@@ -4,28 +4,62 @@ import { HttpClient } from '@angular/common/http';
 
 import * as L from 'leaflet';
 
-import { flowData } from './crossborder-flow-map.model';
+import { FlowData, getBorderCoords } from './crossborder-flow-map.model';
+import { Subscription } from 'rxjs';
+import { FlowPointDTO } from '../../../core/model/dto/flow-point.dto';
+import { CrossborderFlowMapService } from './crossborder-flow-map.service';
+import { getCountryFullName } from '../../../core/model/domain/country.model';
 
 @Component({
   standalone: true,
   selector: 'app-energy-flow-map',
   imports: [CommonModule],
+  providers: [CrossborderFlowMapService],
   templateUrl: './crossborder-flow-map.html',
   styleUrl: './crossborder-flow-map.scss',
 })
-export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
+export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
   private map!: L.Map;
+  private flowData: FlowData[] = [];
 
-  constructor(private http: HttpClient) {}
+  private dataSubscription!: Subscription;
+
+  constructor(
+    private http: HttpClient,
+    private flowService: CrossborderFlowMapService,
+  ) {}
+
+  ngOnInit(): void {
+    this.dataSubscription = this.flowService.getFlowPoints('DE_LU').subscribe({
+      next: (data) => {
+        data.forEach((flowPoint: FlowPointDTO) => {
+          this.flowData.push({
+            from: getCountryFullName(flowPoint.fromRegion),
+            to: getCountryFullName(flowPoint.toRegion),
+            importValue: Math.round(flowPoint.importMW),
+            exportValue: Math.round(flowPoint.exportMW),
+            coords: getBorderCoords(flowPoint.toRegion),
+          });
+        });
+      },
+      error: (err) => console.error('Map data error:', err),
+    });
+  }
 
   ngAfterViewInit(): void {
-    this.initMap();
+    setTimeout(() => {
+      this.initMap();
+    }, 50);
   }
 
   private initMap(): void {
     this.map = L.map('map', {
       center: [51.1657, 10.4515],
       zoom: 5,
+      preferCanvas: true,
+      renderer: L.canvas({
+        padding: 2,
+      }),
       zoomControl: false,
       zoomAnimation: true,
       fadeAnimation: true,
@@ -40,7 +74,7 @@ export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
       next: (geoJsonData: any) => {
         L.geoJSON(geoJsonData, {
           style: {
-            color: '#adb5bd',
+            color: '#969ea5',
             weight: 1.5,
             fillColor: '#e7e8ec',
             fillOpacity: 1,
@@ -51,12 +85,12 @@ export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
 
         this.map.setView([51.1657, 10.4515], 5, { animate: false });
 
-        setTimeout(() => {
-          this.map.flyTo([51.1657, 10.4515], 5.1, {
-            duration: 0.5,
-            easeLinearity: 0.5,
-          });
-        }, 100);
+        this.map.invalidateSize();
+
+        this.map.flyTo([51.1657, 10.4515], 5.1, {
+          duration: 0.5,
+          easeLinearity: 0.5,
+        });
       },
       error: (err) => {
         console.error(
@@ -68,7 +102,7 @@ export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
   }
 
   private addFlowMarkers(): void {
-    flowData.forEach((item) => {
+    this.flowData.forEach((item) => {
       const marker = L.circleMarker(item.coords, {
         radius: 7,
         fillColor: '#5e70d7',
@@ -78,8 +112,34 @@ export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
         interactive: true,
       }).addTo(this.map);
 
+      const netFlow = item.exportValue - item.importValue;
+
+      // 2. Determine layout strings based on direction
+      let titleText: string;
+      let flowDetails: string;
+
+      if (netFlow > 0) {
+        // Germany is actively pushing power out
+        titleText = `${item.from} &rarr; ${item.to}`;
+        flowDetails = `Exporting: <strong>${netFlow} MW</strong>`;
+      } else if (netFlow < 0) {
+        // Germany is pulling power in (Flip the arrow visually!)
+        titleText = `${item.to} &rarr; ${item.from}`;
+        flowDetails = `Importing: <strong>${Math.abs(netFlow)} MW</strong>`;
+      } else {
+        // Perfectly balanced grid state
+        titleText = `${item.from} &harr; ${item.to}`;
+        flowDetails = `No active exchange (0 MW)`;
+      }
+
+      // 3. Bind the cleanly structured html back to the Leaflet marker
       marker.bindTooltip(
-        `<strong>${item.from} &rarr; ${item.to}</strong><br/>Import: ${item.importValue} MW<br/>Export: ${item.exportValue} MW`,
+        `
+        <div class="tooltip-header">${titleText}</div>
+        <div class="tooltip-body">
+          ${flowDetails}
+        </div>
+        `,
         {
           className: 'custom-flow-tooltip',
           direction: 'top',
@@ -128,6 +188,10 @@ export class CrossborderFlowMap implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.map) {
       this.map.remove();
+    }
+
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
     }
   }
 }
