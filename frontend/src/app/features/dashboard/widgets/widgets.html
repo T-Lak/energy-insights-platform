@@ -1,14 +1,28 @@
 <div class="top-row-widgets">
-  <app-widget title="Live Interpretation" icon="rss_feed" class="feed">
+  <app-widget heading="Live Interpretation" icon="rss_feed" class="feed">
     <div class="feed-content">
       The renewable energy contribution has reached 63.59%. This represents a steady upward trend
       from the 61.83% observed earlier this morning, likely due to peak solar production.
     </div>
   </app-widget>
-  <app-widget title="Top Sources" icon="leaderboard">
-    <app-bar-chart [data]="topSourcesData" xKey="source" yKey="percentage" [barWidth]="25" />
-  </app-widget>
-  <app-widget title="Top Carbon Intensity Sources" icon="co2">
-    <app-bar-chart [data]="carbonIntensityData" xKey="source" yKey="intensity" [barWidth]="25" />
-  </app-widget>
+  @if (dictionaryStream$ | async; as dict) {
+    <app-widget heading="Top Sources" icon="leaderboard">
+      <app-bar-chart
+        [stream$]="dict[TopSourcesCategory.ENERGY_SOURCES]"
+        type="energy"
+        xKey="source"
+        yKey="percentage"
+        [barWidth]="25"
+      />
+    </app-widget>
+    <app-widget heading="Top Carbon Contributors" icon="co2">
+      <app-bar-chart
+        [stream$]="dict[TopSourcesCategory.CARBON_CONTRIBUTORS]"
+        type="carbon"
+        xKey="source"
+        yKey="intensity"
+        [barWidth]="25"
+      />
+    </app-widget>
+  }
 </div>

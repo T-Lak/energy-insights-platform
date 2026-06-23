@@ -5,6 +5,11 @@ export enum KpiType {
   NET_BALANCE = 'net_balance',
 }
 
+export enum TopSourcesCategory {
+  ENERGY_SOURCES = 'top_energy_sources',
+  CARBON_CONTRIBUTORS = 'top_carbon_contributors',
+}
+
 export interface KpiConfig {
   label: string;
   unit: string;

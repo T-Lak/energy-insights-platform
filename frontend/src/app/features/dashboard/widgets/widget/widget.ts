@@ -9,6 +9,6 @@ import { Component, Input } from '@angular/core';
   styleUrl: './widget.scss',
 })
 export class Widget {
-  @Input() title!: string;
+  @Input() heading!: string;
   @Input() icon!: string;
 }
