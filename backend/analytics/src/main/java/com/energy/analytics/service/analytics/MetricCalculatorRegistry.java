@@ -1,5 +1,7 @@
 package com.energy.analytics.service.analytics;
 
+import com.energy.analytics.model.domain.ContributionType;
+import com.energy.analytics.model.domain.MetricKey;
 import com.energy.analytics.model.projection.SourceContribution;
 import com.energy.analytics.model.entity.Metric;
 import lombok.Getter;
@@ -10,25 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-@Getter
-@Component
-public class MetricCalculatorRegistry {
+public final class MetricCalculatorRegistry {
 
-   private final Map<String, Function<Collection<Metric>, Double>> kpiCalculators;
-   private final Map<String, Function<Collection<Metric>, List<SourceContribution>>> topSourcesCalculators;
+   private MetricCalculatorRegistry() {}
 
-   public MetricCalculatorRegistry(AggregateCalculator aggregateCalculator) {
-      this.kpiCalculators = Map.of(
-           "renewable_share", aggregateCalculator::calculateRenewableShare,
-           "carbon_intensity", aggregateCalculator::calculateCarbonIntensity,
-           "total_load", aggregateCalculator::calculateTotalLoad,
-           "net_balance", aggregateCalculator::calculateNetBalance
-      );
+   public static final Map<String, Function<Collection<Metric>, Double>> KPI_CALCULATORS = Map.of(
+           MetricKey.RENEWABLE_SHARE.getKey(), AggregateCalculator::calculateRenewableShare,
+           MetricKey.CARBON_INTENSITY.getKey(), AggregateCalculator::calculateCarbonIntensity,
+           MetricKey.TOTAL_LOAD.getKey(), AggregateCalculator::calculateTotalLoad,
+           MetricKey.NET_BALANCE.getKey(), AggregateCalculator::calculateNetBalance
+   );
 
-      this.topSourcesCalculators = Map.of (
-        "top_energy_sources", aggregateCalculator::calculateTopEnergySources,
-        "top_carbon_contributors", aggregateCalculator::calculateTopCarbonContributors
-      );
-   }
-
+   public static final Map<String, Function<Collection<Metric>, List<SourceContribution>>> TOP_SOURCES_CALCULATORS = Map.of(
+           ContributionType.TOP_EMERGY_SOURCES.getType(), AggregateCalculator::calculateTopEnergySources,
+           ContributionType.TOP_CARBON_CONTRIBUTORS.getType(), AggregateCalculator::calculateTopCarbonContributors
+   );
 }
