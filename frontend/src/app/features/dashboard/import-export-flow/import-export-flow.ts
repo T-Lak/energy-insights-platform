@@ -58,10 +58,9 @@ export class ImportExportFlow implements OnInit {
       .getFlowTotalsTimeseries(7)
       .pipe(map((payload) => this.transformData(payload)));
 
-    this.flowTotalsUpdate$ = this.importExportFlowService.getLiveFlowTotals().pipe(
-      map((point) => this.transformLivePoint(point)),
-      tap((value) => console.log('NEW LIVE POINT ARRIVED:', value)),
-    );
+    this.flowTotalsUpdate$ = this.importExportFlowService
+      .getLiveFlowTotals()
+      .pipe(map((point) => this.transformLivePoint(point)));
   }
 
   transformData(flow: CrossborderFlowTotalsTsPayload) {
@@ -77,6 +76,7 @@ export class ImportExportFlow implements OnInit {
       time: new Date(p.timestamp).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
+        hour12: false,
       }),
       importValue: p.totalImportMW ? Number(p.totalImportMW.toFixed(2)) : 0,
       exportValue: p.totalExportMW ? Number(p.totalExportMW.toFixed(2)) : 0,
