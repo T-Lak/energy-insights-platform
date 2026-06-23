@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 
 import { Observable } from 'rxjs';
-import { startWith, map, shareReplay } from 'rxjs/operators';
+import { startWith, map, shareReplay, pairwise } from 'rxjs/operators';
 
 import { TimeseriesPointDTO } from '../../../../core/model/dto/timeseries-point.dto';
 import { KpiType, KPI_CONFIG } from '../../dashboard.model';
@@ -23,6 +23,7 @@ export class KpiCard {
   protected readonly config = KPI_CONFIG;
 
   currentKpiValue$!: Observable<string>;
+  kpiTrend$!: Observable<{ value: string; isUp: boolean; isNeutral: boolean }>;
 
   constructor() {}
 
@@ -37,7 +38,7 @@ export class KpiCard {
 
         const latest = data[data.length - 1];
 
-        return new Intl.NumberFormat('de-DE', {
+        const formattedValue = new Intl.NumberFormat('de-DE', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }).format(
@@ -47,8 +48,36 @@ export class KpiCard {
               ? latest.value / 1000
               : latest.value,
         );
+
+        return formattedValue;
       }),
       shareReplay(1),
+    );
+
+    this.kpiTrend$ = this.currentKpiValue$.pipe(
+      map((valueStr) => {
+        if (!valueStr) return 0;
+        const cleanStr = valueStr
+          .replace(/\./g, '')
+          .replace(',', '.')
+          .replace(/[^0-9.]/g, '');
+        return parseFloat(cleanStr) || 0;
+      }),
+      startWith(0),
+      pairwise(),
+      map(([prev, current]) => {
+        if (prev === 0 || prev === current) {
+          return { value: '0.0%', isUp: false, isNeutral: true };
+        }
+
+        const change = ((current - prev) / prev) * 100;
+
+        return {
+          value: `${Math.abs(change).toFixed(1)}%`,
+          isUp: change > 0,
+          isNeutral: false,
+        };
+      }),
     );
   }
 }

@@ -12,9 +12,11 @@
       {{ config[type].unit }}
     </div>
 
-    <div class="kpi-trend">
-      <span class="material-icons">arrow_outward</span>
-      1.2%
+    <div class="kpi-trend" *ngIf="kpiTrend$ | async as trend">
+      <span class="material-icons">
+        {{ trend.isNeutral ? 'trending_flat' : trend.isUp ? 'arrow_outward' : 'south_east' }}
+      </span>
+      <span>{{ trend.value }}</span>
     </div>
   </div>
 </div>
