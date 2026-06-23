@@ -1,6 +1,8 @@
 package com.energy.analytics.service.analytics;
 
 import com.energy.analytics.dto.rest.CrossborderFlowTotalsTsPayload;
+import com.energy.analytics.dto.rest.LatestFlowsPayload;
+import com.energy.analytics.dto.websocket.model.FlowPointDTO;
 import com.energy.analytics.dto.websocket.model.FlowTotalsDTO;
 import com.energy.analytics.repository.CrossborderFlowRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -31,5 +34,17 @@ public class CrossborderFlowService {
       List<FlowTotalsDTO> flowTotals = crossborderFlowRepository.getFlowTotals(start, end, region);
 
       return new CrossborderFlowTotalsTsPayload(region, Instant.now(), flowTotals);
+   }
+
+   public LatestFlowsPayload getLatestFlowPoints(String region) {
+      log.info("Fetching latest flow points for region: {}", region);
+
+      List<FlowPointDTO> flowPoints = crossborderFlowRepository.getLatestFlowPoints(region);
+
+      if (flowPoints == null) {
+         flowPoints = Collections.emptyList();
+      }
+
+      return new LatestFlowsPayload(flowPoints);
    }
 }

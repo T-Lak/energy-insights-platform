@@ -1,5 +1,6 @@
 package com.energy.analytics.repository;
 
+import com.energy.analytics.dto.websocket.model.FlowPointDTO;
 import com.energy.analytics.dto.websocket.model.FlowTotalsDTO;
 import com.energy.analytics.model.entity.FlowPoint;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +53,8 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
       String sql = """
         SELECT
             timestamp,
-            SUM(export_mw) AS total_export,
-            SUM(import_mw) AS total_import
+            SUM(export_mw) AS total_export_mw,
+            SUM(import_mw) AS total_import_mw
         FROM crossborder_flows
         WHERE timestamp BETWEEN ? AND ?
           AND from_region = ?
@@ -64,8 +65,8 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
       return jdbcTemplate.query(
               sql,
               (rs, rowNum) -> {
-                 float totalExport = rs.getFloat("total_export");
-                 float totalImport = rs.getFloat("total_import");
+                 float totalExport = rs.getFloat("total_export_mw");
+                 float totalImport = rs.getFloat("total_import_mw");
 
                  return new FlowTotalsDTO(
                          rs.getObject("timestamp", OffsetDateTime.class).toInstant(),
@@ -90,11 +91,12 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
               .findFirst();
    }
 
-   public void getFlowPoints(String region) {
+   public List<FlowPointDTO> getLatestFlowPoints(String region) {
       String sql = """
          SELECT
-            from_region AS origin,
-            split_part(to_region, '_', 1) AS destination,
+            MAX(timestamp) AS timestamp,
+            from_region,
+            split_part(to_region, '_', 1) AS to_region,
             SUM(export_mw) AS total_export_mw,
             SUM(import_mw) AS total_import_mw
          FROM crossborder_flows
@@ -102,6 +104,24 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
             AND from_region = ?
          GROUP BY from_region, split_part(to_region, '_', 1);
       """;
+
+      return jdbcTemplate.query(
+              sql,
+              (rs, rowNum) -> {
+                 float totalExport = rs.getFloat("total_export_mw");
+                 float totalImport = rs.getFloat("total_import_mw");
+
+                 return new FlowPointDTO(
+                      rs.getObject("timestamp", OffsetDateTime.class).toInstant(),
+                      rs.getString("from_region"),
+                      rs.getString("to_region"),
+                      totalExport,
+                      totalImport
+                 );
+              },
+              region,
+              region
+      );
    }
 
 }
