@@ -5,7 +5,7 @@ import { WebsocketService } from './websocket.service';
 import { TimeseriesPointDTO } from '../model/dto/timeseries-point.dto';
 import { KpiTimeseriesPayload } from '../model/payload/kpi-timeseries.payload';
 import { SourceRankingPointDTO } from '../model/dto/source-ranking-point.dto';
-import { SourceRankingPayload } from '../model/payload/source-ranking.payload';
+import { LiveSourceRankingPayload } from '../model/payload/live-source-ranking.payload';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,7 @@ export class MetricsService {
       this.routeKpiPayload(payload);
     });
 
-    this.websocketService.sourceRankingRaw$.subscribe((payload: SourceRankingPayload) => {
+    this.websocketService.sourceRankingRaw$.subscribe((payload: LiveSourceRankingPayload) => {
       this.routeSourceRankingPayload(payload);
     });
   }
@@ -34,7 +34,7 @@ export class MetricsService {
     });
   }
 
-  private routeSourceRankingPayload(payload: SourceRankingPayload): void {
+  private routeSourceRankingPayload(payload: LiveSourceRankingPayload): void {
     Object.entries(payload.contributions).forEach(([sourceName, rankingPoints]) => {
       if (!this.topSourcesStream[sourceName]) {
         this.topSourcesStream[sourceName] = new BehaviorSubject<SourceRankingPointDTO[]>([]);
