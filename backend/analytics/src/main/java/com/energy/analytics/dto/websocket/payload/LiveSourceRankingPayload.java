@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-public record SourceRankingPayload(
+public record LiveSourceRankingPayload(
         String region,
         Instant timestamp,
         Map<String, List<SourceRankingPointDTO>> contributions
