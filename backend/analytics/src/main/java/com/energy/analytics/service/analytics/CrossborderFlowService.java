@@ -22,8 +22,8 @@ public class CrossborderFlowService {
    private final CrossborderFlowRepository crossborderFlowRepository;
 
    public CrossborderFlowTotalsTsPayload getFlowTotalsTimeSeries(int hours, String region) {
-      if (hours <= 0 || hours > 168) {
-         throw new IllegalArgumentException("hours must be between 1 and 168");
+      if (hours <= 0 || hours > 24) {
+         throw new IllegalArgumentException("hours must be between 1 and 24");
       }
 
       log.info("fetching latest flow timeseries data for region: {}", region);
