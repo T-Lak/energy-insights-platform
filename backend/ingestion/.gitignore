@@ -1,0 +1,30 @@
+# --- PyCharm / IntelliJ Web IDE ---
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# --- Python Environment & Caches ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# --- Virtual Environments (Crucial to block!) ---
+venv/
+.venv/
+env/
+.env/
+ENV/
+threading_env/
+
+# --- Environment Variables / Secrets ---
+.env
+.flaskenv
+secrets.json
+
+# --- OS Specific Files ---
+.DS_Store
+Thumbs.db
