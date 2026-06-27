@@ -1,8 +1,6 @@
 # Energy Insights Platform
 
-This projects processes energy grid data, and correlates it with both `weather phenomena` (e.g. wind droughts, cloud coverage, etc.) and `carbon intensity data` to investigate
-real-time effects of weather phenomena on the grid. For example: `wind drought + high cloud coverage → more non-renewable energy required → higher carbon intensity` 
- (see [metrics](./docs/metrics.md)). 
+This projects processes raw energy grid data,and established an event-driven microservice architecture, including asynchronous communication via Apache Kafka.
 
 Insights are visualized in a `dashboard frontend` (interactive charts) and optionally augmented with brief `interpretative summaries` from a small language model (SLM).
 
@@ -10,11 +8,12 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and optio
 
 ## Project Structure
 ```text
-├── frontend/                 # Dashboard, charts, UI code
+├── .github/workflows/        # CI pipelines
+├── api/                      # API specifications
+├── frontend/                 # Angular Dashboard, including charts and tables
 ├── backend/                  # Ingestion and analytics microservices
-│   ├── correlation-service/  # Java service exposing derived analytics 
-│   └── ingestion/            # Python service fetching APIs, storing raw data 
-├── docker/                   # Dockerfiles, docker-compose configs
+│   ├── analytics/            # Java service exposing derived analytics via REST and Web Sockets
+│   └── ingestion/            # Python service fetching APIs, publishing raw data 
 └── docs/                     # Documentation, diagrams, design notes
     └── C4 Model/             # C4 diagrams and event diagrams
 ```
@@ -29,6 +28,8 @@ This project follows a microservice architecture. Key components:
 - **Frontend**: Dashboard visualizations (charts, bubble charts, scatter plots).
 - **Messaging**: Kafka topics manage data flow between services.
 
+
+#### Container View
 <div align="center">
   <br>
   <img src="docs/c4-model/container.svg" width="800">
