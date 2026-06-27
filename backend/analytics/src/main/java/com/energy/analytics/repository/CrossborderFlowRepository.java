@@ -124,4 +124,41 @@ public class CrossborderFlowRepository implements BatchRepository<FlowPoint> {
       );
    }
 
+   public List<FlowPointDTO> getWeeklyFlows(Instant start, Instant end, String region) {
+      return getFlowsFromView("view_crossborder_flows_hourly", start, end, region);
+   }
+
+   public List<FlowPointDTO> getMonthlyFlows(Instant start, Instant end, String region) {
+      return getFlowsFromView("view_crossborder_flows_daily", start, end, region);
+   }
+
+   public List<FlowPointDTO> getFlowsFromView(String viewName, Instant start, Instant end, String region) {
+      String sql = String.format("""
+       SELECT
+         bucket,
+         from_region,
+         to_region,
+         avg_export_mw,
+         avg_import_mw
+      FROM %s
+      WHERE bucket BETWEEN ? AND ?
+      AND from_region = ?
+      ORDER BY bucket, to_region
+   """, viewName);
+
+      return jdbcTemplate.query(
+           sql,
+           (rs, rowNum) -> new FlowPointDTO(
+                rs.getObject("bucket", OffsetDateTime.class).toInstant(),
+                rs.getString("from_region"),
+                rs.getString("to_region"),
+                rs.getFloat("avg_export_mw"),
+                rs.getFloat("avg_import_mw")
+           ),
+           start.atOffset(ZoneOffset.UTC),
+           end.atOffset(ZoneOffset.UTC),
+           region
+      );
+   }
+
 }

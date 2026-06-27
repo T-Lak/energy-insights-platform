@@ -35,8 +35,8 @@ public class GridAnalyticsRepository {
                 WHERE region = ? AND timestamp <= ?
            ) t
            WHERE timestamp = (
-               SELECT MAX(timestamp) 
-               FROM energy_metrics 
+               SELECT MAX(timestamp)
+               FROM energy_metrics
                WHERE region = ? AND timestamp <= ?
            )
            ORDER BY timestamp;
