@@ -1,10 +1,16 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnChanges,
+  SimpleChanges,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import { lineColors } from './line-chart.model';
-import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-line-chart',
@@ -13,69 +19,59 @@ import { Observable, Subscription } from 'rxjs';
   templateUrl: './line-chart.html',
   styleUrl: './line-chart.scss',
 })
-export class LineChart implements OnInit, OnDestroy {
-  @Input() data!: any[];
-  @Input() timeseriesData$!: Observable<any[]>;
-  @Input() dataUpdate$!: Observable<any>;
+export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
+  @Input() seriesData!: any[];
 
   private root!: am5.Root;
 
   private chart!: am5xy.XYChart;
   private xAxis!: am5xy.CategoryAxis<am5xy.AxisRenderer>;
   private series!: am5.Series[];
-  private dataSubscription!: Subscription;
-  private dataUpdateSubscription!: Subscription;
-  private seriesData!: any[];
 
-  ngOnInit(): void {
-    if (this.timeseriesData$) {
-      this.dataSubscription = this.timeseriesData$.subscribe({
-        next: (unpackedData) => {
-          this.seriesData = unpackedData;
+  private isViewInitialized = false;
 
-          const chart = this.initChart();
-          const [xAxis, yAxis] = this.initAxes(chart);
-          const series = this.createSeries(chart, xAxis, yAxis);
-          this.setCursor(chart, xAxis);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['seriesData']) return;
+    this.seriesData = changes['seriesData'].currentValue;
 
-          this.chart = chart;
-          this.xAxis = xAxis;
-          this.series = series;
+    if (!this.isViewInitialized) return;
 
-          if (this.seriesData && this.seriesData.length > 0) {
-            this.setData(series, xAxis);
-          }
-        },
-        error: (err) => console.error('Chart stream error:', err),
-      });
+    this.tryUpdate();
+  }
+
+  ngAfterViewInit() {
+    this.isViewInitialized = true;
+
+    if (!this.root && this.seriesData?.length) {
+      this.initFullChart();
     }
 
-    if (this.dataUpdate$) {
-      this.dataUpdateSubscription = this.dataUpdate$.subscribe({
-        next: (newData) => {
-          const existingIndex = this.seriesData.findIndex((item) => item.time === newData.time);
+    this.tryUpdate();
+  }
 
-          if (existingIndex !== -1) {
-            this.seriesData[existingIndex] = newData;
-          } else {
-            this.seriesData.push(newData);
-          }
+  private tryUpdate(): void {
+    if (!this.seriesData?.length) return;
 
-          if (this.seriesData.length > 28) {
-            this.seriesData.shift();
-          }
+    if (!this.root) {
+      this.initFullChart();
+    }
 
-          this.setCursor(this.chart, this.xAxis);
-          this.setData(this.series, this.xAxis);
-        },
-        error: (err) => console.error('Data update stream error:', err),
-      });
+    if (this.series?.length && this.xAxis) {
+      this.setData(this.series, this.xAxis);
     }
   }
 
+  private initFullChart(): void {
+    this.chart = this.initChart();
+
+    const [xAxis, yAxis] = this.initAxes(this.chart);
+    this.xAxis = xAxis;
+
+    this.series = this.createSeries(this.chart, xAxis, yAxis);
+
+    this.setCursor(this.chart, xAxis);
+  }
   ngOnDestroy(): void {
-    if (this.dataSubscription) this.dataSubscription.unsubscribe();
-    if (this.dataUpdateSubscription) this.dataUpdateSubscription.unsubscribe();
     if (this.root) this.root.dispose();
   }
 
@@ -117,6 +113,7 @@ export class LineChart implements OnInit, OnDestroy {
     );
 
     xAxis.get('renderer').labels.template.setAll({
+      text: '{displayTime}',
       fill: am5.color('#888'),
       fontSize: '14px',
       fontWeight: '500',
@@ -145,7 +142,15 @@ export class LineChart implements OnInit, OnDestroy {
     const seriesList: am5.Series[] = [];
 
     const allKeys = Object.keys(this.seriesData[0]);
-    const dataKeys = allKeys.filter((key) => key !== 'time' && key !== 'label' && key !== 'color');
+
+    const dataKeys = allKeys.filter(
+      (key) =>
+        key !== 'time' &&
+        key !== 'timestamp' &&
+        key !== 'displayTime' &&
+        key !== 'label' &&
+        key !== 'color',
+    );
 
     dataKeys.forEach((key, index) => {
       const colorHex = lineColors[index] || '#adb5bd';

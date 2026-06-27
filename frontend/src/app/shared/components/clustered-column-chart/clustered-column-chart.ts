@@ -1,8 +1,9 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import { Observable, Subscription } from 'rxjs';
 
 const DEFAULT_COLORS = ['#5e70d7', '#10b981'];
 
@@ -13,23 +14,38 @@ const DEFAULT_COLORS = ['#5e70d7', '#10b981'];
   templateUrl: './clustered-column-chart.html',
   styleUrl: './clustered-column-chart.scss',
 })
-export class ClusteredColumnChart implements OnChanges, OnDestroy {
-  @Input() data!: any[];
+export class ClusteredColumnChart implements OnInit, OnDestroy {
+  @Input() data$!: Observable<any[]>;
   @Input() categoryField: string = 'country';
+
+  private data!: any[];
+
+  private dataSubscription!: Subscription;
 
   private root!: am5.Root;
   private seriesList: am5xy.ColumnSeries[] = [];
   private xAxis!: any;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] && this.data && this.data.length > 0) {
-      this.buildChart();
+  ngOnInit(): void {
+    if (this.data$) {
+      this.dataSubscription = this.data$.subscribe({
+        next: (unpackedData) => {
+          console.log(unpackedData);
+
+          this.data = unpackedData;
+
+          this.buildChart();
+        },
+      });
     }
   }
 
   ngOnDestroy(): void {
     if (this.root) {
       this.root.dispose();
+    }
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
     }
     this.seriesList = [];
   }
@@ -142,6 +158,9 @@ export class ClusteredColumnChart implements OnChanges, OnDestroy {
           fontSize: '9px',
           fontWeight: '600',
           fontFamily: 'Inter, sans-serif',
+          rotation: -90,
+          dx: -15,
+          dy: 10,
         }),
       });
     });

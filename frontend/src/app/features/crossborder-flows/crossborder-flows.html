@@ -1,4 +1,5 @@
 <app-subpage-header title="Crossborder Flows" icon="compare_arrows" />
+
 <div class="content-wrapper">
   <div class="toolbar-wrapper">
     <p-selectButton
@@ -12,10 +13,10 @@
   </div>
   <div class="charts-wrapper">
     <div class="spline-chart-wrapper">
-      <app-line-chart [data]="data" />
+      <app-line-chart [seriesData]="(seriesData$ | async) ?? []" />
     </div>
     <div class="bar-chart-wrapper">
-      <app-clustered-column-chart [data]="clusterChartData" />
+      <!-- <app-clustered-column-chart [data$]="barChartData" /> -->
     </div>
   </div>
   <div class="table-wrapper">

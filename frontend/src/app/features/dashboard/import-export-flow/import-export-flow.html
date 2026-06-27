@@ -5,10 +5,7 @@
   </div>
   <div class="charts-wrapper">
     <div class="chart">
-      <app-line-chart
-        [timeseriesData$]="flowTotalsTs$"
-        [dataUpdate$]="flowTotalsUpdate$"
-      ></app-line-chart>
+      <app-line-chart [seriesData]="chartData"></app-line-chart>
     </div>
   </div>
 </div>
