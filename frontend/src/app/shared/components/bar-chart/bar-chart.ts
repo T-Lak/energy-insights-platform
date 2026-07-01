@@ -13,7 +13,7 @@ import {
 import { BarChartItem } from './bar-chart.model';
 import { CommonModule } from '@angular/common';
 import { SourceRankingPointDTO } from '../../../core/model/dto/source-ranking-point.dto';
-import { shortenSourceName } from '../../../core/model/domain/sources.model';
+import { getSourceTypeColor, shortenSourceName } from '../../../core/model/domain/sources.model';
 
 ModuleRegistry.registerModules([
   BarSeriesModule,
@@ -71,7 +71,7 @@ export class BarChart implements OnInit, OnDestroy {
         source: shortenSourceName(p.source),
         percentage: parseFloat(pct.toFixed(1)),
         label: `${(p.value / 1000).toFixed(1)} GW`,
-        color: '#5e70d7',
+        color: getSourceTypeColor(p.source),
       };
     });
   }
@@ -84,7 +84,7 @@ export class BarChart implements OnInit, OnDestroy {
         source: shortenSourceName(p.source),
         intensity: tonnesco2,
         label: `${tonnesco2.toFixed(1)} t CO₂`,
-        color: '#a5a5a5',
+        color: getSourceTypeColor(p.source),
       };
     });
   }

@@ -90,8 +90,8 @@ export class ImportExportFlow implements OnInit, OnDestroy {
       timestamp: p.timestamp,
       time: uniqueId,
       displayTime: cleanTime,
-      importValue: p.totalImportMW ? Number(p.totalImportMW.toFixed(2)) : 0,
-      exportValue: p.totalExportMW ? Number(p.totalExportMW.toFixed(2)) : 0,
+      import: p.totalImportMW ? Number(p.totalImportMW.toFixed(2)) : 0,
+      export: p.totalExportMW ? Number(p.totalExportMW.toFixed(2)) : 0,
     };
   }
 }

@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { FlowPointDTO } from '../../../core/model/dto/flow-point.dto';
 import { CrossborderFlowMapService } from './crossborder-flow-map.service';
 import { getCountryFullName } from '../../../core/model/domain/country.model';
+import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.model';
 
 @Component({
   standalone: true,
@@ -103,36 +104,38 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
 
   private addFlowMarkers(): void {
     this.flowData.forEach((item) => {
+      const netFlow = item.exportValue - item.importValue;
+
+      const flowMarkerColor =
+        netFlow > 0
+          ? getFlowColor(FlowDirection.Export)
+          : netFlow < 0
+            ? getFlowColor(FlowDirection.Import)
+            : getFlowColor(null as any);
+
       const marker = L.circleMarker(item.coords, {
         radius: 7,
-        fillColor: '#5e70d7',
+        fillColor: flowMarkerColor,
         fillOpacity: 1,
         color: '#ffffff',
         weight: 2,
         interactive: true,
       }).addTo(this.map);
 
-      const netFlow = item.exportValue - item.importValue;
-
-      // 2. Determine layout strings based on direction
       let titleText: string;
       let flowDetails: string;
 
       if (netFlow > 0) {
-        // Germany is actively pushing power out
         titleText = `${item.from} &rarr; ${item.to}`;
         flowDetails = `Exporting: <strong>${netFlow} MW</strong>`;
       } else if (netFlow < 0) {
-        // Germany is pulling power in (Flip the arrow visually!)
         titleText = `${item.to} &rarr; ${item.from}`;
         flowDetails = `Importing: <strong>${Math.abs(netFlow)} MW</strong>`;
       } else {
-        // Perfectly balanced grid state
         titleText = `${item.from} &harr; ${item.to}`;
         flowDetails = `No active exchange (0 MW)`;
       }
 
-      // 3. Bind the cleanly structured html back to the Leaflet marker
       marker.bindTooltip(
         `
         <div class="tooltip-header">${titleText}</div>
