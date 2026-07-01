@@ -16,10 +16,10 @@
       <app-line-chart [seriesData]="(seriesData$ | async) ?? []" />
     </div>
     <div class="bar-chart-wrapper">
-      <!-- <app-clustered-column-chart [data$]="barChartData" /> -->
+      <app-clustered-column-chart [dataInput]="(barChartData$ | async) ?? []" />
     </div>
   </div>
   <div class="table-wrapper">
-    <app-ag-table />
+    <app-ag-table [granularity]="selectedGranularity" [dataInput]="(tableData$ | async) ?? []" />
   </div>
 </div>

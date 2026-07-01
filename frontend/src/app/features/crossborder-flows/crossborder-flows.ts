@@ -86,7 +86,7 @@ export class CrossborderFlows implements OnInit {
     );
 
     this.tableData$ = sharedState$.pipe(
-      map((state) => state.summaries.map((s: any) => this.toTableData(s))),
+      map((state) => state.summaries.flatMap((s: any) => this.toTableData(s))),
     );
 
     this.activeHourLabel$ = sharedState$.pipe(
@@ -151,8 +151,8 @@ export class CrossborderFlows implements OnInit {
       timestamp: dataPoint.timestamp,
       time: uniqueId,
       displayTime: cleanTime,
-      importValue: Number(dataPoint.totalImportMW.toFixed(2)),
-      exportValue: Number(dataPoint.totalExportMW.toFixed(2)),
+      import: Number(dataPoint.totalImportMW.toFixed(2)),
+      export: Number(dataPoint.totalExportMW.toFixed(2)),
     };
   }
 
@@ -165,14 +165,28 @@ export class CrossborderFlows implements OnInit {
   }
 
   private toTableData(dataPoint: any) {
-    return {
-      country: dataPoint.toRegion,
-      importValue: Number(dataPoint.totalImportMW.toFixed(2)),
-      exportValue: Number(dataPoint.totalExportMW.toFixed(2)),
+    const baseProperties = {
+      timestamp: dataPoint.timestamp,
+      country: dataPoint.country,
       netFlow: Number(dataPoint.netFlow.toFixed(2)),
-      importChangeShort: dataPoint.importShortTermPercentage,
-      exportChangeShort: dataPoint.exportShortTermPercentage,
     };
+
+    return [
+      {
+        ...baseProperties,
+        flowDirection: 'Import',
+        value: Number(dataPoint.totalImportMW.toFixed(2)),
+        shortTermChange: dataPoint.importShortTermChangePercentage,
+        longTermChange: dataPoint.importLongTermChangePercentage,
+      },
+      {
+        ...baseProperties,
+        flowDirection: 'Export',
+        value: Number(dataPoint.totalExportMW.toFixed(2)),
+        shortTermChange: dataPoint.exportShortTermChangePercentage,
+        longTermChange: dataPoint.exportLongTermChangePercentage,
+      },
+    ];
   }
 
   private formatTimeLabel(isoString: string): string {

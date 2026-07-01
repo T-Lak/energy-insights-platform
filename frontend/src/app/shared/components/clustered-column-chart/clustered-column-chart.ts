@@ -1,11 +1,9 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, AfterViewInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import { Observable, Subscription } from 'rxjs';
-
-const DEFAULT_COLORS = ['#5e70d7', '#10b981'];
+import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.model';
 
 @Component({
   selector: 'app-clustered-column-chart',
@@ -14,40 +12,51 @@ const DEFAULT_COLORS = ['#5e70d7', '#10b981'];
   templateUrl: './clustered-column-chart.html',
   styleUrl: './clustered-column-chart.scss',
 })
-export class ClusteredColumnChart implements OnInit, OnDestroy {
-  @Input() data$!: Observable<any[]>;
+export class ClusteredColumnChart implements OnChanges, AfterViewInit {
+  @Input() dataInput!: any[];
   @Input() categoryField: string = 'country';
 
-  private data!: any[];
-
-  private dataSubscription!: Subscription;
+  private data: any[] = [];
 
   private root!: am5.Root;
   private seriesList: am5xy.ColumnSeries[] = [];
   private xAxis!: any;
 
-  ngOnInit(): void {
-    if (this.data$) {
-      this.dataSubscription = this.data$.subscribe({
-        next: (unpackedData) => {
-          console.log(unpackedData);
+  private isViewInitialized = false;
 
-          this.data = unpackedData;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['dataInput']) return;
+    this.data = changes['dataInput'].currentValue;
 
-          this.buildChart();
-        },
-      });
-    }
+    console.log('BAR CHART: ', this.data);
+
+    if (!this.isViewInitialized) return;
+
+    this.tryUpdate();
   }
 
-  ngOnDestroy(): void {
-    if (this.root) {
-      this.root.dispose();
+  ngAfterViewInit() {
+    this.isViewInitialized = true;
+
+    if (!this.root && this.data?.length) {
+      this.buildChart();
     }
-    if (this.dataSubscription) {
-      this.dataSubscription.unsubscribe();
+
+    this.tryUpdate();
+  }
+
+  private tryUpdate(): void {
+    if (!this.data?.length) return;
+
+    if (!this.root) {
+      this.buildChart();
     }
-    this.seriesList = [];
+
+    if (this.seriesList?.length && this.xAxis) {
+      console.log('update data');
+
+      this.updateChartData();
+    }
   }
 
   private buildChart(): void {
@@ -73,7 +82,10 @@ export class ClusteredColumnChart implements OnInit, OnDestroy {
     );
 
     seriesKeys.forEach((key, index) => {
-      const colorHex = this.data[0].color?.[key] || DEFAULT_COLORS[index] || '#adb5bd';
+      const colorHex =
+        key.toLocaleLowerCase() === 'imports'
+          ? getFlowColor(FlowDirection.Import)
+          : getFlowColor(FlowDirection.Export);
       const formattedName = key.charAt(0).toUpperCase() + key.slice(1);
 
       const series = this.createSeries(
@@ -144,25 +156,6 @@ export class ClusteredColumnChart implements OnInit, OnDestroy {
       strokeOpacity: 0,
       cornerRadiusTL: 4,
       cornerRadiusTR: 4,
-    });
-
-    series.bullets.push(() => {
-      return am5.Bullet.new(this.root, {
-        locationY: 1,
-        sprite: am5.Label.new(this.root, {
-          text: '{valueY}',
-          fill: am5.color('#ffffff'),
-          centerY: am5.p0,
-          centerX: am5.p50,
-          populateText: true,
-          fontSize: '9px',
-          fontWeight: '600',
-          fontFamily: 'Inter, sans-serif',
-          rotation: -90,
-          dx: -15,
-          dy: 10,
-        }),
-      });
     });
 
     return series;
