@@ -15,13 +15,13 @@ public enum EnergySource {
    FOSSIL_HARD_COAL(false),
    FOSSIL_OIL(false),
    GEOTHERMAL(true),
-   HYDRO_PUMPED_STORAGE(true),
+   HYDRO_PUMPED_STORAGE(false),
    HYDRO_RUN_OF_RIVER(true),
    HYDRO_WATER_RESERVOIR(true),
    OTHER(false),
    OTHER_RENEWABLE(true),
    SOLAR(true),
-   WASTE(true),
+   WASTE(false),
    WIND_OFFSHORE(true),
    WIND_ONSHORE(true);
 
