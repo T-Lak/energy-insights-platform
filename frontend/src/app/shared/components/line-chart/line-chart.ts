@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-import { lineColors } from './line-chart.model';
+import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.model';
 
 @Component({
   selector: 'app-line-chart',
@@ -152,8 +152,11 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
         key !== 'color',
     );
 
-    dataKeys.forEach((key, index) => {
-      const colorHex = lineColors[index] || '#adb5bd';
+    dataKeys.forEach((key) => {
+      const colorHex =
+        key.toLocaleLowerCase() === 'import'
+          ? getFlowColor(FlowDirection.Import)
+          : getFlowColor(FlowDirection.Export);
       const color = am5.color(colorHex);
       const formattedName = key.charAt(0).toUpperCase() + key.slice(1);
 
@@ -165,6 +168,7 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
           valueYField: key,
           categoryXField: 'time',
           sequencedInterpolation: true,
+          connect: false,
           stroke: color,
           tooltip: this.createTooltip(key, color),
         }),
