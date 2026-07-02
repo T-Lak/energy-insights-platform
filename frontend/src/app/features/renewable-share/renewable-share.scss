@@ -1,3 +1,20 @@
+::ng-deep {
+  .p-datepicker:not(.p-disabled).p-focus .p-datepicker-input {
+    border-color: #0e7478 !important;
+    box-shadow: 0 0 0 0.2rem rgba(14, 116, 120, 0.2) !important;
+  }
+
+  .p-datepicker-panel,
+  .p-datepicker {
+    .p-datepicker-day-selected {
+      background: #0e7478 !important;
+      background-color: #0e7478 !important;
+      color: #ffffff !important;
+      border-color: #0e7478 !important;
+    }
+  }
+}
+
 .content-wrapper {
   display: flex;
   flex-direction: column;
