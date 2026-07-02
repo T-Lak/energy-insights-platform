@@ -17,7 +17,6 @@ public class GridAnalyticsRepository {
    private final JdbcTemplate jdbcTemplate;
 
    public List<Metric> getGridSnapshot(Instant ts, String region) {
-
       String sql = """
         SELECT timestamp, metric, source, category, smoothed_value
            FROM (
