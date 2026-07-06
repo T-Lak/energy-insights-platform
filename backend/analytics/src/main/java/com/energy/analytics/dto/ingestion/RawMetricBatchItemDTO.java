@@ -1,6 +1,8 @@
 package com.energy.analytics.dto.ingestion;
 
-public record RawMetricDataDTO(
+
+public record RawMetricBatchItemDTO(
+    long timestamp,
     String source,
     String category,
     Double value
