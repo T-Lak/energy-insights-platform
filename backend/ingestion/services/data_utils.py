@@ -3,11 +3,11 @@ from typing import List, Dict, Any
 import pandas as pd
 
 
-def normalize_grid_data(raw_data: Dict) -> List:
+def normalize_grid_data(raw_data: Dict, timestamp) -> List:
     normalized_data = []
 
     for key, val in raw_data.items():
-        metric = {}
+        metric = {'timestamp': int(timestamp.timestamp())}
         if isinstance(key, tuple):
             metric['source'] = key[0].lower()
             metric['category'] = key[1].lower()
@@ -29,13 +29,4 @@ def normalize_flow_data(timestamp, neighbor: str, export_value: Any, import_df: 
         "toRegion": neighbor,
         "exportMW": export_value,
         "importMW": float(import_value),
-    }
-
-
-def prepare_kafka_payload(data, category: str, timestamp) -> dict:
-    return {
-        "region": "DE_LU",
-        "metric": category,
-        "timestamp": int(timestamp.timestamp()),
-        "data": data,
     }
