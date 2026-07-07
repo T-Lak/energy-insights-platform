@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, merge, of } from 'rxjs';
+import { Observable, merge, of, catchError } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { MetricsService } from '../../../core/services/metrics.service';
 import { SourceRankingPointDTO } from '../../../core/model/dto/source-ranking-point.dto';
@@ -22,6 +22,10 @@ export class WidgetsService {
     return this.httpClient
       .get<SourceRankingPayload>('/api/analytics/metrics/top-sources', { params })
       .pipe(
+        catchError((error) => {
+          console.error('Error fetching top sources data:', error);
+          return of({ energy: [], carbon: [] } as SourceRankingPayload);
+        }),
         switchMap((latestSnapshot) => {
           const dictionary: { [key in TopSourcesCategory]: Observable<SourceRankingPointDTO[]> } = {
             [TopSourcesCategory.ENERGY_SOURCES]: merge(
@@ -37,7 +41,6 @@ export class WidgetsService {
                 ),
               ),
             ),
-
             [TopSourcesCategory.CARBON_CONTRIBUTORS]: merge(
               of(latestSnapshot.carbon),
               (

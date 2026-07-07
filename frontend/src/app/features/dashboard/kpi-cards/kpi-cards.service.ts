@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MetricsService } from '../../../core/services/metrics.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { KpiType } from '../dashboard.model';
-import { filter, merge, of, switchMap } from 'rxjs';
+import { catchError, filter, merge, of, switchMap } from 'rxjs';
 import { KpiSnapshotPayload } from '../../../core/model/dto/kpi-wrapper.dto';
 
 @Injectable()
@@ -18,6 +18,16 @@ export class KpiCardsService {
     return this.httpClient
       .get<KpiSnapshotPayload>('/api/analytics/metrics/kpi/latest', { params })
       .pipe(
+        catchError((error) => {
+          console.error('Error fetching KPI data:', error);
+
+          return of({
+            renewableShare: { timestamp: new Date(), value: 0.0 },
+            carbonIntensity: { timestamp: new Date(), value: 0.0 },
+            totalLoad: { timestamp: new Date(), value: 0.0 },
+            netBalance: { timestamp: new Date(), value: 0.0 },
+          });
+        }),
         switchMap((latestData) => {
           return of({
             [KpiType.RENEWABLE_SHARE]: merge(
