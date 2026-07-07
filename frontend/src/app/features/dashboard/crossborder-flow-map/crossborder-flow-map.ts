@@ -21,8 +21,9 @@ import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.mo
 })
 export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
   private map!: L.Map;
+  private markersLayer = L.layerGroup();
+  private geoJsonLayerLoaded = false;
   private flowData: FlowData[] = [];
-
   private dataSubscription!: Subscription;
 
   constructor(
@@ -33,6 +34,8 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.dataSubscription = this.flowService.getFlowPoints('DE_LU').subscribe({
       next: (data) => {
+        this.flowData = [];
+
         data.forEach((flowPoint: FlowPointDTO) => {
           this.flowData.push({
             from: getCountryFullName(flowPoint.fromRegion),
@@ -42,6 +45,10 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
             coords: getBorderCoords(flowPoint.toRegion),
           });
         });
+
+        if (this.map && this.geoJsonLayerLoaded) {
+          this.addFlowMarkers();
+        }
       },
       error: (err) => console.error('Map data error:', err),
     });
@@ -55,7 +62,7 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
 
   private initMap(): void {
     this.map = L.map('map', {
-      center: [51.1657, 10.4515],
+      center: [51.8, 10.4515],
       zoom: 5,
       preferCanvas: true,
       renderer: L.canvas({
@@ -69,6 +76,7 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
     });
 
     L.control.zoom({ position: 'topright' }).addTo(this.map);
+    this.markersLayer.addTo(this.map);
     this.addResetControl();
 
     this.http.get('/europe.geojson').subscribe({
@@ -82,13 +90,17 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
           },
         }).addTo(this.map);
 
-        this.addFlowMarkers();
+        this.geoJsonLayerLoaded = true;
 
-        this.map.setView([51.1657, 10.4515], 5, { animate: false });
+        if (this.flowData.length > 0) {
+          this.addFlowMarkers();
+        }
+
+        this.map.setView([51.8, 10.4515], 5, { animate: false });
 
         this.map.invalidateSize();
 
-        this.map.flyTo([51.1657, 10.4515], 5.1, {
+        this.map.flyTo([51.8, 10.4515], 5.1, {
           duration: 0.5,
           easeLinearity: 0.5,
         });
@@ -103,6 +115,8 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private addFlowMarkers(): void {
+    this.markersLayer.clearLayers();
+
     this.flowData.forEach((item) => {
       const netFlow = item.exportValue - item.importValue;
 
@@ -149,6 +163,8 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
           sticky: true,
         },
       );
+
+      marker.addTo(this.markersLayer);
     });
   }
 
@@ -175,7 +191,7 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
         L.DomEvent.disableClickPropagation(container);
 
         container.onclick = () => {
-          this.map.flyTo([51.1657, 10.4515], 5.1, {
+          this.map.flyTo([51.8, 10.4515], 5.1, {
             duration: 1,
             easeLinearity: 0.25,
           });
