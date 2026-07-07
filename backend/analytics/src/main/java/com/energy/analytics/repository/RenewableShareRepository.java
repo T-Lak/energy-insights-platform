@@ -1,11 +1,18 @@
 package com.energy.analytics.repository;
 
+import com.energy.analytics.model.entity.DailyEnergySummary;
+import com.energy.analytics.dto.rest.MetricPointDTO;
 import com.energy.analytics.model.entity.RenewableMix;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -14,6 +21,8 @@ import java.util.List;
 public class RenewableShareRepository {
 
    private final JdbcTemplate jdbcTemplate;
+
+   private final ObjectMapper objectMapper = new ObjectMapper();
 
    public List<RenewableMix> getRenewablesMetricsPerDay(Instant startDate, Instant endDate, String region) {
       String sql = """
@@ -41,18 +50,67 @@ public class RenewableShareRepository {
               sql,
               (rs, rowNum) -> new RenewableMix(
                    rs.getTimestamp("timestamp").toInstant(),
-                         rs.getDouble("solar"),
-                         rs.getDouble("wind_onshore"),
-                         rs.getDouble("wind_offshore"),
-                         rs.getDouble("biomass"),
-                         rs.getDouble("hydro"),
-                         rs.getDouble("geothermal"),
-                         rs.getDouble("other_renewable")
+                   rs.getDouble("solar"),
+                   rs.getDouble("wind_onshore"),
+                   rs.getDouble("wind_offshore"),
+                   rs.getDouble("biomass"),
+                   rs.getDouble("hydro"),
+                   rs.getDouble("geothermal"),
+                   rs.getDouble("other_renewable")
               ),
               startDate.atOffset(ZoneOffset.UTC),
               endDate.atOffset(ZoneOffset.UTC),
               region
       );
+   }
+
+   public List<DailyEnergySummary> getDailySummary(LocalDate date, String region) {
+      String sql = """
+      SELECT
+        CASE
+          WHEN time_period = 'Day' THEN 'Day (06:00 - 22:00)'
+          WHEN time_period = 'Night' THEN 'Night (22:00 - 06:00)'
+          ELSE time_period
+        END AS "timePeriod",
+        CASE
+          WHEN precise_source IN ('waste', 'other', 'hydro pumped storage') THEN 'Other'
+          ELSE energy_category
+        END AS "category",
+        ROUND(SUM(total_mwh)) AS "amount",
+        json_agg(json_build_object(
+           'source', INITCAP(precise_source),
+           'percentage', ROUND(total_mwh)
+        ) ORDER BY total_mwh DESC) AS "mixBreakdown"
+      FROM view_energy_metrics_daily_summary
+      WHERE production_day::date = ?::date
+        AND region = ?
+        AND energy_category IN ('Renewables', 'Fossils')
+      GROUP BY 1, 2;
+   """;
+
+      return jdbcTemplate.query(
+              sql,
+              (rs, rowNum) -> new DailyEnergySummary(
+                      rs.getString("timePeriod"),
+                      rs.getString("category"),
+                      rs.getDouble("amount"),
+                      mapJsonToList(rs, "mixBreakdown")
+              ),
+              date,
+              region
+      );
+   }
+
+   private List<MetricPointDTO> mapJsonToList(ResultSet rs, String columnName) throws SQLException {
+      try {
+         String jsonString = rs.getString(columnName);
+         if (jsonString == null) return List.of();
+
+         return objectMapper.readValue(jsonString, new TypeReference<>() {
+         });
+      } catch (Exception e) {
+         throw new SQLException("Failed to parse mixBreakdown JSON payload", e);
+      }
    }
 
 }

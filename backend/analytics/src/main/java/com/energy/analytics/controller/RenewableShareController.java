@@ -1,5 +1,7 @@
 package com.energy.analytics.controller;
 
+import com.energy.analytics.dto.rest.DailyEnergySummaryDTO;
+import com.energy.analytics.model.entity.DailyEnergySummary;
 import com.energy.analytics.dto.rest.RenewableMixDTO;
 import com.energy.analytics.model.entity.RenewableMix;
 import com.energy.analytics.model.mapper.RenewablesMapper;
@@ -48,7 +50,33 @@ public class RenewableShareController {
 
       List<RenewableMix> entities = renewableShareService.getRenewablesMixPerDay(startDate, endDate, region);
       List<RenewableMixDTO> dtoList = entities.stream()
-              .map(RenewablesMapper::toDTO)
+              .map(RenewablesMapper::toRenewableMixDTO)
+              .toList();
+
+      return ResponseEntity.ok(dtoList);
+   }
+
+   @GetMapping("daily-summary")
+   public ResponseEntity<List<DailyEnergySummaryDTO>> getDailySummary(
+           @RequestParam("date") String date,
+           @RequestParam("region") String region
+   ) {
+      log.info("Fetch daily summaries");
+      LocalDate localDate;
+
+      try {
+         localDate = LocalDate.parse(date);
+      } catch (DateTimeParseException e) {
+         return ResponseEntity.badRequest().build();
+      }
+
+      if (region == null || region.isBlank()) {
+         return ResponseEntity.badRequest().build();
+      }
+
+      List<DailyEnergySummary> summaries = renewableShareService.getDailySummary(localDate, region);
+      List<DailyEnergySummaryDTO> dtoList = summaries.stream()
+              .map(RenewablesMapper::toDailyEnergySummaryDTO)
               .toList();
 
       return ResponseEntity.ok(dtoList);
