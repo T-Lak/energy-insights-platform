@@ -41,7 +41,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
 
   private root!: am5.Root;
   private seriesList: am5xy.LineSeries[] = [];
-  private xAxis!: am5xy.CategoryAxis<am5xy.AxisRendererX>;
+  private xAxis!: am5xy.DateAxis<am5xy.AxisRendererX>;
 
   private isViewInitialized = false;
 
@@ -81,6 +81,8 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       this.buildChart();
     }
 
+    console.log('Data: ', this.data);
+
     this.updateChartData();
   }
 
@@ -116,8 +118,8 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
     xAxisRenderer.grid.template.setAll({ visible: false });
 
     this.xAxis = chart.xAxes.push(
-      am5xy.CategoryAxis.new(this.root, {
-        categoryField: 'timestamp',
+      am5xy.DateAxis.new(this.root, {
+        baseInterval: { timeUnit: 'minute', count: 1 },
         renderer: xAxisRenderer,
         startLocation: 0,
         endLocation: 1,
@@ -151,7 +153,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
     );
 
     legend.labels.template.setAll({
-      fontSize: 14,
+      fontSize: 13,
     });
 
     const allKeys = Object.keys(this.data[0]);
@@ -169,7 +171,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
           xAxis: this.xAxis,
           yAxis: yAxis,
           valueYField: key,
-          categoryXField: 'timestamp',
+          valueXField: 'timestamp',
           stacked: true,
           stroke: am5.color(colorHex),
           fill: am5.color(colorHex),
@@ -212,10 +214,10 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       fontSize: '12px',
       fontWeight: '500',
       fontFamily: 'Inter, sans-serif',
-      paddingLeft: 6,
-      paddingRight: 6,
-      paddingTop: 2,
-      paddingBottom: 2,
+      paddingLeft: 2,
+      paddingRight: 2,
+      paddingTop: 1,
+      paddingBottom: 1,
     });
 
     return customTooltip;
@@ -237,11 +239,9 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       `,
       });
 
-      // 💡 Access the native HTML <div> wrapper via private settings
-      const contentDiv = this.noDataIndicator.getPrivate('content'); //
+      const contentDiv = this.noDataIndicator.getPrivate('content');
 
       if (contentDiv) {
-        // 💡 Style the HTML container safely using native CSS styles
         contentDiv.style.backgroundColor = '#ffffff';
         contentDiv.style.padding = '20px 30px';
         contentDiv.style.borderRadius = '8px';
@@ -252,9 +252,9 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
 
     if (this.noDataIndicator) {
       if (show) {
-        this.noDataIndicator.open(); //
+        this.noDataIndicator.open();
       } else {
-        this.noDataIndicator.close(); //
+        this.noDataIndicator.close();
       }
     }
   }
