@@ -20,12 +20,13 @@ import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.mo
   styleUrl: './line-chart.scss',
 })
 export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
+  @Input() granularity: string = 'daily';
   @Input() seriesData!: any[];
 
   private root!: am5.Root;
 
   private chart!: am5xy.XYChart;
-  private xAxis!: am5xy.CategoryAxis<am5xy.AxisRenderer>;
+  private xAxis!: am5xy.DateAxis<am5xy.AxisRenderer>;
   private series!: am5.Series[];
 
   private isViewInitialized = false;
@@ -103,12 +104,12 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
 
   private initAxes(
     chart: am5xy.XYChart,
-  ): [am5xy.CategoryAxis<am5xy.AxisRenderer>, am5xy.ValueAxis<am5xy.AxisRenderer>] {
+  ): [am5xy.DateAxis<am5xy.AxisRenderer>, am5xy.ValueAxis<am5xy.AxisRenderer>] {
     const xAxis = chart.xAxes.push(
-      am5xy.CategoryAxis.new(this.root, {
+      am5xy.DateAxis.new(this.root, {
         maxDeviation: 0.5,
-        categoryField: 'time',
-        renderer: am5xy.AxisRendererX.new(this.root, { pan: 'zoom', minGridDistance: 50 }),
+        baseInterval: { timeUnit: 'hour', count: 1 },
+        renderer: am5xy.AxisRendererX.new(this.root, { pan: 'zoom', minGridDistance: 70 }),
       }),
     );
 
@@ -124,13 +125,14 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
     const yAxis = chart.yAxes.push(
       am5xy.ValueAxis.new(this.root, {
         maxDeviation: 1,
-        extraMin: 0.1,
+        min: 0,
+        extraMin: 0,
         extraMax: 0.1,
         renderer: am5xy.AxisRendererY.new(this.root, { pan: 'zoom' }),
       }),
     );
 
-    xAxis.setAll({ startLocation: 0.1, endLocation: 0.9 });
+    xAxis.setAll({ startLocation: 0.5, endLocation: 0.5 });
     yAxis.get('renderer').labels.template.set('visible', false);
     yAxis.get('renderer').grid.template.setAll({ strokeOpacity: 0, visible: false });
     xAxis.get('renderer').grid.template.setAll({ strokeOpacity: 0, visible: false });
@@ -166,7 +168,7 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
           xAxis,
           yAxis,
           valueYField: key,
-          categoryXField: 'time',
+          valueXField: 'time',
           sequencedInterpolation: true,
           connect: false,
           stroke: color,
@@ -240,8 +242,21 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
   }
 
   private setData(series: am5.Series[], xAxis: any): void {
-    xAxis.data.setAll(this.seriesData);
+    let interval = { timeUnit: 'hour', count: 1 };
 
+    if (this.granularity === 'quarter-hourly') {
+      interval = { timeUnit: 'minute', count: 15 };
+    } else if (this.granularity === 'daily') {
+      interval = { timeUnit: 'hour', count: 1 };
+    } else if (this.granularity === 'weekly') {
+      interval = { timeUnit: 'hour', count: 1 };
+    } else if (this.granularity === 'monthly') {
+      interval = { timeUnit: 'day', count: 1 };
+    }
+
+    xAxis.set('baseInterval', interval);
+
+    xAxis.data.setAll(this.seriesData);
     for (let s of series) {
       s.data.setAll(this.seriesData);
     }
