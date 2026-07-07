@@ -6,20 +6,43 @@
       [options]="granularityOptions"
       [(ngModel)]="selectedGranularity"
       (onChange)="onGranularityChange($event)"
+      size="small"
       optionLabel="label"
       optionValue="value"
     >
     </p-selectButton>
   </div>
   <div class="charts-wrapper">
-    <div class="spline-chart-wrapper">
-      <app-line-chart [seriesData]="(seriesData$ | async) ?? []" />
+    <div class="chart-wrapper spline">
+      <div class="header">
+        <span class="material-icons">compare_arrows</span>
+        Import / Export Flow
+      </div>
+      <div class="chart-container">
+        <app-line-chart
+          [seriesData]="(seriesData$ | async) ?? []"
+          [granularity]="selectedGranularity"
+        />
+      </div>
     </div>
-    <div class="bar-chart-wrapper">
-      <app-clustered-column-chart [dataInput]="(barChartData$ | async) ?? []" />
+    <div class="chart-wrapper bar">
+      <div class="header">
+        <span class="material-icons">balance</span>
+        Import / Export By Country
+      </div>
+      <div class="chart-container">
+        <app-clustered-column-chart [dataInput]="(barChartData$ | async) ?? []" />
+      </div>
     </div>
   </div>
   <div class="table-wrapper">
-    <app-ag-table [granularity]="selectedGranularity" [dataInput]="(tableData$ | async) ?? []" />
+    <div class="header">
+      <span class="material-icons">table_chart</span>
+      Crossborder Flow Data
+    </div>
+
+    <div class="table-container">
+      <app-ag-table [granularity]="selectedGranularity" [dataInput]="(tableData$ | async) ?? []" />
+    </div>
   </div>
 </div>

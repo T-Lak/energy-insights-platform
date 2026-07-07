@@ -109,48 +109,11 @@ export class CrossborderFlows implements OnInit {
   }
 
   private toLineChartData(dataPoint: any, index: number, allPoints: any[]) {
-    const date = new Date(dataPoint.timestamp);
-    let cleanTime;
-    let uniqueId;
-
-    if (this.selectedGranularity === 'monthly') {
-      cleanTime = date.toLocaleDateString([], {
-        day: '2-digit',
-        month: 'short',
-      });
-
-      uniqueId = `${cleanTime} (${date.getFullYear()})`;
-    } else if (this.selectedGranularity === 'weekly') {
-      const currentDay = date.toDateString();
-      const isFirstHourOfDay =
-        index === 0 || new Date(allPoints[index - 1].timestamp).toDateString() !== currentDay;
-
-      if (isFirstHourOfDay) {
-        cleanTime = date.toLocaleDateString([], { weekday: 'short' });
-      } else {
-        cleanTime = '';
-      }
-
-      const fullTimeStr = date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
-      uniqueId = `${fullTimeStr} (${date.toLocaleDateString([], { day: '2-digit', month: '2-digit' })})`;
-    } else {
-      cleanTime = date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
-
-      uniqueId = `${cleanTime} (${date.toLocaleDateString([], { day: '2-digit', month: '2-digit' })})`;
-    }
+    const numericTimestamp = new Date(dataPoint.timestamp).getTime();
 
     return {
       timestamp: dataPoint.timestamp,
-      time: uniqueId,
-      displayTime: cleanTime,
+      time: numericTimestamp,
       import: Number(dataPoint.totalImportMW.toFixed(2)),
       export: Number(dataPoint.totalExportMW.toFixed(2)),
     };
