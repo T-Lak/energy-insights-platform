@@ -5,6 +5,7 @@ import com.energy.analytics.dto.rest.LatestFlowsPayload;
 import com.energy.analytics.dto.rest.SourceRankingPayload;
 import com.energy.analytics.service.analytics.CrossborderFlowService;
 import com.energy.analytics.service.analytics.DashboardService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
