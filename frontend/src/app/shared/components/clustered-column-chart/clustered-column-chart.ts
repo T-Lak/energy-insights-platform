@@ -28,8 +28,6 @@ export class ClusteredColumnChart implements OnChanges, AfterViewInit {
     if (!changes['dataInput']) return;
     this.data = changes['dataInput'].currentValue;
 
-    console.log('BAR CHART: ', this.data);
-
     if (!this.isViewInitialized) return;
 
     this.tryUpdate();
@@ -53,8 +51,6 @@ export class ClusteredColumnChart implements OnChanges, AfterViewInit {
     }
 
     if (this.seriesList?.length && this.xAxis) {
-      console.log('update data');
-
       this.updateChartData();
     }
   }
@@ -109,7 +105,7 @@ export class ClusteredColumnChart implements OnChanges, AfterViewInit {
       cellEndLocation: 0.9,
     });
 
-    xAxisRenderer.labels.template.setAll({ fill: am5.color('#888'), fontSize: 14, paddingTop: 10 });
+    xAxisRenderer.labels.template.setAll({ fill: am5.color('#888'), fontSize: 13, paddingTop: 10 });
     xAxisRenderer.grid.template.setAll({ strokeOpacity: 0, visible: false });
 
     const xAxis = chart.xAxes.push(
@@ -120,7 +116,7 @@ export class ClusteredColumnChart implements OnChanges, AfterViewInit {
     );
 
     const yAxisRenderer = am5xy.AxisRendererY.new(this.root, {});
-    yAxisRenderer.labels.template.setAll({ fill: am5.color('#888'), fontSize: 14 });
+    yAxisRenderer.labels.template.setAll({ fill: am5.color('#888'), fontSize: 13 });
 
     const yAxis = chart.yAxes.push(
       am5xy.ValueAxis.new(this.root, {
