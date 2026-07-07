@@ -130,8 +130,8 @@ public class CrossborderFlowService {
            Instant startDate,
            Instant endDate,
            String region,
-           int shortTermDays,
-           int longTermDays,
+           int shortTerm,
+           int longTerm,
            ChronoUnit unit
    ) {
       List<FlowPointDTO> allFlows = (granularityView == GranularityView.HOURLY
@@ -145,8 +145,8 @@ public class CrossborderFlowService {
 
       List<CountryFlowSummaryDTO> allSummaries = this.calculateCountrySummaries(
               allFlows,
-              shortTermDays,
-              longTermDays,
+              shortTerm,
+              longTerm,
               unit
       );
 
