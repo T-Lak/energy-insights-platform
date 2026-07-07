@@ -18,27 +18,26 @@ public class GridAnalyticsRepository {
 
    public List<Metric> getGridSnapshot(Instant ts, String region) {
       String sql = """
-        SELECT timestamp, metric, source, category, smoothed_value
-           FROM (
-               SELECT
-                   timestamp,
-                   metric,
-                   source,
-                   category,
-                   AVG(value) OVER (
-                       PARTITION BY region, metric, source, category
-                       ORDER BY timestamp
-                       RANGE BETWEEN INTERVAL '2 hours' PRECEDING AND CURRENT ROW
-                   ) AS smoothed_value
-                FROM energy_metrics
-                WHERE region = ? AND timestamp <= ?
-           ) t
-           WHERE timestamp = (
-               SELECT MAX(timestamp)
-               FROM energy_metrics
-               WHERE region = ? AND timestamp <= ?
-           )
-           ORDER BY timestamp;
+        WITH latest_snapshot AS (
+            SELECT MAX(timestamp) as max_ts
+            FROM energy_metrics
+            WHERE region = ? AND timestamp <= ?
+        ),
+        smoothed_metrics AS (
+            SELECT timestamp, metric, source, category,
+               AVG(value) OVER (
+                   PARTITION BY region, metric, source, category
+                   ORDER BY timestamp
+                   RANGE BETWEEN INTERVAL '2 hours' PRECEDING AND CURRENT ROW
+               ) AS smoothed_value
+            FROM energy_metrics
+            CROSS JOIN latest_snapshot
+            WHERE region = ?
+              AND timestamp BETWEEN (latest_snapshot.max_ts - INTERVAL '2 hours') AND latest_snapshot.max_ts
+        )
+        SELECT sm.* FROM smoothed_metrics sm
+        CROSS JOIN latest_snapshot ls
+        WHERE sm.timestamp = ls.max_ts;
       """;
 
       return jdbcTemplate.query(
@@ -53,8 +52,7 @@ public class GridAnalyticsRepository {
               ),
               region,
               ts.atOffset(ZoneOffset.UTC),
-              region,
-              ts.atOffset(ZoneOffset.UTC)
+              region
       );
    }
 
