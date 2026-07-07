@@ -145,3 +145,9 @@ export function getSourceTypeColor(source: EnergySource | string): string {
       return '#535353';
   }
 }
+
+export function getRenewablesDisplayNames() {
+  return Object.values(ENERGY_SOURCE_MAP)
+    .filter((source) => source.type === SourceType.Renewable)
+    .map((source) => source.displayName);
+}

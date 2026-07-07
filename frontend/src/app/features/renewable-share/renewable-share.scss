@@ -1,3 +1,5 @@
+@use 'mixins' as mixins;
+
 ::ng-deep {
   .p-datepicker:not(.p-disabled).p-focus .p-datepicker-input {
     border-color: #0e7478 !important;
@@ -8,56 +10,103 @@
   .p-datepicker {
     .p-datepicker-day-selected {
       background: #0e7478 !important;
-      background-color: #0e7478 !important;
-      color: #ffffff !important;
+      color: #fff !important;
       border-color: #0e7478 !important;
     }
+  }
+
+  .p-select:not(.p-disabled).p-focus {
+    border-color: #0e7478 !important;
+    box-shadow: 0 0 0 0.2rem rgba(14, 116, 120, 0.2) !important;
+  }
+
+  .p-select-option.p-select-option-selected {
+    background: #0e7478 !important;
+    color: #fff !important;
+  }
+
+  .p-select-option {
+    font-size: 14px !important;
   }
 }
 
 .content-wrapper {
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
-  box-sizing: border-box;
-  padding: 20px;
-  gap: 20px;
   min-height: 0;
-  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .charts-wrapper {
   display: flex;
-  flex-direction: row;
+  flex: 1;
   gap: 20px;
   width: 100%;
+  min-height: 350px;
+}
+
+.chart-wrapper {
+  width: 100%;
   height: 100%;
-  flex: 1;
-  min-height: 400px;
+  padding-top: 20px;
+
+  .header {
+    @include mixins.header-with-icon;
+  }
+
+  &.donut {
+    flex: 2;
+  }
+
+  &.area {
+    flex: 4;
+  }
 }
 
-.stacked-area-chart-wrapper {
-  flex: 4;
-}
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
 
-.bar-chart-wrapper {
-  flex: 3;
-  padding: 20px;
-}
-
-.stacked-area-chart-wrapper,
-.bar-chart-wrapper {
-  background-color: #f5f5fa;
+  height: 350px;
+  box-sizing: border-box;
+  background: #f5f5fa;
   border: 1px solid #ccc;
   border-radius: 8px;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  &.line {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 20px;
+  }
 }
 
-.stacked-area-chart-wrapper app-stacked-area-chart {
-  display: block;
+app-multi-donut-chart,
+app-stacked-area-chart,
+app-line-chart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
   width: 100%;
-  height: 100%;
+}
+
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 10px;
+
+  .source-dropdown {
+    width: 175px;
+  }
+
+  .compare-dropdown {
+    width: 175px;
+  }
 }

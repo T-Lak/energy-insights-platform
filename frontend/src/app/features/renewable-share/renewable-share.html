@@ -7,15 +7,60 @@
       [(ngModel)]="selectedDate"
       (onSelect)="onDateChange($event)"
       [showIcon]="true"
-      [placeholder]="'Select Date'"
+      placeholder="Select Date"
+      size="small"
       [autoZIndex]="false"
-      [baseZIndex]="2000"
-    ></p-date-picker>
+      appendTo="body"
+    />
   </div>
+
   <div class="charts-wrapper">
-    <div class="bar-chart-wrapper"></div>
-    <div class="stacked-area-chart-wrapper">
-      <app-stacked-area-chart [data]="(dailyRenewableMix$ | async) ?? []" />
+    <div class="chart-wrapper donut">
+      <div class="header">
+        <span class="material-icons">wb_twilight</span>
+        Day / Night Mix Comparison
+      </div>
+
+      <div class="chart-container">
+        <app-multi-donut-chart [dataInput]="(dailySummaries$ | async) ?? []" />
+      </div>
+    </div>
+
+    <div class="chart-wrapper area">
+      <div class="header">
+        <span class="material-icons">area_chart</span>
+        Daily Renewable Share
+      </div>
+
+      <div class="chart-container">
+        <app-stacked-area-chart [data]="(dailyRenewableMix$ | async) ?? []" />
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-wrapper">
+    <div class="chart-wrapper">
+      <div class="header">
+        <span class="material-icons">compare</span>
+        Current vs Historical Source Comparison
+      </div>
+      <div class="chart-container line">
+        <app-line-chart />
+        <div class="dropdown-container">
+          <p-select
+            [options]="renewableOptions"
+            [(ngModel)]="selectedSource"
+            size="small"
+            class="source-dropdown"
+          />
+          <p-select
+            [options]="sourceComparisonOptions"
+            [(ngModel)]="selectedSourceComparison"
+            size="small"
+            class="compare-dropdown"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
