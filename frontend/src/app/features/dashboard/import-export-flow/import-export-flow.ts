@@ -75,23 +75,14 @@ export class ImportExportFlow implements OnInit, OnDestroy {
     return this.mapPoint(point);
   }
 
-  private mapPoint(p: any) {
-    const date = new Date(p.timestamp);
-
-    const cleanTime = date.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-
-    const uniqueId = `${cleanTime} (${date.toLocaleDateString([], { day: '2-digit', month: '2-digit' })})`;
+  private mapPoint(dataPoint: any) {
+    const numericTimestamp = new Date(dataPoint.timestamp).getTime();
 
     return {
-      timestamp: p.timestamp,
-      time: uniqueId,
-      displayTime: cleanTime,
-      import: p.totalImportMW ? Number(p.totalImportMW.toFixed(2)) : 0,
-      export: p.totalExportMW ? Number(p.totalExportMW.toFixed(2)) : 0,
+      timestamp: dataPoint.timestamp,
+      time: numericTimestamp,
+      import: Number(dataPoint.totalImportMW.toFixed(2)),
+      export: Number(dataPoint.totalExportMW.toFixed(2)),
     };
   }
 }

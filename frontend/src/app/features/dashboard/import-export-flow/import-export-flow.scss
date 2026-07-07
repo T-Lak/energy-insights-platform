@@ -1,8 +1,14 @@
 @use 'mixins' as mixins;
 
-.grid-wrapper {
-  width: 100%;
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
+}
+
+.toolbar-wrapper {
+  margin-bottom: var(--spacing-md);
 }
 
 .header {
@@ -14,6 +20,8 @@
   gap: var(--spacing-md);
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  flex: 1;
+  min-height: 0;
 
   .chart {
     display: flex;
@@ -24,5 +32,11 @@
     flex: 1 1 180px;
     min-width: 180px;
     height: 100%;
+
+    app-multi-donut-chart,
+    app-stacked-area-chart {
+      flex: 1;
+      min-height: 0;
+    }
   }
 }
