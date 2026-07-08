@@ -69,6 +69,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
+          
+      - name: Make Maven Wrapper Executable
+        run: chmod +x backend/analytics/mvnw
 
       - name: Build and Run Tests
         run: |
