@@ -9,6 +9,9 @@ import {
 } from 'ag-grid-community';
 
 import { DonutSeriesModule, ModuleRegistry as AgChartsRegistry } from 'ag-charts-community';
+import { EnergyCategoryBreakdown } from '../../../features/dashboard/models/energy-category-breakdown.model';
+import { SourceContributionPoint } from '../../../features/dashboard/models/source-contribution-point.model';
+import { shortenSourceName } from '../../../core/model/domain/sources.model';
 
 AgGridRegistry.registerModules([AgGridCommModule]);
 
@@ -72,20 +75,57 @@ export class MultiDonutChart implements OnChanges {
           showInLegend: false,
           sectorLabel: { enabled: false },
           tooltip: {
-            renderer: ({ datum }: any) => {
+            renderer: ({ datum }: { datum: EnergyCategoryBreakdown }) => {
               const lines =
                 datum.metricPoints
-                  ?.map((m: any) => `• ${m.source}: ${m.percentage}%`)
-                  .join('<br/>') || '';
+                  ?.map((m: SourceContributionPoint) => {
+                    const sourceKey = shortenSourceName(m.source);
+                    const formattedLabel = sourceKey
+                      .replace(/([A-Z])/g, ' $1')
+                      .replace(/^./, (str) => str.toUpperCase());
 
-              return {
-                title: `${datum.timePeriod} — ${datum.category}`,
-                content: `<strong>${datum.amount.toLocaleString()} MWh</strong><br/><br/>${lines}`,
-                fontSize: 14,
-              };
+                    return `
+                      <div style="
+                        display: flex; 
+                        align-items: center;
+                        justify-content: space-between; 
+                        gap: 24px; 
+                        margin-top: 6px; 
+                        font-size: 12px;
+                        font-family: sans-serif;
+                      ">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span style="color: #475569;">${formattedLabel}</span>
+                        </div>
+                        <strong style="color: #1e293b;">${m.percentage.toFixed(1)} MW</strong>
+                      </div>`;
+                  })
+                  .join('') ||
+                '<div style="color: #94a3b8; font-size: 12px;">No breakdown available</div>';
+
+              return `
+                  <div style="
+                    padding: 12px; 
+                    background: #ffffff; 
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                    min-width: 230px;
+                    font-family: sans-serif;
+                  ">
+                    <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">
+                      ${datum.timePeriod} — ${datum.category}
+                    </div>
+                    <div style="font-size: 14px; color: #0f172a; margin-bottom: 8px;">
+                      Total: <strong>${datum.amount.toLocaleString()} MWh</strong>
+                    </div>
+                    <div style="border-top: 1px solid #e2e8f0; margin: 8px 0;"></div>
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #838991; font-weight: 600; margin-bottom: 4px;">
+                      Source Breakdown
+                    </div>
+                    ${lines}
+                  </div>
+                `;
             },
-            outerRadiusRatio: 0.7,
-            innerRadiusRatio: 0.5,
           },
         },
         {
@@ -102,12 +142,29 @@ export class MultiDonutChart implements OnChanges {
           fills: ['#cacaca', '#707070'],
           title: { showInLegend: true },
           tooltip: {
-            renderer: ({ datum }: any) => {
-              return {
-                title: `${datum.label}`,
-                content: `Total Production: <strong>${datum.amount.toLocaleString()} MWh</strong>`,
-                fontSize: 14,
-              };
+            renderer: ({ datum }: { datum: any }) => {
+              return `
+                <div style="
+                  padding: 12px; 
+                  background: #ffffff; 
+                  border-radius: 8px;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                  min-width: 230px;
+                  font-family: sans-serif;
+                ">
+                  <div style="
+                    font-size: 13px; 
+                    font-weight: 600; 
+                    color: #0f172a; 
+                    margin-bottom: 4px;
+                  ">
+                    ${datum.label}
+                  </div>
+                  <div style="font-size: 14px; color: #0f172a;">
+                    Total Production: <strong>${datum.amount.toLocaleString()} MWh</strong>
+                  </div>
+                </div>
+              `;
             },
           },
         },

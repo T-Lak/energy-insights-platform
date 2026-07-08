@@ -10,16 +10,7 @@ import { CommonModule } from '@angular/common';
 import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
-
-const RENEWABLE_COLORS: { [key: string]: string } = {
-  solar: '#E29A21',
-  windOnshore: '#0E7478',
-  windOffshore: '#2F939D',
-  biomass: '#3B7A57',
-  hydro: '#4A7BB0',
-  geothermal: '#C86B45',
-  otherRenewable: '#7E8B96',
-};
+import { RENEWABLE_COLORS } from '../../../core/model/domain/sources.model';
 
 @Component({
   selector: 'app-stacked-area-chart',
@@ -110,6 +101,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
         wheelX: 'none',
         wheelY: 'none',
         layout: this.root.verticalLayout,
+        maxTooltipDistance: 1,
       }),
     );
 
@@ -186,8 +178,11 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       legend.data.push(series);
     });
 
-    const cursor = chart.set('cursor', am5xy.XYCursor.new(this.root, { xAxis: this.xAxis }));
-    cursor.lineY.set('visible', false);
+    // const cursor = chart.set(
+    //   'cursor',
+    //   am5xy.XYCursor.new(this.root, { xAxis: this.xAxis, snapToSeriesBy: 'x' }),
+    // );
+    // cursor.lineY.set('visible', false);
 
     this.updateChartData();
   }
