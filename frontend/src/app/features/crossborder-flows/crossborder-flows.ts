@@ -11,6 +11,8 @@ import { ClusteredColumnChart } from '@shared/components/clustered-column-chart/
 import { CrossborderFlowsService } from './crossborder-flows.service';
 import { Granularity, granularityOptions } from './crossborder-flows.model';
 import { BehaviorSubject, Observable, combineLatest, map, shareReplay, switchMap } from 'rxjs';
+import { ColDef } from 'ag-grid-community';
+import { getColumnDefs } from './crossborder-flows.table.columns';
 
 @Component({
   selector: 'app-crossborder-flows',
@@ -40,9 +42,13 @@ export class CrossborderFlows implements OnInit {
   protected granularityOptions = granularityOptions;
   public selectedGranularity: string = 'daily';
 
+  protected tableColumnDefinitions!: ColDef[];
+
   constructor(private crossborderFlowsService: CrossborderFlowsService) {}
 
   ngOnInit(): void {
+    this.tableColumnDefinitions = getColumnDefs(this.selectedGranularity);
+
     const flowsPayload$ = this.granularity$.pipe(
       switchMap((granularity) => {
         const enumMap: Record<string, Granularity> = {
@@ -98,6 +104,7 @@ export class CrossborderFlows implements OnInit {
     if (!event.value) return;
 
     this.selectedGranularity = event.value;
+    this.tableColumnDefinitions = getColumnDefs(event.value);
     this.selectedTimestamp$.next(null);
     this.granularity$.next(event.value);
   }

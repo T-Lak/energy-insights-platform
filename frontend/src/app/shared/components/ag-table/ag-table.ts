@@ -3,7 +3,6 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 
 import { ModuleRegistry, AllCommunityModule, ColDef, themeQuartz } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
-import { getColumnDefs } from './ag-table.model';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -16,9 +15,8 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 })
 export class AgTable implements OnInit, OnChanges {
   @Input() dataInput: any[] = [];
-  @Input() granularity!: string;
+  @Input() columnDefs: ColDef[] = [];
 
-  protected columnDefs: ColDef[] = [];
   protected rowData: any[] = [];
 
   readonly theme = themeQuartz.withParams({
@@ -30,10 +28,6 @@ export class AgTable implements OnInit, OnChanges {
   });
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['granularity']) {
-      this.columnDefs = getColumnDefs(this.granularity);
-    }
-
     if (changes['dataInput']) {
       this.rowData = changes['dataInput'].currentValue || [];
     }

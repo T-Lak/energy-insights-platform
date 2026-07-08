@@ -3,7 +3,7 @@ import { MetricsService } from '../../../core/services/metrics.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { KpiType } from '../dashboard.model';
 import { catchError, filter, merge, of, switchMap } from 'rxjs';
-import { KpiSnapshotPayload } from '../../../core/model/dto/kpi-wrapper.dto';
+import { DashboardSummarySnapshot } from './dashboard-summary-snapshot.model';
 
 @Injectable()
 export class KpiCardsService {
@@ -16,7 +16,7 @@ export class KpiCardsService {
     const params = new HttpParams().set('region', regionCode);
 
     return this.httpClient
-      .get<KpiSnapshotPayload>('/api/analytics/metrics/kpi/latest', { params })
+      .get<DashboardSummarySnapshot>('/api/analytics/metrics/kpi/latest', { params })
       .pipe(
         catchError((error) => {
           console.error('Error fetching KPI data:', error);

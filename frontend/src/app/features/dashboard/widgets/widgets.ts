@@ -4,7 +4,7 @@ import { Widget } from './widget/widget';
 
 import { BarChart } from '../../../shared/components/bar-chart/bar-chart';
 import { CommonModule } from '@angular/common';
-import { SourceRankingPointDTO } from '../../../core/model/dto/source-ranking-point.dto';
+import { SourceRankingPoint } from './source-ranking-point.model';
 import { Observable } from 'rxjs';
 import { WidgetsService } from './widgets.service';
 import { TopSourcesCategory } from '../dashboard.model';
@@ -20,7 +20,7 @@ import { TopSourcesCategory } from '../dashboard.model';
 export class Widgets implements OnInit {
   protected readonly TopSourcesCategory = TopSourcesCategory;
   protected dictionaryStream$!: Observable<{
-    [key in TopSourcesCategory]: Observable<SourceRankingPointDTO[]>;
+    [key in TopSourcesCategory]: Observable<SourceRankingPoint[]>;
   }>;
 
   constructor(private widgetsService: WidgetsService) {}

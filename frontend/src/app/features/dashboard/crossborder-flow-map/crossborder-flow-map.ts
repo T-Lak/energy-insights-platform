@@ -6,7 +6,7 @@ import * as L from 'leaflet';
 
 import { FlowData, getBorderCoords } from './crossborder-flow-map.model';
 import { Subscription } from 'rxjs';
-import { FlowPointDTO } from '../../../core/model/dto/flow-point.dto';
+import { FlowGridEdge } from '../../crossborder-flows/models/flow-grid-edge.model';
 import { CrossborderFlowMapService } from './crossborder-flow-map.service';
 import { getCountryFullName } from '../../../core/model/domain/country.model';
 import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.model';
@@ -36,7 +36,7 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
       next: (data) => {
         this.flowData = [];
 
-        data.forEach((flowPoint: FlowPointDTO) => {
+        data.forEach((flowPoint: FlowGridEdge) => {
           this.flowData.push({
             from: getCountryFullName(flowPoint.fromRegion),
             to: getCountryFullName(flowPoint.toRegion),

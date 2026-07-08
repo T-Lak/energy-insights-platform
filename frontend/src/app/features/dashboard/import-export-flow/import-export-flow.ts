@@ -3,8 +3,8 @@ import { LineChart } from '../../../shared/components/line-chart/line-chart';
 import { CommonModule } from '@angular/common';
 import { map, Subscription, take } from 'rxjs';
 import { ImportExportFlowService } from './import-export-flow.service';
-import { CrossborderFlowTotalsTsPayload } from '../../../core/model/payload/crossborder-flow-totals-ts.payload';
-import { FlowTotalsDTO } from '../../../core/model/dto/flow-totals.dto';
+import { RegionFlowTotalsTimeline } from '../../crossborder-flows/models/regional-flow-totals-timeline.model';
+import { FlowTotalsDTO } from '../../crossborder-flows/models/flow-totals.dto';
 
 @Component({
   selector: `app-import-export-flow`,
@@ -67,7 +67,7 @@ export class ImportExportFlow implements OnInit, OnDestroy {
     }
   }
 
-  private transformData(flow: CrossborderFlowTotalsTsPayload) {
+  private transformData(flow: RegionFlowTotalsTimeline) {
     return flow.flowTotals.map((p: any) => this.mapPoint(p));
   }
 

@@ -32,6 +32,7 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
   private isViewInitialized = false;
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes);
     if (!changes['seriesData']) return;
     this.seriesData = changes['seriesData'].currentValue;
 

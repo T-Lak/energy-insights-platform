@@ -7,11 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { Observable, map } from 'rxjs';
 import { RenewableShareService } from './renewable-share.service';
-import { RenewableMixDTO } from '../../core/model/dto/renewable-mix.dto';
+import { RenewableMixPoint } from './models/renewable-mix-point.model';
 import { MultiDonutChart } from '@shared/components/multi-donut-chart/multi-donut-chart';
-import { LineChart } from '@shared/components/line-chart/line-chart';
 import { SelectModule } from 'primeng/select';
 import { getRenewablesDisplayNames } from '../../core/model/domain/sources.model';
+import { ColDef } from 'ag-grid-community';
+import { getColumnDefs } from './renewable-share.table.columns';
+import { AgTable } from '@shared/components/ag-table/ag-table';
 
 @Component({
   selector: 'app-renewable-share',
@@ -23,7 +25,7 @@ import { getRenewablesDisplayNames } from '../../core/model/domain/sources.model
     FormsModule,
     DatePickerModule,
     MultiDonutChart,
-    LineChart,
+    AgTable,
     SelectModule,
   ],
   providers: [RenewableShareService],
@@ -31,15 +33,16 @@ import { getRenewablesDisplayNames } from '../../core/model/domain/sources.model
   styleUrl: './renewable-share.scss',
 })
 export class RenewableShare implements OnInit {
-  protected selectedDate: Date | null = new Date();
+  protected selectedDate: Date = new Date();
   protected dailyRenewableMix$: Observable<any> | null = null;
   protected dailySummaries$: Observable<any> | null = null;
+  protected sourceComparisons$: Observable<any> | null = null;
+  protected tableData$: Observable<any> | null = null;
 
   protected renewableOptions: string[] = getRenewablesDisplayNames();
   protected selectedSource: string = 'Solar';
 
-  protected sourceComparisonOptions: string[] = ['Yesterday', 'Last Week', 'Last Month'];
-  protected selectedSourceComparison: string = 'Yesterday';
+  protected tableColumnDefinitions: ColDef[] = getColumnDefs();
 
   constructor(private renewableShareService: RenewableShareService) {}
 
@@ -59,10 +62,11 @@ export class RenewableShare implements OnInit {
 
   private fetchData(date: Date) {
     const formattedDateStr: string = this.formatDate(date);
+
     this.dailyRenewableMix$ = this.renewableShareService
       .getDailyRenewableShareMix(formattedDateStr)
       .pipe(
-        map((data: RenewableMixDTO[]) => {
+        map((data: RenewableMixPoint[]) => {
           return data.map((point) => {
             const epochMs = new Date(point.timestamp).getTime();
 
@@ -81,6 +85,12 @@ export class RenewableShare implements OnInit {
       );
 
     this.dailySummaries$ = this.renewableShareService.getDailySummaries(formattedDateStr).pipe(
+      map((data) => {
+        return data;
+      }),
+    );
+
+    this.tableData$ = this.renewableShareService.getDailyMetrics(formattedDateStr).pipe(
       map((data) => {
         return data;
       }),

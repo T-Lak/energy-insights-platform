@@ -38,11 +38,14 @@
   <div class="table-wrapper">
     <div class="header">
       <span class="material-icons">table_chart</span>
-      Crossborder Flow Data
+      Crossborder Flow Dynamics
     </div>
 
     <div class="table-container">
-      <app-ag-table [granularity]="selectedGranularity" [dataInput]="(tableData$ | async) ?? []" />
+      <app-ag-table
+        [columnDefs]="tableColumnDefinitions"
+        [dataInput]="(tableData$ | async) ?? []"
+      />
     </div>
   </div>
 </div>

@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map, catchError, EMPTY } from 'rxjs';
-import { RenewableMixDTO } from '../../core/model/dto/renewable-mix.dto';
-import { DailySummaryDTO } from '../../core/model/dto/daily-summary.dto';
+import { RenewableMixPoint } from './models/renewable-mix-point.model';
+import { RenewableSourceMetrics } from './models/renewable-source-metrics.model';
+import { EnergyCategoryBreakdown } from '../dashboard/models/energy-category-breakdown.model';
 
 @Injectable()
 export class RenewableShareService {
@@ -11,13 +12,13 @@ export class RenewableShareService {
   getDailyRenewableShareMix(
     date: string,
     regionCode: string = 'DE_LU',
-  ): Observable<RenewableMixDTO[]> {
+  ): Observable<RenewableMixPoint[]> {
     const params = new HttpParams().set('date', date).set('region', regionCode);
 
     const path: string = '/api/analytics/renewables/mix/daily';
 
     return this.httpClient
-      .get<RenewableMixDTO[]>(path, {
+      .get<RenewableMixPoint[]>(path, {
         params,
       })
       .pipe(
@@ -29,13 +30,16 @@ export class RenewableShareService {
       );
   }
 
-  getDailySummaries(date: string, regionCode: string = 'DE_LU'): Observable<DailySummaryDTO[]> {
+  getDailySummaries(
+    date: string,
+    regionCode: string = 'DE_LU',
+  ): Observable<EnergyCategoryBreakdown[]> {
     const params = new HttpParams().set('date', date).set('region', regionCode);
 
     const path: string = '/api/analytics/renewables/daily-summary';
 
     return this.httpClient
-      .get<DailySummaryDTO[]>(path, {
+      .get<EnergyCategoryBreakdown[]>(path, {
         params,
       })
       .pipe(
@@ -44,6 +48,27 @@ export class RenewableShareService {
           console.error('REST call failed.', err);
           return EMPTY;
         }),
+      );
+  }
+
+  getDailyMetrics(
+    date: string,
+    regionCode: string = 'DE_LU',
+  ): Observable<RenewableSourceMetrics[]> {
+    const params = new HttpParams().set('date', date).set('region', regionCode);
+
+    const path: string = '/api/analytics/renewables/daily-sources';
+
+    return this.httpClient
+      .get<RenewableSourceMetrics[]>(path, {
+        params,
+      })
+      .pipe(
+        catchError((err) => {
+          console.log('REST call failed.', err);
+          return EMPTY;
+        }),
+        map((response) => response),
       );
   }
 }

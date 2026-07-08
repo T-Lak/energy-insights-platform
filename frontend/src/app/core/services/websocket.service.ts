@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { Subject } from 'rxjs';
-import { KpiTimeseriesPayload } from '../model/payload/kpi-timeseries.payload';
-import { CrossborderFlowsPayload } from '../model/payload/crossborder-flows.payload';
-import { CrossborderFlowTotalsPayload } from '../model/payload/crossborder-flow-totals.payload';
-import { LiveSourceRankingPayload } from '../model/payload/live-source-ranking.payload';
+import { CrossborderFlowsOverview } from '../../features/crossborder-flows/models/crossborder-flows-overview.model';
+import { RegionalFlowTotalsSnapshot } from '../../features/crossborder-flows/models/regional-flow-totals-snapshot.model';
+import { RegionalRankingSnapshot } from '../../features/dashboard/models/regional-ranking-snapshot.model';
+import { DashboardMetricsTimeline } from '../../features/dashboard/models/dashboard-metrics-timeline.model';
 
 @Injectable({
   providedIn: 'root',
@@ -13,10 +13,10 @@ import { LiveSourceRankingPayload } from '../model/payload/live-source-ranking.p
 export class WebsocketService {
   private stompClient!: Client;
 
-  private kpiMetricsSubject = new Subject<KpiTimeseriesPayload>();
-  private sourceRankingSubject = new Subject<LiveSourceRankingPayload>();
-  private flowPointsSubject = new Subject<CrossborderFlowsPayload>();
-  private flowTotalsSubject = new Subject<CrossborderFlowTotalsPayload>();
+  private kpiMetricsSubject = new Subject<DashboardMetricsTimeline>();
+  private sourceRankingSubject = new Subject<RegionalRankingSnapshot>();
+  private flowPointsSubject = new Subject<CrossborderFlowsOverview>();
+  private flowTotalsSubject = new Subject<RegionalFlowTotalsSnapshot>();
 
   metricsRaw$ = this.kpiMetricsSubject.asObservable();
   sourceRankingRaw$ = this.sourceRankingSubject.asObservable();

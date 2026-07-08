@@ -12,7 +12,7 @@ import {
 } from 'ag-charts-community';
 import { BarChartItem } from './bar-chart.model';
 import { CommonModule } from '@angular/common';
-import { SourceRankingPointDTO } from '../../../core/model/dto/source-ranking-point.dto';
+import { SourceRankingPoint } from '../../../features/dashboard/widgets/source-ranking-point.model';
 import { getSourceTypeColor, shortenSourceName } from '../../../core/model/domain/sources.model';
 
 ModuleRegistry.registerModules([
@@ -30,7 +30,7 @@ ModuleRegistry.registerModules([
   styleUrl: './bar-chart.scss',
 })
 export class BarChart implements OnInit, OnDestroy {
-  @Input() public stream$!: Observable<SourceRankingPointDTO[]>;
+  @Input() public stream$!: Observable<SourceRankingPoint[]>;
   @Input() public type!: 'energy' | 'carbon';
   @Input() public xKey!: string;
   @Input() public yKey!: string;
@@ -63,7 +63,7 @@ export class BarChart implements OnInit, OnDestroy {
     }
   }
 
-  private toEnergyItems(points: SourceRankingPointDTO[]): BarChartItem[] {
+  private toEnergyItems(points: SourceRankingPoint[]): BarChartItem[] {
     const total = points.reduce((sum, p) => sum + p.value, 0);
     return points.map((p) => {
       const pct = total === 0 ? 0 : (p.value / total) * 100;
@@ -76,7 +76,7 @@ export class BarChart implements OnInit, OnDestroy {
     });
   }
 
-  private toCarbonItems(points: SourceRankingPointDTO[]): BarChartItem[] {
+  private toCarbonItems(points: SourceRankingPoint[]): BarChartItem[] {
     return points.map((p) => {
       const tonnesco2 = p.value / 1_000_000;
 

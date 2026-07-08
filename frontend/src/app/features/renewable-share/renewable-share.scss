@@ -34,6 +34,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  gap: 20px;
   width: 100%;
   min-height: 0;
   padding: 20px;
@@ -51,7 +52,6 @@
 .chart-wrapper {
   width: 100%;
   height: 100%;
-  padding-top: 20px;
 
   .header {
     @include mixins.header-with-icon;
@@ -109,4 +109,21 @@ app-line-chart {
   .compare-dropdown {
     width: 175px;
   }
+}
+
+.table-wrapper {
+  height: 500px;
+
+  .header {
+    @include mixins.header-with-icon;
+  }
+}
+
+.table-container {
+  height: calc(100% - 40px);
+  padding: 20px;
+  background: #f5f5fa;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
 }

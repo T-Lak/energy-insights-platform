@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of, EMPTY } from 'rxjs';
-import { CrossborderFlowsGlobalPayload } from '../../core/model/payload/crossborder-flows-global.payload';
 import { Granularity } from './crossborder-flows.model';
+import { RegionalFlowSnapshot } from '../dashboard/crossborder-flow-map/regional-flow-snapshot.model';
 
 @Injectable()
 export class CrossborderFlowsService {
@@ -17,13 +17,13 @@ export class CrossborderFlowsService {
   getFlowsByGranularity(
     granularity: Granularity,
     regionCode: string = 'DE_LU',
-  ): Observable<CrossborderFlowsGlobalPayload> {
+  ): Observable<RegionalFlowSnapshot> {
     const params = new HttpParams().set('region', regionCode);
 
     const path: string = '/api/analytics/flows' + this.granularityPathMap[granularity];
 
     return this.httpClient
-      .get<CrossborderFlowsGlobalPayload>(path, {
+      .get<RegionalFlowSnapshot>(path, {
         params,
       })
       .pipe(

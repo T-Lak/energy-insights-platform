@@ -4,9 +4,9 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { startWith, map, shareReplay, pairwise } from 'rxjs/operators';
 
-import { TimeseriesPointDTO } from '../../../../core/model/dto/timeseries-point.dto';
 import { KpiType, KPI_CONFIG } from '../../dashboard.model';
 import { Tooltip } from 'primeng/tooltip';
+import { TimeseriesPoint } from '../../models/timeseries-point.model';
 
 @Component({
   selector: 'app-kpi-card',
@@ -16,7 +16,7 @@ import { Tooltip } from 'primeng/tooltip';
   styleUrl: './kpi-card.scss',
 })
 export class KpiCard {
-  @Input() stream!: Observable<TimeseriesPointDTO[]>;
+  @Input() stream!: Observable<TimeseriesPoint[]>;
   @Input() type!: KpiType;
   @Input() tooltipDescription!: string;
 
@@ -31,7 +31,7 @@ export class KpiCard {
     const kpiConfig = this.config[this.type];
 
     this.currentKpiValue$ = this.stream.pipe(
-      map((data: TimeseriesPointDTO[]) => {
+      map((data: TimeseriesPoint[]) => {
         if (!data || data.length === 0 || !data[0]) {
           return kpiConfig.unit === '%' ? '0,00' : '0';
         }

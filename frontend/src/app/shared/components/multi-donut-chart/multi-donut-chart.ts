@@ -117,7 +117,7 @@ export class MultiDonutChart implements OnChanges {
         position: 'top',
         item: {
           label: {
-            fontSize: 13,
+            fontSize: 13.5,
           },
         },
       },

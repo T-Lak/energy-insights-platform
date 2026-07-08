@@ -2,37 +2,37 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 import { WebsocketService } from './websocket.service';
-import { CrossborderFlowsPayload } from '../model/payload/crossborder-flows.payload';
-import { FlowPointDTO } from '../model/dto/flow-point.dto';
-import { CrossborderFlowTotalsPayload } from '../model/payload/crossborder-flow-totals.payload';
-import { FlowTotalsDTO } from '../model/dto/flow-totals.dto';
+import { CrossborderFlowsOverview } from '../../features/crossborder-flows/models/crossborder-flows-overview.model';
+import { FlowGridEdge } from '../../features/crossborder-flows/models/flow-grid-edge.model';
+import { RegionalFlowTotalsSnapshot } from '../../features/crossborder-flows/models/regional-flow-totals-snapshot.model';
+import { FlowTotalsDTO } from '../../features/crossborder-flows/models/flow-totals.dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CrossborderFlowsService {
-  private flowPointsState = new BehaviorSubject<FlowPointDTO[]>([]);
+  private flowPointsState = new BehaviorSubject<FlowGridEdge[]>([]);
   private flowTotalsState = new BehaviorSubject<FlowTotalsDTO | null>(null);
 
   constructor(private websocketService: WebsocketService) {
-    this.websocketService.flowPointsRaw$.subscribe((payload: CrossborderFlowsPayload) => {
+    this.websocketService.flowPointsRaw$.subscribe((payload: CrossborderFlowsOverview) => {
       this.routeFlowPointsPayload(payload);
     });
 
-    this.websocketService.flowTotalsRaw$.subscribe((payload: CrossborderFlowTotalsPayload) => {
+    this.websocketService.flowTotalsRaw$.subscribe((payload: RegionalFlowTotalsSnapshot) => {
       this.routeFlowTotalsPayload(payload);
     });
   }
 
-  private routeFlowPointsPayload(payload: CrossborderFlowsPayload): void {
+  private routeFlowPointsPayload(payload: CrossborderFlowsOverview): void {
     this.flowPointsState.next(payload.flowPoints);
   }
 
-  private routeFlowTotalsPayload(payload: CrossborderFlowTotalsPayload): void {
+  private routeFlowTotalsPayload(payload: RegionalFlowTotalsSnapshot): void {
     this.flowTotalsState.next(payload.flowTotals);
   }
 
-  getFlowPointsStream(): Observable<FlowPointDTO[]> {
+  getFlowPointsStream(): Observable<FlowGridEdge[]> {
     return this.flowPointsState.asObservable();
   }
 

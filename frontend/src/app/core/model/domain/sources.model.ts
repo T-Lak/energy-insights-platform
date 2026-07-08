@@ -151,3 +151,11 @@ export function getRenewablesDisplayNames() {
     .filter((source) => source.type === SourceType.Renewable)
     .map((source) => source.displayName);
 }
+
+export function getSourceDisplayName(rawName: string) {
+  if (!rawName) return '';
+
+  const enumKey = parseEnergySource(rawName);
+
+  return ENERGY_SOURCE_MAP[enumKey]?.displayName || '';
+}

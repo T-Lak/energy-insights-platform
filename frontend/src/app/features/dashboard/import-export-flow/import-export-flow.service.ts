@@ -4,8 +4,8 @@ import { Injectable } from '@angular/core';
 import { filter, Observable } from 'rxjs';
 
 import { CrossborderFlowsService } from '../../../core/services/crossborder-flows.service';
-import { CrossborderFlowTotalsTsPayload } from '../../../core/model/payload/crossborder-flow-totals-ts.payload';
-import { FlowTotalsDTO } from '../../../core/model/dto/flow-totals.dto';
+import { RegionFlowTotalsTimeline } from '../../crossborder-flows/models/regional-flow-totals-timeline.model';
+import { FlowTotalsDTO } from '../../crossborder-flows/models/flow-totals.dto';
 
 @Injectable()
 export class ImportExportFlowService {
@@ -17,10 +17,10 @@ export class ImportExportFlowService {
   getFlowTotalsTimeseries(
     hours: number,
     regionCode: string = 'DE_LU',
-  ): Observable<CrossborderFlowTotalsTsPayload> {
+  ): Observable<RegionFlowTotalsTimeline> {
     const params = new HttpParams().set('hours', hours).set('region', regionCode);
 
-    return this.httpClient.get<CrossborderFlowTotalsTsPayload>('/api/analytics/flows/timeseries', {
+    return this.httpClient.get<RegionFlowTotalsTimeline>('/api/analytics/flows/timeseries', {
       params,
     });
   }

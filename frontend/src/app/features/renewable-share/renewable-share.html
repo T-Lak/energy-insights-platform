@@ -37,30 +37,17 @@
       </div>
     </div>
   </div>
+  <div class="table-wrapper">
+    <div class="header">
+      <span class="material-icons">table_chart</span>
+      Renewable Generation Breakdowns
+    </div>
 
-  <div class="charts-wrapper">
-    <div class="chart-wrapper">
-      <div class="header">
-        <span class="material-icons">compare</span>
-        Current vs Historical Source Comparison
-      </div>
-      <div class="chart-container line">
-        <app-line-chart />
-        <div class="dropdown-container">
-          <p-select
-            [options]="renewableOptions"
-            [(ngModel)]="selectedSource"
-            size="small"
-            class="source-dropdown"
-          />
-          <p-select
-            [options]="sourceComparisonOptions"
-            [(ngModel)]="selectedSourceComparison"
-            size="small"
-            class="compare-dropdown"
-          />
-        </div>
-      </div>
+    <div class="table-container">
+      <app-ag-table
+        [columnDefs]="tableColumnDefinitions"
+        [dataInput]="(tableData$ | async) ?? []"
+      />
     </div>
   </div>
 </div>
