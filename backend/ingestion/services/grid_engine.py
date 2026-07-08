@@ -1,3 +1,5 @@
+import numpy as np
+
 from .data_utils import normalize_grid_data
 from messaging import send_event, producer
 from messaging.utils import prepare_kafka_payload
@@ -16,6 +18,7 @@ def sync_grid_data(client, logger, event_type, start_date=None, end_date=None, c
     )
 
     for category, df in data_map.items():
+        df = df.replace({np.nan: None})
         df.index = df.index.tz_convert('Europe/Berlin')
 
         batch = []
