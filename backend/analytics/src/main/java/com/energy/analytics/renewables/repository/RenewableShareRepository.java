@@ -1,8 +1,9 @@
-package com.energy.analytics.repository;
+package com.energy.analytics.renewables.repository;
 
-import com.energy.analytics.model.entity.DailyEnergySummary;
-import com.energy.analytics.dto.rest.MetricPointDTO;
-import com.energy.analytics.model.entity.RenewableMix;
+import com.energy.analytics.dashboard.model.DailyEnergySummary;
+import com.energy.analytics.dashboard.dto.SourceContributionPointDTO;
+import com.energy.analytics.renewables.model.DailyRenewablesSummary;
+import com.energy.analytics.renewables.model.RenewableMix;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.List;
 
 @Repository
@@ -101,7 +100,34 @@ public class RenewableShareRepository {
       );
    }
 
-   private List<MetricPointDTO> mapJsonToList(ResultSet rs, String columnName) throws SQLException {
+   public List<DailyRenewablesSummary> getDailyMetrics(
+           OffsetDateTime startOfDay,
+           OffsetDateTime endOfDay,
+           String region
+   ) {
+      String sql = """
+              SELECT bucket, source, region, avg_generation_mw
+              FROM view_daily_renewable_summary
+              WHERE bucket >= ? AND bucket < ?
+              AND region = ?
+              ORDER BY bucket DESC, source ASC
+      """;
+
+      return jdbcTemplate.query(
+            sql,
+              (rs, rowNum) -> new DailyRenewablesSummary(
+                      rs.getObject("bucket", OffsetDateTime.class).toInstant(),
+                      rs.getString("source"),
+                      rs.getString("region"),
+                      rs.getDouble("avg_generation_mw")
+              ),
+              startOfDay,
+              endOfDay,
+              region
+      );
+   }
+
+   private List<SourceContributionPointDTO> mapJsonToList(ResultSet rs, String columnName) throws SQLException {
       try {
          String jsonString = rs.getString(columnName);
          if (jsonString == null) return List.of();
