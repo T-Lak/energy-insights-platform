@@ -1,7 +1,8 @@
-package com.energy.analytics.repository;
+package com.energy.analytics.unit.repository;
 
-import com.energy.analytics.BaseIntegrationTest;
-import com.energy.analytics.model.entity.Metric;
+import com.energy.analytics.BaseContainerTest;
+import com.energy.analytics.ingestion.model.Metric;
+import com.energy.analytics.ingestion.repository.RawMetricRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,8 +19,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class RawMetricRepositoryTest extends BaseIntegrationTest {
+public class RawMetricRepositoryTest extends BaseContainerTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

@@ -1,8 +1,8 @@
 package com.energy.analytics.helpers;
 
-import com.energy.analytics.model.entity.Metric;
-import com.energy.analytics.model.domain.EnergySource;
-import com.energy.analytics.model.mapper.EnergySourceMapper;
+import com.energy.analytics.ingestion.model.Metric;
+import com.energy.analytics.shared.domain.EnergySource;
+import com.energy.analytics.shared.mapper.EnergySourceMapper;
 
 import java.time.Instant;
 import java.util.List;
