@@ -1,3 +1,13 @@
+export const RENEWABLE_COLORS: { [key: string]: string } = {
+  solar: '#E29A21',
+  windOnshore: '#0E7478',
+  windOffshore: '#2F939D',
+  biomass: '#3B7A57',
+  hydro: '#4A7BB0',
+  geothermal: '#C86B45',
+  otherRenewable: '#7E8B96',
+};
+
 export enum SourceType {
   Fossil = 'Fossil',
   Renewable = 'Renewable',
@@ -37,12 +47,12 @@ export const ENERGY_SOURCE_MAP: Record<EnergySource, EnergySourceMetadata> = {
     isRenewable: true,
   },
   [EnergySource.HYDRO_RUN_OF_RIVER]: {
-    displayName: 'Hydro (River)',
+    displayName: 'Hydro - River',
     type: SourceType.Renewable,
     isRenewable: true,
   },
   [EnergySource.HYDRO_WATER_RESERVOIR]: {
-    displayName: 'Hydro (Reservoir)',
+    displayName: 'Hydro - Reservoir',
     type: SourceType.Renewable,
     isRenewable: true,
   },
