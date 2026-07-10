@@ -5,6 +5,7 @@
       from the 61.83% observed earlier this morning, likely due to peak solar production.
     </div>
   </app-widget>
+
   @if (dictionaryStream$ | async; as dict) {
     <app-widget heading="Top Sources" icon="leaderboard">
       <app-bar-chart
@@ -15,6 +16,7 @@
         [barWidth]="25"
       />
     </app-widget>
+
     <app-widget heading="Top Carbon Contributors" icon="co2">
       <app-bar-chart
         [stream$]="dict[TopSourcesCategory.CARBON_CONTRIBUTORS]"
@@ -23,6 +25,22 @@
         yKey="intensity"
         [barWidth]="25"
       />
+    </app-widget>
+  } @else {
+    <app-widget heading="Top Sources" icon="leaderboard">
+      <div class="widget-skeleton-chart">
+        <p-skeleton width="40%" height="1.25rem" class="mb-3"></p-skeleton>
+        <p-skeleton width="70%" height="1.25rem" class="mb-2"></p-skeleton>
+        <p-skeleton width="55%" height="1.25rem"></p-skeleton>
+      </div>
+    </app-widget>
+
+    <app-widget heading="Top Carbon Contributors" icon="co2">
+      <div class="widget-skeleton-chart">
+        <p-skeleton width="40%" height="1.25rem" class="mb-3"></p-skeleton>
+        <p-skeleton width="70%" height="1.25rem" class="mb-2"></p-skeleton>
+        <p-skeleton width="55%" height="1.25rem"></p-skeleton>
+      </div>
     </app-widget>
   }
 </div>

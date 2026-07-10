@@ -6,16 +6,19 @@ import { ImportExportFlowService } from './import-export-flow.service';
 import { RegionFlowTotalsTimeline } from '../../crossborder-flows/models/regional-flow-totals-timeline.model';
 import { FlowTotalsDTO } from '../../crossborder-flows/models/flow-totals.dto';
 
+import { SkeletonModule } from 'primeng/skeleton';
+
 @Component({
   selector: `app-import-export-flow`,
   standalone: true,
-  imports: [CommonModule, LineChart],
+  imports: [CommonModule, LineChart, SkeletonModule],
   providers: [ImportExportFlowService],
   templateUrl: './import-export-flow.html',
   styleUrl: './import-export-flow.scss',
 })
 export class ImportExportFlow implements OnInit, OnDestroy {
   protected chartData: any[] = [];
+  protected isLoading = true;
 
   private initialDataSubscription!: Subscription;
   private webSocketDataSubscription!: Subscription;
@@ -32,6 +35,11 @@ export class ImportExportFlow implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.chartData = data;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Initial data error:', err);
+          this.isLoading = false;
         },
       });
 

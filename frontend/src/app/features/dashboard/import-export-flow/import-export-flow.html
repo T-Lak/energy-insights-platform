@@ -1,11 +1,17 @@
-<div class="grid-wrapper">
+<div class="content-wrapper">
   <div class="header">
     <span class="material-icons">compare_arrows</span>
     Import / Export Flow
   </div>
+
   <div class="charts-wrapper">
-    <div class="chart">
-      <app-line-chart [seriesData]="chartData" granularity="quarter-hourly"></app-line-chart>
+    <div class="chart" [class.skeleton-wrapper]="isLoading">
+      @if (!isLoading) {
+        <app-line-chart [seriesData]="chartData" granularity="quarter-hourly"></app-line-chart>
+      } @else {
+        <p-skeleton width="100%" styleClass="chart-body-skeleton" borderRadius="4px"></p-skeleton>
+        <p-skeleton width="100%" height="16px" borderRadius="4px"></p-skeleton>
+      }
     </div>
   </div>
 </div>

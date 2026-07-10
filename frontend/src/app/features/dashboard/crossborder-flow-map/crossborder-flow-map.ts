@@ -5,16 +5,18 @@ import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 
 import { FlowData, getBorderCoords } from './crossborder-flow-map.model';
-import { Subscription } from 'rxjs';
+import { map, Observable, shareReplay, startWith, Subscription } from 'rxjs';
 import { FlowGridEdge } from '../../crossborder-flows/models/flow-grid-edge.model';
 import { CrossborderFlowMapService } from './crossborder-flow-map.service';
 import { getCountryFullName } from '../../../core/model/domain/country.model';
 import { FlowDirection, getFlowColor } from '../../../core/model/domain/flows.model';
 
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
 @Component({
   standalone: true,
   selector: 'app-energy-flow-map',
-  imports: [CommonModule],
+  imports: [CommonModule, ProgressSpinnerModule],
   providers: [CrossborderFlowMapService],
   templateUrl: './crossborder-flow-map.html',
   styleUrl: './crossborder-flow-map.scss',
@@ -26,13 +28,22 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
   private flowData: FlowData[] = [];
   private dataSubscription!: Subscription;
 
+  public isLoading$!: Observable<boolean>;
+
   constructor(
     private http: HttpClient,
     private flowService: CrossborderFlowMapService,
   ) {}
 
   ngOnInit(): void {
-    this.dataSubscription = this.flowService.getFlowPoints('DE_LU').subscribe({
+    const mapData$ = this.flowService.getFlowPoints('DE_LU').pipe(shareReplay(1));
+
+    this.isLoading$ = mapData$.pipe(
+      map(() => false),
+      startWith(true),
+    );
+
+    this.dataSubscription = mapData$.subscribe({
       next: (data) => {
         this.flowData = [];
 
@@ -50,7 +61,9 @@ export class CrossborderFlowMap implements OnInit, AfterViewInit, OnDestroy {
           this.addFlowMarkers();
         }
       },
-      error: (err) => console.error('Map data error:', err),
+      error: (err) => {
+        console.error('Map data error:', err);
+      },
     });
   }
 

@@ -38,5 +38,23 @@
       flex: 1;
       min-height: 0;
     }
+
+    &.skeleton-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 300px;
+      width: 100%;
+
+      p-skeleton {
+        width: 100%;
+        display: block;
+      }
+
+      ::ng-deep .chart-body-skeleton {
+        flex: 1;
+        min-height: 0;
+      }
+    }
   }
 }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { TooltipModule } from 'primeng/tooltip';
 
-import { KpiSection } from './kpi-cards/kpi-cards';
+import { KpiSection } from './kpi-section/kpi-section';
 import { ImportExportFlow } from './import-export-flow/import-export-flow';
 import { CrossborderFlowMap } from './crossborder-flow-map/crossborder-flow-map';
 import { BarChartItem } from '../../shared/components/bar-chart/bar-chart.model';
