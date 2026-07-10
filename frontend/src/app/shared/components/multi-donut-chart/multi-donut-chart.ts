@@ -30,8 +30,15 @@ export class MultiDonutChart implements OnChanges {
   public chartOptions!: AgChartOptions;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['dataInput'] && this.dataInput) {
-      this.initChartOptions();
+    if (changes['dataInput']) {
+      if (this.dataInput && this.dataInput.length > 0) {
+        this.initChartOptions();
+      } else {
+        this.chartOptions = {
+          background: { fill: 'transparent' },
+          series: [],
+        };
+      }
     }
   }
 
