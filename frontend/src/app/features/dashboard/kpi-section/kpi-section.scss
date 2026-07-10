@@ -1,0 +1,23 @@
+.kpi-section-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-md);
+
+  .kpi-skeleton-card {
+    background: var(--surface-card, #ffffff);
+    border: 1px solid var(--surface-border, #e2e8f0);
+    border-radius: var(--border-radius-md, 8px);
+    padding: var(--spacing-md, 16px);
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .mb-3 {
+      margin-bottom: 12px;
+    }
+    .mb-2 {
+      margin-bottom: 8px;
+    }
+  }
+}

@@ -1,0 +1,20 @@
+<div class="kpi-section-wrapper">
+  @if (streams$ | async; as allStreams) {
+    @for (kpiType of kpiList; track $index) {
+      <app-kpi-card
+        [type]="kpiType"
+        [stream]="allStreams[kpiType]"
+        [tooltipDescription]="tooltipDescriptions[$index]"
+        tooltipStyleClass="kpi-tooltip-theme"
+      />
+    }
+  } @else {
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="kpi-skeleton-card">
+        <p-skeleton width="40%" height="1.2rem" class="mb-3"></p-skeleton>
+        <p-skeleton width="70%" height="2.5rem" class="mb-2"></p-skeleton>
+        <p-skeleton width="55%" height="1rem"></p-skeleton>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,22 @@
+<div class="card-wrapper">
+  <div class="kpi-title">
+    {{ config[type].label }}
+    <span class="material-icons" [pTooltip]="tooltipDescription" tooltipPosition="bottom"
+      >info_outline</span
+    >
+  </div>
+
+  <div class="kpi-content">
+    <div class="kpi-value">
+      <span>{{ currentKpiValue$ | async }}</span>
+      {{ config[type].unit }}
+    </div>
+
+    <div class="kpi-trend" *ngIf="kpiTrend$ | async as trend">
+      <span class="material-icons">
+        {{ trend.isNeutral ? 'trending_flat' : trend.isUp ? 'arrow_outward' : 'south_east' }}
+      </span>
+      <span>{{ trend.value }}</span>
+    </div>
+  </div>
+</div>
