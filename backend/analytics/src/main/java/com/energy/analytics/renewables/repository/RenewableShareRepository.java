@@ -67,8 +67,8 @@ public class RenewableShareRepository {
       String sql = """
       SELECT
         CASE
-          WHEN time_period = 'Day' THEN 'Day (06:00 - 22:00)'
-          WHEN time_period = 'Night' THEN 'Night (22:00 - 06:00)'
+          WHEN time_period = 'Day' THEN 'Day (06:00 - 18:00)'
+          WHEN time_period = 'Night' THEN 'Night (18:00 - 06:00)'
           ELSE time_period
         END AS "timePeriod",
         CASE
