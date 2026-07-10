@@ -5,7 +5,7 @@ import { StackedAreaChart } from '@shared/components/stacked-area-chart/stacked-
 
 import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { Observable, map } from 'rxjs';
+import { Observable, combineLatest, map, shareReplay, startWith } from 'rxjs';
 import { RenewableShareService } from './renewable-share.service';
 import { RenewableMixPoint } from './models/renewable-mix-point.model';
 import { MultiDonutChart } from '@shared/components/multi-donut-chart/multi-donut-chart';
@@ -14,6 +14,11 @@ import { getRenewablesDisplayNames } from '../../core/model/domain/sources.model
 import { ColDef } from 'ag-grid-community';
 import { getColumnDefs } from './renewable-share.table.columns';
 import { AgTable } from '@shared/components/ag-table/ag-table';
+import { ButtonDirective } from 'primeng/button';
+import { isSameDay } from 'date-fns';
+
+import { SkeletonModule } from 'primeng/skeleton';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-renewable-share',
@@ -27,6 +32,9 @@ import { AgTable } from '@shared/components/ag-table/ag-table';
     MultiDonutChart,
     AgTable,
     SelectModule,
+    ButtonDirective,
+    SkeletonModule,
+    ProgressSpinnerModule,
   ],
   providers: [RenewableShareService],
   templateUrl: './renewable-share.html',
@@ -44,6 +52,18 @@ export class RenewableShare implements OnInit {
 
   protected tableColumnDefinitions: ColDef[] = getColumnDefs();
 
+  protected maxDate: Date = (() => {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d;
+  })();
+
+  protected prevBtnDisabled = false;
+  protected nextBtnDisabled = true;
+  protected todayBtnDisabled = true;
+
+  protected isLoading$!: Observable<boolean>;
+
   constructor(private renewableShareService: RenewableShareService) {}
 
   ngOnInit(): void {
@@ -58,6 +78,42 @@ export class RenewableShare implements OnInit {
     } else if (this.selectedDate) {
       this.fetchData(this.selectedDate);
     }
+
+    this.updateButtons();
+  }
+
+  protected onPreviousDayBtnClicked() {
+    const newDate = new Date(this.selectedDate);
+    newDate.setDate(newDate.getDate() - 1);
+
+    this.selectedDate = newDate;
+    this.fetchData(this.selectedDate);
+
+    this.updateButtons();
+  }
+
+  protected onNextDayBtnClicked() {
+    const newDate = new Date(this.selectedDate);
+    newDate.setDate(newDate.getDate() + 1);
+
+    this.selectedDate = newDate;
+    this.fetchData(this.selectedDate);
+
+    this.updateButtons();
+  }
+
+  protected onTodayBtnClicked() {
+    this.selectedDate = new Date();
+    this.fetchData(this.selectedDate);
+
+    this.updateButtons();
+  }
+
+  private updateButtons() {
+    const today = new Date();
+
+    this.todayBtnDisabled = isSameDay(this.selectedDate, today);
+    this.nextBtnDisabled = isSameDay(this.selectedDate, this.maxDate);
   }
 
   private fetchData(date: Date) {
@@ -82,6 +138,7 @@ export class RenewableShare implements OnInit {
             };
           });
         }),
+        shareReplay(1),
       );
 
     this.dailySummaries$ = this.renewableShareService.getDailySummaries(formattedDateStr).pipe(
@@ -94,6 +151,15 @@ export class RenewableShare implements OnInit {
       map((data) => {
         return data;
       }),
+    );
+
+    this.isLoading$ = combineLatest([
+      this.dailyRenewableMix$,
+      this.dailySummaries$,
+      this.tableData$,
+    ]).pipe(
+      map(() => false),
+      startWith(true),
     );
   }
 
