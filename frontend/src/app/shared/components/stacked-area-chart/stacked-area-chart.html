@@ -1,1 +1,17 @@
-<div id="stackedAreaChart" style="width: 100%; height: 100%; min-height: 250px"></div>
+<div class="custom-legend-wrapper">
+  <button
+    *ngFor="let item of legendItems"
+    class="legend-btn"
+    [class.hidden-series]="!item.visible"
+    (click)="customToggleSeries(item.key)"
+  >
+    <span class="legend-color-dot" [style.background-color]="item.color"></span>
+    {{ item.label }}
+  </button>
+  <button [disabled]="!hasHiddenSeries()" class="legend-btn reset-btn" (click)="resetAllSeries()">
+    <span class="material-icons">filter_alt_off</span>
+  </button>
+</div>
+<div class="chart-card-container">
+  <div id="stackedAreaChart" class="chart-canvas"></div>
+</div>

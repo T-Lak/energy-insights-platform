@@ -11,21 +11,19 @@ import * as am5 from '@amcharts/amcharts5';
 import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import { RENEWABLE_COLORS } from '../../../core/model/domain/sources.model';
+interface LegendItem {
+  key: string;
+  label: string;
+  color: string;
+  visible: boolean;
+}
 
 @Component({
   selector: 'app-stacked-area-chart',
   standalone: true,
   imports: [CommonModule],
-  template: `<div id="stackedAreaChart" style="width: 100%; height: 100%;"></div>`,
-  styles: [
-    `
-      :host {
-        display: block;
-        height: 100%;
-        width: 100%;
-      }
-    `,
-  ],
+  templateUrl: './stacked-area-chart.html',
+  styleUrl: './stacked-area-chart.scss',
 })
 export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
   @Input() data!: any[];
@@ -35,8 +33,9 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
   private xAxis!: am5xy.DateAxis<am5xy.AxisRendererX>;
 
   private isViewInitialized = false;
-
   private noDataIndicator: am5.Modal | null = null;
+
+  protected legendItems: LegendItem[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -70,9 +69,8 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
 
     if (!this.root) {
       this.buildChart();
+      return;
     }
-
-    console.log('Data: ', this.data);
 
     this.updateChartData();
   }
@@ -86,6 +84,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       this.root.dispose();
     }
     this.seriesList = [];
+    this.legendItems = [];
   }
 
   private buildChart(): void {
@@ -101,9 +100,11 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
         wheelX: 'none',
         wheelY: 'none',
         layout: this.root.verticalLayout,
-        maxTooltipDistance: 1,
+        maxTooltipDistance: -1,
       }),
     );
+
+    chart.set('stateAnimationDuration', 0);
 
     const xAxisRenderer = am5xy.AxisRendererX.new(this.root, { minGridDistance: 60 });
     xAxisRenderer.labels.template.setAll({ fill: am5.color('#888'), fontSize: 14 });
@@ -123,7 +124,6 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
 
     yAxisRenderer.labels.template.adapters.add('text', (text, target) => {
       const dataItem = target.dataItem as am5.DataItem<am5xy.IValueAxisDataItem>;
-
       if (dataItem && dataItem.get('value') === 0) {
         return '';
       }
@@ -136,18 +136,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       }),
     );
 
-    const legend = chart.children.unshift(
-      am5.Legend.new(this.root, {
-        centerX: am5.p50,
-        x: am5.p50,
-        marginBottom: 40,
-      }),
-    );
-
-    legend.labels.template.setAll({
-      fontSize: 13,
-    });
-
+    this.legendItems = [];
     const allKeys = Object.keys(this.data[0]);
     const seriesKeys = allKeys.filter((key) => key !== 'timestamp');
 
@@ -160,6 +149,7 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       const series = chart.series.push(
         am5xy.LineSeries.new(this.root, {
           name: formattedName,
+          id: key as any,
           xAxis: this.xAxis,
           yAxis: yAxis,
           valueYField: key,
@@ -168,21 +158,36 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
           stroke: am5.color(colorHex),
           fill: am5.color(colorHex),
           tooltip: this.createTooltip(formattedName, am5.color(colorHex)),
-        }),
+          snapTooltip: true,
+          interpolationDuration: 300,
+        } as any),
       );
+
+      series.appear(0);
 
       series.strokes.template.setAll({ strokeWidth: 1 });
       series.fills.template.setAll({ visible: true, fillOpacity: 0.7 });
 
       this.seriesList.push(series);
-      legend.data.push(series);
+
+      this.legendItems.push({
+        key: key,
+        label: formattedName,
+        color: colorHex,
+        visible: true,
+      });
     });
 
-    // const cursor = chart.set(
-    //   'cursor',
-    //   am5xy.XYCursor.new(this.root, { xAxis: this.xAxis, snapToSeriesBy: 'x' }),
-    // );
-    // cursor.lineY.set('visible', false);
+    const cursor = chart.set(
+      'cursor',
+      am5xy.XYCursor.new(this.root, {
+        xAxis: this.xAxis,
+        behavior: 'none',
+      }),
+    );
+
+    cursor.lineX.set('visible', true);
+    cursor.lineY.set('visible', false);
 
     this.updateChartData();
   }
@@ -222,20 +227,13 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
     if (!this.noDataIndicator && this.root) {
       this.noDataIndicator = am5.Modal.new(this.root, {
         content: `
-        <div style="
-          text-align: center; 
-          font-family: 'Inter', sans-serif; 
-          color: #6a6970;
-          font-size: 14px;
-          font-weight: 500;
-        ">
+        <div style="text-align: center; font-family: 'Inter', sans-serif; color: #6a6970; font-size: 14px; font-weight: 500;">
           No data available for this date yet
         </div>
       `,
       });
 
       const contentDiv = this.noDataIndicator.getPrivate('content');
-
       if (contentDiv) {
         contentDiv.style.backgroundColor = '#ffffff';
         contentDiv.style.padding = '20px 30px';
@@ -260,6 +258,36 @@ export class StackedAreaChart implements OnChanges, AfterViewInit, OnDestroy {
       this.seriesList.forEach((series) => {
         series.data.setAll(this.data);
       });
+    }
+  }
+
+  protected hasHiddenSeries(): boolean {
+    return this.legendItems.some((item) => !item.visible);
+  }
+
+  protected resetAllSeries(): void {
+    this.legendItems.forEach((item) => {
+      item.visible = true;
+
+      const series = this.seriesList.find((s) => s.get('id' as any) === item.key);
+      if (series && series.get('visible') === false) {
+        series.show();
+      }
+    });
+  }
+
+  protected customToggleSeries(key: string): void {
+    const series = this.seriesList.find((s) => s.get('id' as any) === key);
+    const legendItem = this.legendItems.find((item) => item.key === key);
+
+    if (series && legendItem) {
+      if (series.get('visible') === false) {
+        series.show();
+        legendItem.visible = true;
+      } else {
+        series.hide();
+        legendItem.visible = false;
+      }
     }
   }
 }
