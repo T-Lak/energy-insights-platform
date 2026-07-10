@@ -2,6 +2,12 @@ spring:
   application:
     name: analytics
 
+  springdoc:
+    swagger-ui:
+      path: /swagger-ui.html
+    api-docs:
+      path: /v3/api-docs
+
   datasource:
     url: jdbc:postgresql://localhost:5432/energy_analytics
     username: energy_user
