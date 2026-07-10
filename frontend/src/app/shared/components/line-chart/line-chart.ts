@@ -32,7 +32,6 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
   private isViewInitialized = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
     if (!changes['seriesData']) return;
     this.seriesData = changes['seriesData'].currentValue;
 
@@ -51,6 +50,10 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
     this.tryUpdate();
   }
 
+  ngOnDestroy(): void {
+    if (this.root) this.root.dispose();
+  }
+
   private tryUpdate(): void {
     if (!this.seriesData?.length) return;
 
@@ -65,19 +68,18 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
 
   private initFullChart(): void {
     this.chart = this.initChart();
-
     const [xAxis, yAxis] = this.initAxes(this.chart);
     this.xAxis = xAxis;
-
     this.series = this.createSeries(this.chart, xAxis, yAxis);
-
     this.setCursor(this.chart, xAxis);
-  }
-  ngOnDestroy(): void {
-    if (this.root) this.root.dispose();
   }
 
   private initChart(): am5xy.XYChart {
+    const container = document.getElementById('splinechart');
+    if (container) {
+      container.innerHTML = '';
+    }
+
     this.root = am5.Root.new('splinechart');
     this.root.setThemes([am5themes_Animated.new(this.root)]);
 
@@ -110,7 +112,7 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
       am5xy.DateAxis.new(this.root, {
         maxDeviation: 0.5,
         baseInterval: { timeUnit: 'hour', count: 1 },
-        renderer: am5xy.AxisRendererX.new(this.root, { pan: 'zoom', minGridDistance: 70 }),
+        renderer: am5xy.AxisRendererX.new(this.root, { pan: 'none' }),
       }),
     );
 
@@ -129,7 +131,7 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
         min: 0,
         extraMin: 0,
         extraMax: 0.1,
-        renderer: am5xy.AxisRendererY.new(this.root, { pan: 'zoom' }),
+        renderer: am5xy.AxisRendererY.new(this.root, { pan: 'none' }),
       }),
     );
 
@@ -188,6 +190,7 @@ export class LineChart implements OnChanges, OnDestroy, AfterViewInit {
           strokeWidth: 2,
           opacity: 0,
         });
+
         circle.states.create('working', { opacity: 1, scale: 1.2 });
         return am5.Bullet.new(this.root, { sprite: circle });
       });
