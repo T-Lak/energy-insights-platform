@@ -75,7 +75,7 @@ components:
         change1hPercentage: { type: number, format: double }
         change24hPercentage: { type: number, format: double }
 
-    # Skeleton for nested objects (add properties as needed)
+    # Skeleton for nested objects 
     FlowTotalsDTO: { type: object }
     FlowGridEdgeDTO: { type: object }
     CountryFlowMetricsDTO: { type: object }
