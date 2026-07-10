@@ -11,41 +11,82 @@
       optionValue="value"
     >
     </p-selectButton>
+    <button
+      pButton
+      [disabled]="!(selectedTimestamp$ | async)"
+      (click)="resetToDefaultState()"
+      size="small"
+      severity="secondary"
+      pTooltip="Reset"
+    >
+      <span class="material-icons">filter_alt_off</span>
+    </button>
   </div>
+
   <div class="charts-wrapper">
     <div class="chart-wrapper spline">
       <div class="header">
         <span class="material-icons">compare_arrows</span>
         Import / Export Flow
       </div>
-      <div class="chart-container">
-        <app-line-chart
+      <div class="chart-container position-relative">
+        @if (isLoading$ | async) {
+          <div class="spinner-overlay">
+            <p-progressSpinner strokeWidth="8" animationDuration="1s" />
+          </div>
+        }
+        <app-line-series
           [seriesData]="(seriesData$ | async) ?? []"
           [granularity]="selectedGranularity"
+          (dataPointClicked)="onLineChartPointClick($event)"
         />
       </div>
     </div>
     <div class="chart-wrapper bar">
       <div class="header">
-        <span class="material-icons">balance</span>
-        Import / Export By Country
+        <div class="title-left">
+          <span class="material-icons">balance</span>
+          <span>Import / Export By Country</span>
+        </div>
+        <span class="time-context">
+          {{ activeHourLabel$ | async }}
+        </span>
       </div>
-      <div class="chart-container">
+      <div class="chart-container position-relative">
+        @if (isLoading$ | async) {
+          <div class="spinner-overlay">
+            <p-progressSpinner strokeWidth="8" animationDuration="1s" />
+          </div>
+        }
         <app-clustered-column-chart [dataInput]="(barChartData$ | async) ?? []" />
       </div>
     </div>
   </div>
+
   <div class="table-wrapper">
     <div class="header">
       <span class="material-icons">table_chart</span>
       Crossborder Flow Dynamics
     </div>
 
-    <div class="table-container">
-      <app-ag-table
-        [columnDefs]="tableColumnDefinitions"
-        [dataInput]="(tableData$ | async) ?? []"
-      />
-    </div>
+    @if (!(isLoading$ | async)) {
+      <div class="table-container">
+        <app-ag-table
+          [columnDefs]="tableColumnDefinitions"
+          [dataInput]="(tableData$ | async) ?? []"
+        />
+      </div>
+    } @else {
+      <div class="table-container table-skeleton-layout">
+        <p-skeleton width="100%" height="42px" styleClass="mb-3" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+        <p-skeleton width="100%" height="32px" styleClass="mb-2" borderRadius="4px" />
+      </div>
+    }
   </div>
 </div>

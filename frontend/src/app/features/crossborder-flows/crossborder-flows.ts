@@ -5,14 +5,27 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 
 import { SubpageHeader } from '@shared/components/subpage-header/subpage-header';
 import { AgTable } from '@shared/components/ag-table/ag-table';
-import { LineChart } from '@shared/components/line-chart/line-chart';
 import { FormsModule } from '@angular/forms';
 import { ClusteredColumnChart } from '@shared/components/clustered-column-chart/clustered-column-chart';
 import { CrossborderFlowsService } from './crossborder-flows.service';
 import { Granularity, granularityOptions } from './crossborder-flows.model';
-import { BehaviorSubject, Observable, combineLatest, map, shareReplay, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  map,
+  shareReplay,
+  startWith,
+  switchMap,
+} from 'rxjs';
 import { ColDef } from 'ag-grid-community';
 import { getColumnDefs } from './crossborder-flows.table.columns';
+import { ButtonDirective } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { LineSeries } from '@shared/components/line-series/line-series';
+
+import { SkeletonModule } from 'primeng/skeleton';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-crossborder-flows',
@@ -23,8 +36,12 @@ import { getColumnDefs } from './crossborder-flows.table.columns';
     FormsModule,
     SubpageHeader,
     AgTable,
-    LineChart,
     ClusteredColumnChart,
+    ButtonDirective,
+    Tooltip,
+    LineSeries,
+    SkeletonModule,
+    ProgressSpinnerModule,
   ],
   providers: [CrossborderFlowsService],
   templateUrl: './crossborder-flows.html',
@@ -32,7 +49,7 @@ import { getColumnDefs } from './crossborder-flows.table.columns';
 })
 export class CrossborderFlows implements OnInit {
   private granularity$ = new BehaviorSubject<string>('daily');
-  private selectedTimestamp$ = new BehaviorSubject<string | null>(null);
+  protected selectedTimestamp$ = new BehaviorSubject<string | null>(null);
 
   public seriesData$!: Observable<any[]>;
   public barChartData$!: Observable<any[]>;
@@ -40,9 +57,11 @@ export class CrossborderFlows implements OnInit {
   public activeHourLabel$!: Observable<string>;
 
   protected granularityOptions = granularityOptions;
-  public selectedGranularity: string = 'daily';
+  protected selectedGranularity: string = 'daily';
 
   protected tableColumnDefinitions!: ColDef[];
+
+  protected isLoading$!: Observable<boolean>;
 
   constructor(private crossborderFlowsService: CrossborderFlowsService) {}
 
@@ -92,15 +111,24 @@ export class CrossborderFlows implements OnInit {
     );
 
     this.tableData$ = sharedState$.pipe(
-      map((state) => state.summaries.flatMap((s: any) => this.toTableData(s))),
+      map((state) =>
+        state.summaries
+          .filter((s: any) => s.timestamp === state.activeTime)
+          .flatMap((s: any) => this.toTableData(s)),
+      ),
     );
 
     this.activeHourLabel$ = sharedState$.pipe(
       map((state) => (state.activeTime ? this.formatTimeLabel(state.activeTime) : '')),
     );
+
+    this.isLoading$ = combineLatest([this.seriesData$, this.barChartData$, this.tableData$]).pipe(
+      map(() => false),
+      startWith(true),
+    );
   }
 
-  public onGranularityChange(event: any) {
+  protected onGranularityChange(event: any) {
     if (!event.value) return;
 
     this.selectedGranularity = event.value;
@@ -109,10 +137,14 @@ export class CrossborderFlows implements OnInit {
     this.granularity$.next(event.value);
   }
 
-  public onLineChartPointClick(clickedDataPoint: any): void {
-    if (clickedDataPoint?.timestamp) {
-      this.selectedTimestamp$.next(clickedDataPoint.timestamp);
+  protected onLineChartPointClick(clickedTimestamp: string): void {
+    if (clickedTimestamp) {
+      this.selectedTimestamp$.next(clickedTimestamp);
     }
+  }
+
+  protected resetToDefaultState(): void {
+    this.selectedTimestamp$.next(null);
   }
 
   private toLineChartData(dataPoint: any, index: number, allPoints: any[]) {
