@@ -111,10 +111,8 @@ class DerivedMetricsRepositoryTest extends BaseContainerTest {
 
       List<KpiSnapshotView> results = repository.findLatestSnapshotsByRegion("DE");
 
-      // Assert list properties
       assertThat(results).hasSize(2);
 
-      // Assert the latest (first) snapshot
       KpiSnapshotView latest = results.get(0);
       assertThat(latest.getRegion()).isEqualTo("DE");
       assertThat(latest.getBucket()).isEqualTo(now);
@@ -123,7 +121,6 @@ class DerivedMetricsRepositoryTest extends BaseContainerTest {
       assertThat(latest.getTotalLoad()).isEqualTo(60000.0);
       assertThat(latest.getNetBalance()).isEqualTo(500.0);
 
-      // Optionally assert the previous (second) snapshot
       assertThat(results.get(1).getBucket()).isEqualTo(anHourAgo);
    }
 
