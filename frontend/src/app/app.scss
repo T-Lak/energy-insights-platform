@@ -1,21 +1,28 @@
 .app-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  width: 100%;
   height: 100vh;
-  width: 100vw;
-  overflow: hidden; /* Prevents unwanted global scrollbars */
+  overflow: hidden;
+
+  @media (min-width: 767px) {
+    flex-direction: row;
+
+    app-navbar {
+      transition: flex 0.3s ease;
+
+      &.collapsed {
+        flex: 0 0 80px;
+      }
+    }
+  }
 }
 
-app-navbar {
-  flex: 0 0 250px;
-}
-
-/* Add these explicit structural rules ◄ */
 .main-content-view {
-  flex: 1; /* Absorbs all remaining width next to the navbar */
+  flex: 1;
   display: flex;
-  flex-direction: column; /* Stacks the header above your page content wrapper */
-  min-width: 0; /* CRITICAL: Prevents ag-Grid tables from breaking parent containers */
-  height: 100%;
-  overflow-y: auto; /* Allows individual subpages to scroll vertically if needed */
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
 }

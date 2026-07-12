@@ -8,5 +8,19 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
+  host: {
+    '[class.collapsed]': 'isCollapsed',
+  },
 })
-export class Navbar {}
+export class Navbar {
+  protected isCollapsed = false;
+  isMenuOpen = false;
+
+  toggleSidebar() {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+}

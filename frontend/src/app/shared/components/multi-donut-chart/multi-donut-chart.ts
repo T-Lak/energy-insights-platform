@@ -104,7 +104,7 @@ export class MultiDonutChart implements OnChanges {
                         <div style="display: flex; align-items: center; gap: 8px;">
                           <span style="color: #475569;">${formattedLabel}</span>
                         </div>
-                        <strong style="color: #1e293b;">${m.percentage.toFixed(1)} MW</strong>
+                        <strong style="color: #1e293b;">${m.percentage.toFixed(1)} MWh</strong>
                       </div>`;
                   })
                   .join('') ||

@@ -13,33 +13,36 @@
       [autoZIndex]="false"
       appendTo="body"
     />
-    <button
-      pButton
-      [disabled]="prevBtnDisabled"
-      (click)="onPreviousDayBtnClicked()"
-      size="small"
-      severity="secondary"
-    >
-      Prev Day
-    </button>
-    <button
-      pButton
-      [disabled]="nextBtnDisabled"
-      (click)="onNextDayBtnClicked()"
-      size="small"
-      severity="secondary"
-    >
-      Next Day
-    </button>
-    <button
-      pButton
-      [disabled]="todayBtnDisabled"
-      (click)="onTodayBtnClicked()"
-      size="small"
-      severity="contrast"
-    >
-      Today
-    </button>
+
+    <div class="navigation-group">
+      <button
+        pButton
+        [disabled]="prevBtnDisabled"
+        (click)="onPreviousDayBtnClicked()"
+        size="small"
+        severity="secondary"
+      >
+        Prev Day
+      </button>
+      <button
+        pButton
+        [disabled]="nextBtnDisabled"
+        (click)="onNextDayBtnClicked()"
+        size="small"
+        severity="secondary"
+      >
+        Next Day
+      </button>
+      <button
+        pButton
+        [disabled]="todayBtnDisabled"
+        (click)="onTodayBtnClicked()"
+        size="small"
+        severity="contrast"
+      >
+        Today
+      </button>
+    </div>
   </div>
 
   <div class="charts-wrapper">

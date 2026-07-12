@@ -1,66 +1,172 @@
 @use 'mixins' as mixins;
 
+:host(.collapsed) {
+  .navbar-wrapper {
+    width: 80px;
+    .brand-text,
+    .nav-links h4,
+    .link-text {
+      display: none;
+    }
+    .brand {
+      justify-content: center;
+      padding: 24px 0;
+      .brand-logo {
+        margin: 0;
+        transform: none;
+      }
+    }
+    .nav-links {
+      align-items: center;
+      padding: 0;
+    }
+  }
+}
+
 .navbar-wrapper {
   display: flex;
   flex-direction: column;
   width: 17rem;
-  height: 100vh;
-  // background-color: #1f1933;
+  height: 100%;
+
   background-color: #ebebeb;
-  color: #fff;
   border-right: 1px solid #ccc;
-}
+  transition: width 0.3s ease;
+  flex-shrink: 0;
+  overflow: hidden;
 
-.brand {
-  @include mixins.header-with-icon($font-size: 24px, $margin-bottom: 16px);
-  padding: 20px;
-  align-items: baseline;
-
-  .brand-logo {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    transform: translateY(2px);
-  }
-}
-
-.nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0 1.25rem;
-  color: #333;
-
-  > h4 {
-    margin: 20px 0 0 0;
-    font-size: 14px;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  .brand-info {
+    @include mixins.header-with-icon($font-size: 24px, $margin-bottom: 16px);
+    padding: 21px;
+    align-items: baseline;
+    flex-shrink: 0;
+    cursor: pointer;
+    .brand-logo {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      transform: translateY(2px);
+    }
   }
 
-  > a {
-    font-size: 17px;
+  .nav-links {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 1.25rem;
     color: #333;
-    text-decoration: none;
+    flex: 1;
+    overflow-y: auto;
 
-    &:hover {
-      background-color: #dfdfe4;
+    h4 {
+      position: sticky;
+      top: 0;
+      margin: 20px 0 0 0;
+      font-size: 14px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background-color: #ebebeb;
+      z-index: 1;
+      padding-top: 5px;
     }
-
-    &.active {
-      background-color: #d6d6da;
-      font-weight: 500;
-    }
-
-    > .material-icons {
-      font-size: 1.2rem;
+    a {
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      color: #333;
+      text-decoration: none;
+      &:hover {
+        background-color: #dfdfe4;
+      }
+      &.active {
+        background-color: #d6d6da;
+        font-weight: 500;
+      }
+      .material-icons {
+        font-size: 1.2rem;
+      }
     }
   }
+}
+
+@media (min-width: 768px) and (max-width: 1450px) {
+  .navbar-wrapper {
+    width: 80px;
+    .brand-text,
+    .nav-links h4,
+    .link-text {
+      display: none;
+    }
+    .brand-info {
+      justify-content: center;
+      padding: 25px 0;
+      .brand-logo {
+        margin: 0;
+        transform: none;
+      }
+    }
+    .nav-links {
+      align-items: center;
+      padding: 0;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .navbar-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto !important;
+    width: 100vw !important;
+
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .menu-toggle {
+      display: block;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .brand-info {
+      margin: 0;
+      padding: 10px 21px;
+    }
+
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      background: #ebebeb;
+      border-top: 1px solid #ccc;
+      padding: 0;
+    }
+
+    .menu-toggle {
+      padding-right: 20px;
+    }
+
+    &.menu-open {
+      .nav-links {
+        display: flex;
+      }
+
+      h4 {
+        display: none;
+      }
+    }
+  }
+}
+
+.menu-toggle {
+  display: none;
 }

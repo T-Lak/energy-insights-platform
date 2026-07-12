@@ -3,11 +3,18 @@
 .content-wrapper {
   display: flex;
   flex-direction: column;
+  gap: 20px;
   width: 100%;
-  box-sizing: border-box;
   padding: 20px;
-  min-height: 0;
-  flex: 1;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+
+    .chart-wrapper {
+      flex: none;
+      height: 100%;
+    }
+  }
 }
 
 .toolbar-wrapper {
@@ -17,11 +24,13 @@
 
 .charts-wrapper {
   display: flex;
-  align-items: stretch;
-  flex: 1;
+  flex-shrink: 0;
   gap: 20px;
   width: 100%;
-  min-height: 350px;
+
+  @media (max-width: 1250px) {
+    flex-direction: column;
+  }
 }
 
 .chart-wrapper {

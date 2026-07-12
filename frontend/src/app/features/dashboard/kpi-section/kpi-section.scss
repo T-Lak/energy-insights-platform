@@ -1,7 +1,15 @@
 .kpi-section-wrapper {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--spacing-md);
+  gap: var(--spacing-md, 20px);
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
   .kpi-skeleton-card {
     background: var(--surface-card, #ffffff);

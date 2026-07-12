@@ -1,23 +1,35 @@
-<div class="navbar-wrapper">
+<div class="navbar-wrapper" [class.collapsed]="isCollapsed" [class.menu-open]="isMenuOpen">
   <div class="brand">
-    <!-- <span class="material-icons">monitor_heart</span> -->
-    <img src="/pulse_icon.png" alt="GridPulse Logo" class="brand-logo" />
-    GridPulse
-  </div>
-  <nav class="nav-links">
-    <h4>Overview</h4>
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <span class="material-icons">dashboard</span>
-      Dashboard
-    </a>
-    <h4>Analytics</h4>
-    <a routerLink="analytics/renewable-share" routerLinkActive="active">
-      <span class="material-icons">eco</span>
-      Renewable Share
-    </a>
-    <a routerLink="analytics/crossborder-flows" routerLinkActive="active">
-      <span class="material-icons">compare_arrows</span>
-      Crossborder Flows</a
+    <div
+      class="brand-info"
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
     >
+      <img src="/pulse_icon.png" alt="GridPulse Logo" class="brand-logo" />
+      <span class="brand-text">GridPulse</span>
+    </div>
+    <button class="menu-toggle" (click)="toggleMenu()">
+      <span class="material-icons">{{ isMenuOpen ? 'close' : 'menu' }}</span>
+    </button>
+  </div>
+
+  <nav class="nav-links">
+    <div (click)="isMenuOpen = false">
+      <h4>Overview</h4>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="material-icons">dashboard</span>
+        <span class="link-text">Dashboard</span>
+      </a>
+      <h4>Analytics</h4>
+      <a routerLink="analytics/renewable-share" routerLinkActive="active">
+        <span class="material-icons">eco</span>
+        <span class="link-text">Renewable Share</span>
+      </a>
+      <a routerLink="analytics/crossborder-flows" routerLinkActive="active">
+        <span class="material-icons">compare_arrows</span>
+        <span class="link-text">Crossborder Flows</span>
+      </a>
+    </div>
   </nav>
 </div>
