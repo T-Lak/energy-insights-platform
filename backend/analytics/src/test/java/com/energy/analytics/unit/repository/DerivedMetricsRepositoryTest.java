@@ -4,16 +4,12 @@ import com.energy.analytics.BaseContainerTest;
 import com.energy.analytics.dashboard.model.DerivedMetric;
 import com.energy.analytics.dashboard.model.KpiSnapshotView;
 import com.energy.analytics.dashboard.repository.DerivedMetricRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -97,42 +93,45 @@ class DerivedMetricsRepositoryTest extends BaseContainerTest {
 
    @Disabled
    @Test
-   @DisplayName("Should return latest KPI snapshot for region")
-   void findLatestSnapshotByRegion_ReturnsLatestSnapshot() {
+   @DisplayName("Should return latest KPI snapshots for region")
+   void findLatestSnapshotsByRegion_ReturnsLatestSnapshots() {
       repository.upsertBatch(List.of(
-              new DerivedMetric(anHourAgo, "DE", "renewable_share", 60.0),
-              new DerivedMetric(anHourAgo, "DE", "carbon_intensity", 250.0),
-              new DerivedMetric(anHourAgo, "DE", "total_load", 50000.0),
-              new DerivedMetric(anHourAgo, "DE", "net_balance", -1000.0),
+           new DerivedMetric(anHourAgo, "DE", "renewable_share", 60.0),
+           new DerivedMetric(anHourAgo, "DE", "carbon_intensity", 250.0),
+           new DerivedMetric(anHourAgo, "DE", "total_load", 50000.0),
+           new DerivedMetric(anHourAgo, "DE", "net_balance", -1000.0),
 
-              new DerivedMetric(now, "DE", "renewable_share", 75.0),
-              new DerivedMetric(now, "DE", "carbon_intensity", 200.0),
-              new DerivedMetric(now, "DE", "total_load", 60000.0),
-              new DerivedMetric(now, "DE", "net_balance", 500.0)
+           new DerivedMetric(now, "DE", "renewable_share", 75.0),
+           new DerivedMetric(now, "DE", "carbon_intensity", 200.0),
+           new DerivedMetric(now, "DE", "total_load", 60000.0),
+           new DerivedMetric(now, "DE", "net_balance", 500.0)
       ));
 
-      Optional<KpiSnapshotView> result =
-              repository.findLatestSnapshotByRegion("DE");
+      jdbcTemplate.execute("CALL refresh_continuous_aggregate('view_latest_kpi_snapshot', NULL, NULL)");
 
-      assertThat(result).isPresent();
+      List<KpiSnapshotView> results = repository.findLatestSnapshotsByRegion("DE");
 
-      KpiSnapshotView snapshot = result.get();
-      assertThat(snapshot.getRegion()).isEqualTo("DE");
+      // Assert list properties
+      assertThat(results).hasSize(2);
 
-      assertThat(snapshot.getBucket()).isNotNull();
-      assertThat(snapshot.getRenewableShare()).isEqualTo(75.0);
-      assertThat(snapshot.getCarbonIntensity()).isEqualTo(200.0);
-      assertThat(snapshot.getTotalLoad()).isEqualTo(60000.0);
-      assertThat(snapshot.getNetBalance()).isEqualTo(500.0);
+      // Assert the latest (first) snapshot
+      KpiSnapshotView latest = results.get(0);
+      assertThat(latest.getRegion()).isEqualTo("DE");
+      assertThat(latest.getBucket()).isEqualTo(now);
+      assertThat(latest.getRenewableShare()).isEqualTo(75.0);
+      assertThat(latest.getCarbonIntensity()).isEqualTo(200.0);
+      assertThat(latest.getTotalLoad()).isEqualTo(60000.0);
+      assertThat(latest.getNetBalance()).isEqualTo(500.0);
+
+      // Optionally assert the previous (second) snapshot
+      assertThat(results.get(1).getBucket()).isEqualTo(anHourAgo);
    }
 
-
    @Test
-   @DisplayName("Should return empty when no KPI snapshot exists")
-   void findLatestSnapshotByRegion_NoData_ReturnsEmpty() {
-      Optional<KpiSnapshotView> result =
-              repository.findLatestSnapshotByRegion("FR");
+   @DisplayName("Should return empty list when no KPI snapshot exists")
+   void findLatestSnapshotsByRegion_NoData_ReturnsEmpty() {
+      List<KpiSnapshotView> results = repository.findLatestSnapshotsByRegion("FR");
 
-      assertThat(result).isEmpty();
+      assertThat(results).isEmpty();
    }
 }

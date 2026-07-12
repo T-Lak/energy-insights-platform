@@ -5,13 +5,11 @@ import com.energy.analytics.dashboard.model.DerivedMetric;
 import com.energy.analytics.dashboard.model.KpiSnapshotView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -43,36 +41,26 @@ public class DerivedMetricRepository implements BatchRepository<DerivedMetric> {
       );
    }
 
-   public Optional<KpiSnapshotView> findLatestSnapshotByRegion(String region) {
+   public List<KpiSnapshotView> findLatestSnapshotsByRegion(String region) {
       String sql = """
          SELECT bucket, region, renewable_share, carbon_intensity, total_load, net_balance
          FROM view_latest_kpi_snapshot
          WHERE region = ?
          ORDER BY bucket DESC
-         LIMIT 1
+         LIMIT 2
       """;
 
-      try {
-         KpiSnapshotView snapshot = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            KpiSnapshotView view = new KpiSnapshotView();
-
-            if (rs.getTimestamp("bucket") != null) {
-               view.setBucket(rs.getTimestamp("bucket").toInstant());
-            }
-
-            view.setRegion(rs.getString("region"));
-            view.setRenewableShare(rs.getDouble("renewable_share"));
-            view.setCarbonIntensity(rs.getDouble("carbon_intensity"));
-            view.setTotalLoad(rs.getDouble("total_load"));
-            view.setNetBalance(rs.getDouble("net_balance"));
-
-            return view;
-         }, region);
-
-         return Optional.ofNullable(snapshot);
-      } catch (EmptyResultDataAccessException e) {
-         log.info("No data for region {} found", region);
-         return Optional.empty();
-      }
+      return jdbcTemplate.query(
+         sql,
+         (rs, rowNum) -> new KpiSnapshotView(
+                rs.getTimestamp("bucket").toInstant(),
+                rs.getString("region"),
+                rs.getDouble("renewable_share"),
+                rs.getDouble("carbon_intensity"),
+                rs.getDouble("total_load"),
+                rs.getDouble("net_balance")
+         ),
+         region
+      );
    }
 }

@@ -1,8 +1,8 @@
 package com.energy.analytics.dashboard;
 
+import com.energy.analytics.dashboard.dto.DashboardKpiPointDTO;
 import com.energy.analytics.dashboard.dto.DashboardSummarySnapshot;
 import com.energy.analytics.dashboard.dto.DashboardLeaderboardOverview;
-import com.energy.analytics.dashboard.dto.TimeseriesPointDTO;
 import com.energy.analytics.shared.domain.ContributionType;
 import com.energy.analytics.dashboard.model.KpiSnapshotView;
 import com.energy.analytics.ingestion.model.Metric;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -32,20 +33,20 @@ public class DashboardService {
 
    @Transactional
    public DashboardSummarySnapshot getLatestKpiSnapshot(String region) {
-      log.info("fetching latest kpi data for region: {}", region);
+      List<KpiSnapshotView> snapshots = derivedMetricRepository.findLatestSnapshotsByRegion(region);
 
-      KpiSnapshotView snapshot = derivedMetricRepository.findLatestSnapshotByRegion(region)
-              .orElseThrow(() -> new EntityNotFoundException("No KPI snapshots generated yet for region: " + region));
+      if (snapshots.isEmpty()) {
+         throw new EntityNotFoundException("No data for region: " + region);
+      }
 
-      Instant ts = snapshot.getBucket();
-
-      log.info("Region: {}, Carbon Intensity: {}", snapshot.getRegion(), snapshot.getCarbonIntensity());
+      KpiSnapshotView current = snapshots.get(0);
+      KpiSnapshotView previous = (snapshots.size() > 1) ? snapshots.get(1) : null;
 
       return new DashboardSummarySnapshot(
-           new TimeseriesPointDTO(ts, snapshot.getRenewableShare()),
-           new TimeseriesPointDTO(ts, snapshot.getCarbonIntensity()),
-           new TimeseriesPointDTO(ts, snapshot.getTotalLoad()),
-           new TimeseriesPointDTO(ts, snapshot.getNetBalance())
+              mapToDto(current, previous, KpiSnapshotView::getRenewableShare),
+              mapToDto(current, previous, KpiSnapshotView::getCarbonIntensity),
+              mapToDto(current, previous, KpiSnapshotView::getTotalLoad),
+              mapToDto(current, previous, KpiSnapshotView::getNetBalance)
       );
    }
 
@@ -64,6 +65,19 @@ public class DashboardService {
       }
 
       throw new EntityNotFoundException("No grid snapshots found for region: " + region);
+   }
+
+   private DashboardKpiPointDTO mapToDto(
+           KpiSnapshotView current,
+           KpiSnapshotView previous,
+           Function<KpiSnapshotView, Double> extractor
+   ) {
+      Double currVal = extractor.apply(current);
+      Double prevVal = (previous != null) ? extractor.apply(previous) : null;
+
+      Double delta = (prevVal != null && prevVal != 0) ? ((currVal - prevVal) / prevVal) * 100 : 0.0;
+
+      return new DashboardKpiPointDTO(current.getBucket(), currVal, delta);
    }
 
 }

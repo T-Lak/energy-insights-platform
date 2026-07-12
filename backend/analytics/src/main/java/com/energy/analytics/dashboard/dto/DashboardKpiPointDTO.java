@@ -2,9 +2,8 @@ package com.energy.analytics.dashboard.dto;
 
 import java.time.Instant;
 
-public record TimeseriesPointDTO(
+public record DashboardKpiPointDTO(
      Instant timestamp,
-     Double value
+     Double value,
+     Double percentageChange
 ) {}
-
-
