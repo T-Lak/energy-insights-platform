@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 
 import { Observable } from 'rxjs';
-import { startWith, map, shareReplay, pairwise } from 'rxjs/operators';
+import { startWith, map, shareReplay, pairwise, filter } from 'rxjs/operators';
 
 import { KpiType, KPI_CONFIG } from '../../dashboard.model';
 import { Tooltip } from 'primeng/tooltip';
@@ -30,7 +30,12 @@ export class KpiCard {
   ngOnInit(): void {
     const kpiConfig = this.config[this.type];
 
-    this.currentKpiValue$ = this.stream.pipe(
+    const data$ = this.stream.pipe(
+      filter((data) => !!data && data.length > 0),
+      shareReplay(1),
+    );
+
+    this.currentKpiValue$ = data$.pipe(
       map((data: TimeseriesPoint[]) => {
         if (!data || data.length === 0 || !data[0]) {
           return kpiConfig.unit === '%' ? '0,00' : '0';
@@ -54,23 +59,33 @@ export class KpiCard {
       shareReplay(1),
     );
 
-    this.kpiTrend$ = this.currentKpiValue$.pipe(
-      map((valueStr) => {
-        if (!valueStr) return 0;
-        const cleanStr = valueStr
-          .replace(/\./g, '')
-          .replace(',', '.')
-          .replace(/[^0-9.]/g, '');
-        return parseFloat(cleanStr) || 0;
-      }),
-      startWith(0),
+    this.kpiTrend$ = data$.pipe(
+      startWith([] as TimeseriesPoint[]),
       pairwise(),
-      map(([prev, current]) => {
-        if (prev === 0 || prev === current) {
+      map(([prevArray, currArray]: [TimeseriesPoint[], TimeseriesPoint[]]) => {
+        const curr = currArray[currArray.length - 1];
+
+        if (curr.percentageChange != null) {
+          return {
+            value: `${Math.abs(curr.percentageChange).toFixed(1)}%`,
+            isUp: curr.percentageChange > 0,
+            isNeutral: false,
+          };
+        }
+
+        if (prevArray.length === 0) {
           return { value: '0.0%', isUp: false, isNeutral: true };
         }
 
-        const change = ((current - prev) / prev) * 100;
+        const prev = prevArray[prevArray.length - 1];
+        const prevVal = prev.value;
+        const currVal = curr.value;
+
+        if (prevVal === 0 || prevVal === currVal) {
+          return { value: '0.0%', isUp: false, isNeutral: true };
+        }
+
+        const change = ((currVal - prevVal) / prevVal) * 100;
 
         return {
           value: `${Math.abs(change).toFixed(1)}%`,
