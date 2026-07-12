@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { CrossborderFlowsOverview } from '../../features/crossborder-flows/models/crossborder-flows-overview.model';
 import { RegionalFlowTotalsSnapshot } from '../../features/crossborder-flows/models/regional-flow-totals-snapshot.model';
 import { RegionalRankingSnapshot } from '../../features/dashboard/models/regional-ranking-snapshot.model';
@@ -18,10 +18,14 @@ export class WebsocketService {
   private flowPointsSubject = new Subject<CrossborderFlowsOverview>();
   private flowTotalsSubject = new Subject<RegionalFlowTotalsSnapshot>();
 
+  private lastUpdateSubject = new BehaviorSubject<Date>(new Date());
+
   metricsRaw$ = this.kpiMetricsSubject.asObservable();
   sourceRankingRaw$ = this.sourceRankingSubject.asObservable();
   flowPointsRaw$ = this.flowPointsSubject.asObservable();
   flowTotalsRaw$ = this.flowTotalsSubject.asObservable();
+
+  lastUpdate$ = this.lastUpdateSubject.asObservable();
 
   constructor() {
     this.connect();
@@ -40,6 +44,7 @@ export class WebsocketService {
           const body = JSON.parse(message.body);
 
           this.kpiMetricsSubject.next(body);
+          this.lastUpdateSubject.next(new Date());
         });
 
         this.stompClient.subscribe('/topic/grid_top_sources', (message: IMessage) => {
@@ -52,6 +57,7 @@ export class WebsocketService {
           const body = JSON.parse(message.body);
 
           this.flowPointsSubject.next(body);
+          this.lastUpdateSubject.next(new Date());
         });
 
         this.stompClient.subscribe('/topic/flow_totals', (message: IMessage) => {
