@@ -26,6 +26,7 @@ import { LineSeries } from '@shared/components/line-series/line-series';
 
 import { SkeletonModule } from 'primeng/skeleton';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { COUNTRY_NAMES, getCountryCodes } from '../../core/model/domain/country.model';
 
 @Component({
   selector: 'app-crossborder-flows',
@@ -103,11 +104,15 @@ export class CrossborderFlows implements OnInit {
     );
 
     this.barChartData$ = sharedState$.pipe(
-      map((state) =>
-        state.barCountries
-          .filter((b: any) => b.timestamp === state.activeTime)
-          .map((b: any) => this.toBarChartData(b)),
-      ),
+      map((state) => {
+        const activeData = state.barCountries.filter((b: any) => b.timestamp === state.activeTime);
+        const countryCodes = getCountryCodes('DE_LU');
+
+        return countryCodes.map((countryCode) => {
+          const found = activeData.find((b: any) => b.toRegion === countryCode);
+          return this.toBarChartData(found || null, countryCode);
+        });
+      }),
     );
 
     this.tableData$ = sharedState$.pipe(
@@ -158,7 +163,15 @@ export class CrossborderFlows implements OnInit {
     };
   }
 
-  private toBarChartData(dataPoint: any) {
+  private toBarChartData(dataPoint: any | null, countryCode: string) {
+    if (!dataPoint) {
+      return {
+        country: countryCode,
+        imports: 0,
+        exports: 0,
+      };
+    }
+
     return {
       country: dataPoint.toRegion,
       imports: Number(dataPoint.importMW.toFixed(2)),
