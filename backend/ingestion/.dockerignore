@@ -1,0 +1,17 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Testing
+tests/
+pytest.ini
+
+# Environment/Local
+venv/
+.env
+.git/
+.gitignore
+Dockerfile
+.dockerignore

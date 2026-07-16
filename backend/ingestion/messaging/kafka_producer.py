@@ -4,7 +4,9 @@ from confluent_kafka import Producer
 
 
 producer = Producer({
-    "bootstrap.servers": "localhost:9092",
+    "bootstrap.servers": "kafka:29092",
+    "socket.timeout.ms": 5000,
+    "metadata.max.age.ms": 1000,
     "debug": "broker,protocol",
 })
 
