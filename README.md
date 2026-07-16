@@ -17,9 +17,9 @@
   <img src="https://img.shields.io/badge/License-MIT-f5e598.svg">
 </p>
 
-This projects processes raw energy grid data,and established an event-driven microservice architecture, including asynchronous communication via Apache Kafka.
+This project processes raw energy grid data and establishes an event-driven microservice architecture, including asynchronous communication via Apache Kafka.
 
-Insights are visualized in a `dashboard frontend` (interactive charts) and optionally augmented with brief `interpretative summaries` from a small language model (SLM).
+Insights are visualized in a `dashboard frontend` (interactive charts) and updated on a 15-minute granularity via Web Sockets.
 
 ---
 
@@ -49,7 +49,7 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and optio
 
 This project follows a microservice architecture. Key components:
 
-- **Backend**: Ingestion, analytics, and interpreation microservices
+- **Backend**: Ingestion, analytics, and (interpreation) microservices
 - **Frontend**: Dashboard visualizations (charts, bubble charts, scatter plots).
 - **Messaging**: Kafka topics manage data flow between services.
 
