@@ -87,8 +87,9 @@ http://localhost:4200
 ```
 
 ### Services
-| Service       | URL                     | Description                              |
-| ------------- | ----------------------- | ---------------------------------------- |
-| Analytics API | http://localhost:8080   | REST API Endpoints                       |
-| Ingestion API | http://localhost:8000   | Endpoints for backfills (API Key needed) |
+| Service       | URL                                         | Description                              |
+| ------------- | ------------------------------------------- | ---------------------------------------- |
+| Analytics API | http://localhost:8080                       | REST API Endpoints                       |
+| Ingestion API | http://localhost:8000                       | Endpoints for backfills (API Key needed) |
+| Swagger UI    | http://localhost:8080/swagger-ui/index.html | Interactive API documentation            |
 
