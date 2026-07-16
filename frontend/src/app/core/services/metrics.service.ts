@@ -6,6 +6,7 @@ import { SourceRankingPoint } from '../../features/dashboard/widgets/source-rank
 import { TimeseriesPoint } from '../../features/dashboard/models/timeseries-point.model';
 import { RegionalRankingSnapshot } from '../../features/dashboard/models/regional-ranking-snapshot.model';
 import { DashboardMetricsTimeline } from '../../features/dashboard/models/dashboard-metrics-timeline.model';
+import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root',
@@ -14,13 +15,32 @@ export class MetricsService {
   private kpiMetricStream: Record<string, BehaviorSubject<TimeseriesPoint[]>> = {};
   private topSourcesStream: Record<string, BehaviorSubject<SourceRankingPoint[]>> = {};
 
-  constructor(private websocketService: WebsocketService) {
+  constructor(
+    private websocketService: WebsocketService,
+    private messageService: MessageService,
+  ) {
     this.websocketService.metricsRaw$.subscribe((payload: DashboardMetricsTimeline) => {
       this.routeKpiPayload(payload);
+
+      const metricsList = Object.keys(payload.metrics).join(', ');
+
+      this.messageService.add({
+        severity: 'secondary',
+        summary: `Dashboard update: ${payload.region}`,
+        detail: `KPI metrics updated: ${metricsList}`,
+        life: 5000,
+      });
     });
 
     this.websocketService.sourceRankingRaw$.subscribe((payload: RegionalRankingSnapshot) => {
       this.routeSourceRankingPayload(payload);
+
+      this.messageService.add({
+        severity: 'secondary',
+        summary: `Top Sources updated for ${payload.region}`,
+        detail: 'The energy source rankings have been recalculated.',
+        life: 5000,
+      });
     });
   }
 
