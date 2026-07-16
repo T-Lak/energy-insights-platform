@@ -6,33 +6,50 @@ on:
     paths:
       - 'backend/ingestion/**'
       - 'backend/analytics/**'
+      - 'frontend/**'
+      - 'docker-compose*.yml'
+      - 'nginx/**'
+
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/ingestion/**'
       - 'backend/analytics/**'
+      - 'frontend/**'
+      - 'docker-compose*.yml'
+      - 'nginx/**'
 
 jobs:
   changes:
     runs-on: ubuntu-latest
+
     outputs:
       ingestion: ${{ steps.filter.outputs.ingestion }}
-      analytics: ${{ steps.filter.outputs.analytics  }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             ingestion:
               - 'backend/ingestion/**'
+
             analytics:
               - 'backend/analytics/**'
+
+            frontend:
+              - 'frontend/**'
 
   test-ingestion:
     needs: changes
     if: ${{ needs.changes.outputs.ingestion == 'true' }}
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -54,9 +71,11 @@ jobs:
           cd backend/ingestion
           python -m pytest
 
+
   test-analytics:
     needs: changes
     if: ${{ needs.changes.outputs.analytics == 'true' }}
+
     runs-on: ubuntu-latest
 
     steps:
@@ -69,7 +88,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
-          
+
       - name: Make Maven Wrapper Executable
         run: chmod +x backend/analytics/mvnw
 
