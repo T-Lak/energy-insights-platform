@@ -17,11 +17,6 @@
   <img src="https://img.shields.io/badge/License-MIT-f5e598.svg">
 </p>
 
-<p align="left">
-  <img src="left_stretching.gif" width="300"/>
-  <img src="standing-rotation.gif" width="300"/>
-</p>
-
 This projects processes raw energy grid data,and established an event-driven microservice architecture, including asynchronous communication via Apache Kafka.
 
 Insights are visualized in a `dashboard frontend` (interactive charts) and optionally augmented with brief `interpretative summaries` from a small language model (SLM).
@@ -57,3 +52,43 @@ This project follows a microservice architecture. Key components:
   <img src="docs/c4-model/container.svg" width="800">
   <br>
 </div>
+
+---
+
+## Run Locally
+
+### Prerequisites
+
+Make sure you have the following installed:
+
+- Docker
+- Docker Compose
+- ENTSO-E API Key (You can get one here: https://transparency.entsoe.eu/
+
+The application is started using Docker Compose. All backend services, Kafka, and TimescaleDB are containerized.
+
+### Configuration
+
+Create a `.env` file in the ingestion's root folder:
+
+```env
+ENTSOE_API_KEY=<your_entsoe_api_key>
+INGESTION_API_KEY=<your_ingestion_api_key>
+```
+
+### Start the Application
+```bash
+docker compose up -d --build
+```
+
+### Access the Application
+```bash
+http://localhost:4200
+```
+
+### Services
+| Service       | URL                     | Description                              |
+| ------------- | ----------------------- | ---------------------------------------- |
+| Analytics API | http://localhost:8080   | REST API Endpoints                       |
+| Ingestion API | http://localhost:8000   | Endpoints for backfills (API Key needed) |
+
