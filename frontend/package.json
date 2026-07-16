@@ -29,6 +29,7 @@
     "ag-grid-community": "^35.3.0",
     "date-fns": "^4.4.0",
     "leaflet": "^1.9.4",
+    "maplibre-gl": "^5.24.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.7",
     "rxjs": "~7.8.0",

@@ -20,6 +20,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "allowedCommonJsDependencies": ["leaflet", "@stomp/stompjs", "sockjs-client"],
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -29,7 +30,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": ["node_modules/maplibre-gl/dist/maplibre-gl.css", "src/styles.scss"],
             "stylePreprocessorOptions": {
               "includePaths": ["src/app", "src/app/shared/styles"]
             }
@@ -39,8 +40,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
