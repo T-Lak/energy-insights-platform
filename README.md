@@ -26,7 +26,7 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and optio
 ## Demo
 
 <div align="center">
-  <video src="https://github.com/user-attachments/assets/your-video-id" width="800"></video>
+  <video src="https://github.com/user-attachments/assets/cec77322-cd3b-4129-836a-30843b53d7f0" width="800"></video>
 </div>
 
 ---
