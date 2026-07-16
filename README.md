@@ -23,6 +23,14 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and optio
 
 ---
 
+## Demo
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/your-video-id" width="800"></video>
+</div>
+
+---
+
 ## Project Structure
 ```text
 ├── .github/workflows/        # CI pipelines
