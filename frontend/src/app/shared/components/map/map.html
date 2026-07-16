@@ -1,0 +1,16 @@
+<div id="map" style="width: 100%; height: 100%; position: relative">
+  <button type="button" class="custom-reset-btn" (click)="resetMap()">⟳</button>
+</div>
+
+@if (hoveredData) {
+  <div class="custom-flow-tooltip" [style.left.px]="tooltipX" [style.top.px]="tooltipY">
+    <b>{{ hoveredData?.from }} &rarr; {{ hoveredData?.to }}</b>
+    @if (hoveredData.netFlow > 0) {
+      <div>Exporting: {{ hoveredData.netFlow }} MW</div>
+    } @else if (hoveredData.netFlow < 0) {
+      <div>Importing: {{ hoveredData.netFlow * -1 }} MW</div>
+    } @else {
+      <div>Balanced: 0 MW</div>
+    }
+  </div>
+}

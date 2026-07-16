@@ -4,18 +4,6 @@
     Crossborder Flows
   </div>
   <div class="map-container-relative">
-    <div id="map"></div>
-    @if (isLoading$ | async) {
-      <div class="map-loading-overlay">
-        <p-progressSpinner
-          strokeWidth="4"
-          fill="transparent"
-          animationDuration=".8s"
-          ariaLabel="loading"
-        >
-        </p-progressSpinner>
-        <span>Loading geospatial grid layers...</span>
-      </div>
-    }
+    <app-map [inputData]="(flowData$ | async) ?? null"></app-map>
   </div>
 </div>
