@@ -1,41 +1,107 @@
-version: '3'
+version: "3.8"
 
 services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka
+    restart: unless-stopped
+
     ports:
       - "9092:9092"
+
+    networks:
+      - dev-net
+
     environment:
-     KAFKA_NODE_ID: 1
-     KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
 
-     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
 
-     KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
 
-     KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
 
-     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
-     KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-     KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-
-     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-
-     CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
   timescaledb:
-    image: timescale/timescaledb:latest-pg16
-    container_name: energy_analytics_db
-    environment:
-      - POSTGRES_USER=energy_user
-      - POSTGRES_PASSWORD=energy_pass
-      - POSTGRES_DB=energy_analytics
+    image: timescale/timescaledb:2.26.4-pg16
+    restart: unless-stopped
+
+    networks:
+      - dev-net
+
     ports:
       - "5432:5432"
+
+    environment:
+      POSTGRES_USER: energy_user
+      POSTGRES_PASSWORD: energy_pass
+      POSTGRES_DB: energy_analytics
+
     volumes:
       - timescaledb_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U energy_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ingestion:
+    build:
+      context: ./backend/ingestion
+
+    restart: unless-stopped
+
+    volumes:
+      - ./backend/ingestion:/app
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+
+    networks:
+      - dev-net
+
+  analytics-service:
+    build:
+      context: ./backend/analytics
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+
+    networks:
+      - dev-net
+
+  frontend:
+    build:
+      context: ./frontend
+
+    restart: unless-stopped
+
+    ports:
+      - "4200:80"
+
+    networks:
+      - dev-net
+
+networks:
+  dev-net:
+
 volumes:
   timescaledb_data:
