@@ -41,8 +41,8 @@ services:
       - ingestion_api_key
 
     environment:
-      ENTSOE_API_KEY_FILE: /run/secrets/entsoe_api_key
-      INGESTION_API_KEY_FILE: /run/secrets/ingestion_api_key
+      - ENTSOE_API_KEY_FILE=/run/secrets/entsoe_api_key
+      - INGESTION_API_KEY_FILE=/run/secrets/ingestion_api_key
 
 
   analytics-service:
@@ -50,6 +50,9 @@ services:
 
     networks: !override
       - backend-net
+      
+    environment:
+      - SPRING_DATASOURCE_PASSWORD_FILE=/run/secrets/db_password
 
 
   frontend:
