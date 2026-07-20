@@ -1,0 +1,92 @@
+services:
+
+  kafka:
+    ports: !reset []
+
+    networks: !override
+      - backend-net
+
+    environment:
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+
+
+  timescaledb:
+    ports: !reset []
+
+    networks: !override
+      - backend-net
+
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+
+    secrets:
+      - db_password
+
+
+  ingestion:
+    volumes: !reset []
+
+    ports: !reset []
+
+    networks: !override
+      - backend-net
+
+    secrets:
+      - entsoe_api_key
+      - ingestion_api_key
+
+    environment:
+      ENTSOE_API_KEY_FILE: /run/secrets/entsoe_api_key
+      INGESTION_API_KEY_FILE: /run/secrets/ingestion_api_key
+
+
+  analytics-service:
+    ports: !reset []
+
+    networks: !override
+      - backend-net
+
+
+  frontend:
+    ports: !reset []
+
+    networks: !override
+      - backend-net
+
+
+  nginx:
+    image: nginx:alpine
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+
+    depends_on:
+      - frontend
+      - analytics-service
+      - ingestion
+
+    networks:
+      - backend-net
+
+
+networks:
+  backend-net:
+    driver: bridge
+
+
+secrets:
+  db_password:
+    file: ./secrets/db_password
+
+  entsoe_api_key:
+    file: ./secrets/entsoe_api_key
+    
+  ingestion_api_key:
+    file: ./secrets/ingestion_api_key
