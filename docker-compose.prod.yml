@@ -13,13 +13,15 @@ services:
 
 
   timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    
     ports: !reset []
 
     networks: !override
       - backend-net
 
     environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_PASSWORD_FILE=/run/secrets/db_password
 
     secrets:
       - db_password
