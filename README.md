@@ -49,8 +49,8 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and updat
 
 This project follows a microservice architecture. Key components:
 
-- **Backend**: Ingestion, analytics, and (interpreation) microservices
-- **Frontend**: Dashboard visualizations (charts, bubble charts, scatter plots).
+- **Backend**: Ingestion, analytics, and (interpretation) microservices
+- **Frontend**: Dashboard visualizations (charts/tables).
 - **Messaging**: Kafka topics manage data flow between services.
 
 
