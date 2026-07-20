@@ -21,7 +21,8 @@ services:
       - backend-net
 
     environment:
-      POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+      - POSTGRES_PASSWORD=
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
 
     secrets:
       - db_password
