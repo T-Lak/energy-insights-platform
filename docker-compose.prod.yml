@@ -14,7 +14,7 @@ services:
 
   timescaledb:
     image: timescale/timescaledb:latest-pg15
-    
+
     ports: !reset []
 
     networks: !override
@@ -44,15 +44,22 @@ services:
       - ENTSOE_API_KEY_FILE=/run/secrets/entsoe_api_key
       - INGESTION_API_KEY_FILE=/run/secrets/ingestion_api_key
 
+    entrypoint: ["sh", "-c", "export ENTSOE_API_KEY=$(cat /run/secrets/entsoe_api_key); export INGESTION_API_KEY=$(cat /run/secrets/ingestion_api_key); exec python -m uvicorn app:app --host 0.0.0.0 --port 8000"]
+
 
   analytics-service:
     ports: !reset []
 
     networks: !override
       - backend-net
-      
+
     environment:
-      - SPRING_DATASOURCE_PASSWORD_FILE=/run/secrets/db_password
+      - SPRING_DATASOURCE_PASSWORD_FILE=
+
+    secrets:
+      - db_password
+
+    entrypoint: ["sh", "-c", "export SPRING_DATASOURCE_PASSWORD=$(cat /run/secrets/db_password); exec java -jar app.jar"]
 
 
   frontend:
@@ -93,6 +100,6 @@ secrets:
 
   entsoe_api_key:
     file: ./secrets/entsoe_api_key
-    
+
   ingestion_api_key:
     file: ./secrets/ingestion_api_key
