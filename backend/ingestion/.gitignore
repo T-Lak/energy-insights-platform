@@ -28,3 +28,4 @@ secrets.json
 # --- OS Specific Files ---
 .DS_Store
 Thumbs.db
+secrets/
