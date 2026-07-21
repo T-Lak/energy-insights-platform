@@ -25,9 +25,24 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and updat
 
 ## Demo
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/cec77322-cd3b-4129-836a-30843b53d7f0" width="800"></video>
-</div>
+<table>
+  <tr>
+    <td align="center">
+      <video src="assets/dashboard_view.webm" width="100%" autoplay loop muted playsinline></video>
+    </td>
+    <td align="center">
+      <video src="assets/renewables_view.webm" width="100%" autoplay loop muted playsinline></video>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <video src="assets/crossborder_view.webm" width="100%" autoplay loop muted playsinline></video>
+    </td>
+    <td align="center">
+      <video src="assets/responsiveness.webm" width="100%" autoplay loop muted playsinline></video>
+    </td>
+  </tr>
+</table>
 
 ---
 
