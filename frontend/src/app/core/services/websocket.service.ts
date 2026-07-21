@@ -33,7 +33,7 @@ export class WebsocketService {
 
   connect(): void {
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws-analytics'),
+      webSocketFactory: () => new SockJS('/ws-analytics'),
 
       reconnectDelay: 5000,
 
