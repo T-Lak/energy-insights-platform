@@ -1,5 +1,4 @@
 services:
-
   kafka:
     ports: !reset []
 
@@ -44,7 +43,7 @@ services:
       - ENTSOE_API_KEY_FILE=/run/secrets/entsoe_api_key
       - INGESTION_API_KEY_FILE=/run/secrets/ingestion_api_key
 
-    entrypoint: ["sh", "-c", "export ENTSOE_API_KEY=$(cat /run/secrets/entsoe_api_key); export INGESTION_API_KEY=$(cat /run/secrets/ingestion_api_key); exec python -m uvicorn app:app --host 0.0.0.0 --port 8000"]
+    entrypoint: ["sh", "-c", "export ENTSOE_API_KEY=$(cat /run/secrets/entsoe_api_key | tr -d '\r\n'); export INGESTION_API_KEY=$(cat /run/secrets/ingestion_api_key | tr -d '\r\n'); exec python -m uvicorn app:app --host 0.0.0.0 --port 8000"]
 
 
   analytics-service:
@@ -98,8 +97,8 @@ secrets:
   db_password:
     file: ./secrets/db_password
 
-  ENTSOE_API_KEY:
+  entsoe_api_key:
     file: ./secrets/entsoe_api_key
 
-  INGESTION_API_KEY:
+  ingestion_api_key:
     file: ./secrets/ingestion_api_key
