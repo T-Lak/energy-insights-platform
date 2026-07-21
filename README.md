@@ -28,18 +28,22 @@ Insights are visualized in a `dashboard frontend` (interactive charts) and updat
 <table>
   <tr>
     <td align="center">
-      <video src="assets/dashboard_view.webm" width="100%" autoplay loop muted playsinline></video>
+      <p><b>Dashboard View</b></p>
+      <img src="assets/dashboard_view.gif" width="100%" alt="Dashboard View">
     </td>
     <td align="center">
-      <video src="assets/renewables_view.webm" width="100%" autoplay loop muted playsinline></video>
+      <p><b>Renewables View</b></p>
+      <img src="assets/renewables_view.gif" width="100%" alt="Renewables View">
     </td>
   </tr>
   <tr>
     <td align="center">
-      <video src="assets/crossborder_view.webm" width="100%" autoplay loop muted playsinline></video>
+      <p><b>Cross-border View</b></p>
+      <img src="assets/crossborder_view.gif" width="100%" alt="Cross-border View">
     </td>
     <td align="center">
-      <video src="assets/responsiveness.webm" width="100%" autoplay loop muted playsinline></video>
+      <p><b>Responsiveness</b></p>
+      <img src="assets/responsiveness.gif" width="100%" alt="Responsiveness">
     </td>
   </tr>
 </table>
