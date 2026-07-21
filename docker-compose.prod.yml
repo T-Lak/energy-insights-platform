@@ -37,8 +37,8 @@ services:
       - backend-net
 
     secrets:
-      - entsoe_api_key
-      - ingestion_api_key
+      - ENTSOE_API_KEY
+      - INGESTION_API_KEY
 
     environment:
       - ENTSOE_API_KEY_FILE=/run/secrets/ENTSOE_API_KEY
